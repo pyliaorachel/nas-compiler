@@ -13,13 +13,25 @@ void yyerror(char *);
             }
 
 0           {
-                yylval.iValue = atoi(yytext);
+                yylval.conValue = (long) atoi(yytext);
                 return INTEGER;
             }
 
 [1-9][0-9]* {
-                yylval.iValue = atoi(yytext);
+                yylval.conValue = (long) atoi(yytext);
                 return INTEGER;
+            }
+
+'.?'         {
+                if (yyleng == 2) yylval.conValue = 0;        // empty char
+                else yylval.conValue = (long) yytext[1]; 
+                return CHAR;
+            }
+
+\".*\"      {
+                yytext[yyleng-1] = '\0';
+                yylval.conValue = (long) (yytext + 1);
+                return STRING;
             }
 
 [-()<>=+*/;{}.%\[\]] {

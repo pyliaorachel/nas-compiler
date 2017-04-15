@@ -40,58 +40,62 @@
       know about them.  */
    enum yytokentype {
      INTEGER = 258,
-     VARIABLE = 259,
-     FOR = 260,
-     WHILE = 261,
-     IF = 262,
-     PRINT = 263,
-     READ = 264,
-     BREAK = 265,
-     CONTINUE = 266,
-     IFX = 267,
-     ELSE = 268,
-     OR = 269,
-     AND = 270,
-     NE = 271,
-     EQ = 272,
-     LE = 273,
-     GE = 274,
-     UMINUS = 275
+     CHAR = 259,
+     STRING = 260,
+     VARIABLE = 261,
+     FOR = 262,
+     WHILE = 263,
+     IF = 264,
+     PRINT = 265,
+     READ = 266,
+     BREAK = 267,
+     CONTINUE = 268,
+     IFX = 269,
+     ELSE = 270,
+     OR = 271,
+     AND = 272,
+     NE = 273,
+     EQ = 274,
+     LE = 275,
+     GE = 276,
+     UMINUS = 277
    };
 #endif
 /* Tokens.  */
 #define INTEGER 258
-#define VARIABLE 259
-#define FOR 260
-#define WHILE 261
-#define IF 262
-#define PRINT 263
-#define READ 264
-#define BREAK 265
-#define CONTINUE 266
-#define IFX 267
-#define ELSE 268
-#define OR 269
-#define AND 270
-#define NE 271
-#define EQ 272
-#define LE 273
-#define GE 274
-#define UMINUS 275
+#define CHAR 259
+#define STRING 260
+#define VARIABLE 261
+#define FOR 262
+#define WHILE 263
+#define IF 264
+#define PRINT 265
+#define READ 266
+#define BREAK 267
+#define CONTINUE 268
+#define IFX 269
+#define ELSE 270
+#define OR 271
+#define AND 272
+#define NE 273
+#define EQ 274
+#define LE 275
+#define GE 276
+#define UMINUS 277
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 21 "c6.y"
+#line 20 "c6.y"
 {
-    int iValue;                 /* integer value */
+    long conValue;              /* const value, int | char | string */
     char sIndex;                /* symbol table index */
     nodeType *nPtr;             /* node pointer */
 }
 /* Line 1529 of yacc.c.  */
-#line 95 "y.tab.h"
+#line 99 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

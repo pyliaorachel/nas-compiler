@@ -1,8 +1,10 @@
 typedef enum { typeCon, typeId, typeArr, typeOpr } nodeEnum;
+typedef enum { conTypeInt, conTypeChar, conTypeStr } conTypeEnum;
 
 /* constants */
 typedef struct {
-    int value;                  /* value of constant */
+    conTypeEnum type;
+    long value;                  /* value of constant */
 } conNodeType;
 
 /* identifiers */
@@ -35,5 +37,3 @@ typedef struct nodeTypeTag {
         oprNodeType opr;        /* operators */
     };
 } nodeType;
-
-extern int sym[26];
