@@ -35,7 +35,7 @@ int ex(nodeType *p, int nops, ...) {
                     ex(p->opr.op[0], 1, lbl_kept);
                     printf("L%03d:\n", lblx);
                     ex(p->opr.op[1], 1, lbl_kept);
-                    printf("\tjz\tL%03d\n", lbly);
+                    printf("\tj0\tL%03d\n", lbly);
                     ex(p->opr.op[3], 1, lbl_init);
                     printf("L%03d:\n", lblz); // for continue
                     ex(p->opr.op[2], 1, lbl_kept);
@@ -47,7 +47,7 @@ int ex(nodeType *p, int nops, ...) {
                     lbl2 = lbl++; // consistent order continue_target -> break target, as with FOR
                     printf("L%03d:\n", lbl1);
                     ex(p->opr.op[0], 1, lbl_kept);
-                    printf("\tjz\tL%03d\n", lbl2);
+                    printf("\tj0\tL%03d\n", lbl2);
                     ex(p->opr.op[1], 1, lbl_init);
                     printf("\tjmp\tL%03d\n", lbl1);
                     printf("L%03d:\n", lbl2);
@@ -58,7 +58,7 @@ int ex(nodeType *p, int nops, ...) {
                     if (p->opr.nops > 2) {
                         lbl2 = lbl++;
                         /* if else */
-                        printf("\tjz\tL%03d\n", lbl1);
+                        printf("\tj0\tL%03d\n", lbl1);
                         ex(p->opr.op[1], 1, lbl_kept);
                         printf("\tjmp\tL%03d\n", lbl2);
                         printf("L%03d:\n", lbl1);
@@ -66,7 +66,7 @@ int ex(nodeType *p, int nops, ...) {
                         printf("L%03d:\n", lbl2);
                     } else {
                         /* if */
-                        printf("\tjz\tL%03d\n", lbl1);
+                        printf("\tj0\tL%03d\n", lbl1);
                         ex(p->opr.op[1], 1, lbl_kept);
                         printf("L%03d:\n", lbl1);
                     }
@@ -88,7 +88,7 @@ int ex(nodeType *p, int nops, ...) {
                     break;
                 case PRINT:     
                     ex(p->opr.op[0], 1, lbl_kept);
-                    printf("\tprint\n");
+                    printf("\tputi\n");
                     break;
                 case '=':       
                     ex(p->opr.op[1], 1, lbl_kept);
