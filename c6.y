@@ -138,7 +138,7 @@ expr:
         | expr AND expr         { $$ = opr(AND, 2, $1, $3); }
         | expr OR expr          { $$ = opr(OR, 2, $1, $3); }
         | '(' expr ')'          { $$ = $2; }
-        | VARIABLE '(' arg_list ')' { $$ = opr('c', 2, $1, $3); }
+        | VARIABLE '(' arg_list ')' { $$ = opr('c', 2, id($1), $3); }
         ;
 
 %%

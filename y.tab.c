@@ -1833,7 +1833,7 @@ yyreduce:
 
   case 59:
 #line 141 "c6.y"
-    { (yyval.nPtr) = opr('c', 2, (yyvsp[(1) - (4)].sKey), (yyvsp[(3) - (4)].nPtr)); }
+    { (yyval.nPtr) = opr('c', 2, id((yyvsp[(1) - (4)].sKey)), (yyvsp[(3) - (4)].nPtr)); }
     break;
 
 

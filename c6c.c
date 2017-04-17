@@ -49,14 +49,18 @@ void moveRegPointer(int regIdx, int offset) {
     reg[regIdx] += offset;
 }
 
-void createCallFrame(nodeType* paramList) {
+void createCallFrame(funcNodeType* func) {
+    // deepen function call level
     funcCallLevel++;
 
+    // create symbol table
     localSymTab* symTab = (localSymTab*) malloc(sizeof(localSymTab));
     symTab->symTab = sm_new(LOCAL_SIZE);
     symTab->prev = currentFrameSymTab;
     currentFrameSymTab = symTab;
 
+    // move parameters into stack
+    nodeType* paramList = func->paramList;
     int numOfParams = 0;
     char regName[100];
     while (paramList->type == typeOpr && paramList->opr.oper == ',') {
@@ -71,6 +75,12 @@ void createCallFrame(nodeType* paramList) {
 
     currentFrameSymTab->numOfParams = numOfParams;
     currentFrameSymTab->numOfLocalVars = 0;
+
+    // label function & register function name
+    char label[5];
+    sprintf(label, "L%03d", lbl++);
+    printf("%s:\n", label);
+    sm_put(funcSymTab, func->funcName, label);
 }
 
 void tearDownCallFrame() {
@@ -151,8 +161,7 @@ int ex(nodeType *p, int nops, ...) {
             printf("\tpushi\t%s\n", p->array.baseName); 
             break;
         case typeFunc:
-            createCallFrame(p->func.paramList);
-            printf("L%03d:\n", lbl++);
+            createCallFrame(&p->func);
             ex(p->func.stmt, 1, lbl_kept);
             tearDownCallFrame();
             break;
@@ -247,6 +256,9 @@ int ex(nodeType *p, int nops, ...) {
                 case UMINUS:    
                     ex(p->opr.op[0], 1, lbl_kept);
                     printf("\tneg\n");
+                    break;
+                case 'c':
+                    printf("func call! %s\n", p->opr.op[0]->id.varName);
                     break;
                 default:
                     ex(p->opr.op[0], 1, lbl_kept);
