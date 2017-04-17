@@ -1,12 +1,5 @@
-	push	3
-	pop	a
-	push	'c'
-	pop	b
-	push	"string"
-	pop	c
-	push	a
-	puti
-	push	b
-	puti
-	push	c
-	puti
+	push	"Enter your name: "
+	puts_
+	gets
+	push	sb[0]
+	puts

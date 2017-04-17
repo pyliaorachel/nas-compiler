@@ -50,15 +50,24 @@
      READ = 266,
      BREAK = 267,
      CONTINUE = 268,
-     IFX = 269,
-     ELSE = 270,
-     OR = 271,
-     AND = 272,
-     NE = 273,
-     EQ = 274,
-     LE = 275,
-     GE = 276,
-     UMINUS = 277
+     GETI = 269,
+     GETC = 270,
+     GETS = 271,
+     PUTI = 272,
+     PUTC = 273,
+     PUTS = 274,
+     PUTI_ = 275,
+     PUTC_ = 276,
+     PUTS_ = 277,
+     IFX = 278,
+     ELSE = 279,
+     OR = 280,
+     AND = 281,
+     NE = 282,
+     EQ = 283,
+     LE = 284,
+     GE = 285,
+     UMINUS = 286
    };
 #endif
 /* Tokens.  */
@@ -73,15 +82,24 @@
 #define READ 266
 #define BREAK 267
 #define CONTINUE 268
-#define IFX 269
-#define ELSE 270
-#define OR 271
-#define AND 272
-#define NE 273
-#define EQ 274
-#define LE 275
-#define GE 276
-#define UMINUS 277
+#define GETI 269
+#define GETC 270
+#define GETS 271
+#define PUTI 272
+#define PUTC 273
+#define PUTS 274
+#define PUTI_ 275
+#define PUTC_ 276
+#define PUTS_ 277
+#define IFX 278
+#define ELSE 279
+#define OR 280
+#define AND 281
+#define NE 282
+#define EQ 283
+#define LE 284
+#define GE 285
+#define UMINUS 286
 
 
 
@@ -96,7 +114,7 @@ typedef union YYSTYPE
     nodeType *nPtr;             /* node pointer */
 }
 /* Line 1529 of yacc.c.  */
-#line 100 "y.tab.h"
+#line 118 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

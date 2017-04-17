@@ -33,7 +33,7 @@ StrMap* funcSymTab;
 %token <conValue> INTEGER CHAR
 %token <conStrValue> STRING
 %token <sKey> VARIABLE
-%token FOR WHILE IF PRINT READ BREAK CONTINUE
+%token FOR WHILE IF PRINT READ BREAK CONTINUE GETI GETC GETS PUTI PUTC PUTS PUTI_ PUTC_ PUTS_
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -61,7 +61,16 @@ stmt:
           ';'                               { $$ = opr(';', 2, NULL, NULL); }
         | expr ';'                          { $$ = $1; }
         | PRINT expr ';'                    { $$ = opr(PRINT, 1, $2); }
-        | READ rval ';'                     { $$ = opr(READ, 1, $2); }
+        | READ lval ';'                     { $$ = opr(READ, 1, $2); }
+        | GETI '(' variable ')' ';'         { $$ = opr(GETI, 1, $3); }
+        | GETC '(' variable ')' ';'         { $$ = opr(GETC, 1, $3); }
+        | GETS '(' variable ')' ';'         { $$ = opr(GETS, 1, $3); }
+        | PUTI '(' arg ')' ';'              { $$ = opr(PUTI, 1, $3); }
+        | PUTC '(' arg ')' ';'              { $$ = opr(PUTC, 1, $3); }
+        | PUTS '(' arg ')' ';'              { $$ = opr(PUTS, 1, $3); }
+        | PUTI_ '(' arg ')' ';'             { $$ = opr(PUTI_, 1, $3); }
+        | PUTC_ '(' arg ')' ';'             { $$ = opr(PUTC_, 1, $3); }
+        | PUTS_ '(' arg ')' ';'             { $$ = opr(PUTS_, 1, $3); }
         | lval '=' expr ';'                 { $$ = opr('=', 2, $1, $3); }
         | VARIABLE '(' param_list ')' stmt  { $$ = func($1, $3, $5); }
         | FOR '(' stmt stmt stmt ')' stmt   { $$ = opr(FOR, 4, $3, $4, $5, $7); }
@@ -89,7 +98,7 @@ param_list:
         ;
 
 arg:
-          lval                  { $$ = $1; }
+          rval                  { $$ = $1; }
         | expr                  { $$ = $1; }
         | /* NULL */            { $$ = NULL; }
         ;

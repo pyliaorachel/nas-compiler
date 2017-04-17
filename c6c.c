@@ -7,19 +7,40 @@
 static int lbl;
 static int globalSymIdx;
 static int funcSymIdx;
+static int funcCallLevel;
 
 void programStarts() {
-    printf("starts\n");
     globalSymTab = sm_new(GLOBAL_SIZE);
     funcSymTab = sm_new(FUNC_SIZE);
     globalSymIdx = 0;
     funcSymIdx = 0;
+    funcCallLevel = 0; // global level
 }
 
 void programEnds() {
-    printf("ends\n");
     sm_delete(globalSymTab);
     sm_delete(funcSymTab);
+}
+
+void getGlobalReg(char* reg, char* name) {
+    if (sm_exists(globalSymTab, name)) {
+        sm_get(globalSymTab, name, reg, 6);
+    } else {
+        sprintf(reg, "sb[%d]", globalSymIdx++);
+        sm_put(globalSymTab, name, reg);
+    }
+}
+
+void getLocalReg(char* reg, char* name) {
+
+}
+
+void getReg(char* reg, char* name) {
+    if (funcCallLevel == 0) {
+        getGlobalReg(reg, name);
+    } else {
+
+    }
 }
 
 int ex(nodeType *p, int nops, ...) {
@@ -49,12 +70,7 @@ int ex(nodeType *p, int nops, ...) {
             }
             break;
         case typeId:      
-            if (sm_exists(globalSymTab, p->id.varName)) {
-                sm_get(globalSymTab, p->id.varName, reg, 6);
-            } else {
-                sprintf(reg, "sb[%d]", globalSymIdx++);
-                sm_put(globalSymTab, p->id.varName, reg);
-            }
+            getGlobalReg(reg, p->id.varName);
             printf("\tpush\t%s\n", reg); 
             break;
         case typeArr:
@@ -62,7 +78,7 @@ int ex(nodeType *p, int nops, ...) {
             printf("\tpushi\t%s\n", p->array.baseName); 
             break;
         case typeFunc:
-            
+
         case typeOpr:
             switch(p->opr.oper) {
                 case FOR:
@@ -127,15 +143,79 @@ int ex(nodeType *p, int nops, ...) {
                     ex(p->opr.op[0], 1, lbl_kept);
                     printf("\tputi\n");
                     break;
+                case GETI:
+                    getReg(reg, p->opr.op[0]->id.varName);
+                    printf("\tgeti\n"); 
+                    break;
+                case GETC: 
+                    getReg(reg, p->opr.op[0]->id.varName);
+                    printf("\tgetc\n"); 
+                    break;
+                case GETS: 
+                    getReg(reg, p->opr.op[0]->id.varName);
+                    printf("\tgets\n"); 
+                    break;
+                case PUTI: case PUTI_:
+                    switch(p->opr.op[0]->type) {
+                        case typeCon:
+                            printf("\tpush\t%d\n", p->opr.op[0]->con.value);
+                            if (p->opr.oper == PUTI) printf("\tputi\n"); else printf("\tputi_\n");
+                            break;
+                        case typeId:
+                            getReg(reg, p->opr.op[0]->id.varName);
+                            printf("\tpush\t%s\n", reg);
+                            if (p->opr.oper == PUTI) printf("\tputi\n"); else printf("\tputi_\n");
+                            break;
+                        case typeArr:
+                            getReg(reg, p->opr.op[0]->array.baseName);
+                            printf("\tpush\t%s\n", reg);
+                            if (p->opr.oper == PUTI) printf("\tputi\n"); else printf("\tputi_\n");
+                        default:
+                            ;
+                    }
+                    break;
+                case PUTC: case PUTC_:
+                    switch(p->opr.op[0]->type) {
+                        case typeCon:
+                            printf("\tpush\t\'%c\'\n", p->opr.op[0]->con.value);
+                            if (p->opr.oper == PUTC) printf("\tputc\n"); else printf("\tputc_\n");
+                            break;
+                        case typeId:
+                            getReg(reg, p->opr.op[0]->id.varName);
+                            printf("\tpush\t%s\n", reg);
+                            if (p->opr.oper == PUTC) printf("\tputc\n"); else printf("\tputc_\n");
+                            break;
+                        case typeArr:
+                            getReg(reg, p->opr.op[0]->array.baseName);
+                            printf("\tpush\t%s\n", reg);
+                            if (p->opr.oper == PUTC) printf("\tputc\n"); else printf("\tputc_\n");
+                        default:
+                            ;
+                    }
+                    break;
+                case PUTS: case PUTS_:
+                    switch(p->opr.op[0]->type) {
+                        case typeCon:
+                            printf("\tpush\t\"%s\"\n", p->opr.op[0]->con.strValue);
+                            if (p->opr.oper == PUTS) printf("\tputs\n"); else printf("\tputs_\n");
+                            break;
+                        case typeId:
+                            getReg(reg, p->opr.op[0]->id.varName);
+                            printf("\tpush\t%s\n", reg);
+                            if (p->opr.oper == PUTS) printf("\tputs\n"); else printf("\tputs_\n");
+                            break;
+                        case typeArr:
+                            getReg(reg, p->opr.op[0]->array.baseName);
+                            printf("\tpush\t%s\n", reg);
+                            if (p->opr.oper == PUTS) printf("\tputs\n"); else printf("\tputs_\n");
+                        default:
+                            ;
+                    }
+                    break;
                 case '=':       
                     ex(p->opr.op[1], 1, lbl_kept);
                     if (p->opr.op[0]->type == typeId) {
-                        if (sm_exists(globalSymTab, p->opr.op[0]->id.varName)) {
-                            sm_get(globalSymTab, p->opr.op[0]->id.varName, reg, 6);
-                        } else {
-                            sprintf(reg, "sb[%d]", globalSymIdx++);
-                            sm_put(globalSymTab, p->opr.op[0]->id.varName, reg);
-                        }
+                        getGlobalReg(reg, p->opr.op[0]->id.varName);
                         printf("\tpop\t%s\n", reg);
                     } else if (p->opr.op[0]->type == typeArr) {
                         ex(p->opr.op[0]->array.offset, 1, lbl_kept);

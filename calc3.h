@@ -57,3 +57,14 @@ typedef struct nodeTypeTag {
 
 extern StrMap* globalSymTab;
 extern StrMap* funcSymTab;
+
+typedef struct {
+    StrMap* symTab;
+    struct localSymTab* next;
+} localSymTab;
+
+extern localSymTab* localSymTabs;
+
+
+
+
