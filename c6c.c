@@ -70,11 +70,12 @@ void createCallFrame(nodeType* paramList) {
     }
 
     currentFrameSymTab->numOfParams = numOfParams;
+    currentFrameSymTab->numOfLocalVars = 0;
 }
 
-void tearDownCallFram() {
+void tearDownCallFrame() {
     funcCallLevel--;
-    
+
     localSymTab* prevFrameSymTab = currentFrameSymTab->prev;
     sm_delete(currentFrameSymTab->symTab);
     free(currentFrameSymTab);
@@ -82,7 +83,7 @@ void tearDownCallFram() {
 }
 
 // return 1 for var already declared; 0 for new
-int getGlobalRegName(char* regName, char* name, int offset) {
+int getGlobalRegName(char* regName, char* name) {
     if (sm_exists(globalSymTab, name)) {
         sm_get(globalSymTab, name, regName, 100);
         return 1;
@@ -93,15 +94,24 @@ int getGlobalRegName(char* regName, char* name, int offset) {
     }
 }
 
-void getLocalRegName(char* regName, char* name, int offset) {
-
+int getLocalRegName(char* regName, char* name) {
+    if (sm_exists(currentFrameSymTab->symTab, name)) {
+        sm_get(currentFrameSymTab->symTab, name, regName, 100);
+        return 1;
+    } else {
+        sprintf(regName, "fp[%d]", currentFrameSymTab->numOfLocalVars++);
+        sm_put(currentFrameSymTab->symTab, name, regName);
+        return 0;
+    }
 }
 
-int getRegName(char* regName, char* name, int offset) {
+int getRegName(char* regName, char* name) {
     if (funcCallLevel == 0) {
-        return getGlobalRegName(regName, name, offset);
+        return getGlobalRegName(regName, name);
+    } else if (name[0] == '@') {
+        return getGlobalRegName(regName, name+1);
     } else {
-        return 0;
+        return getLocalRegName(regName, name);
     }
 }
 
@@ -133,7 +143,7 @@ int ex(nodeType *p, int nops, ...) {
             }
             break;
         case typeId:      
-            getGlobalRegName(regName, p->id.varName, 0);
+            getRegName(regName, p->id.varName);
             printf("\tpush\t%s\n", regName); 
             break;
         case typeArr:
@@ -142,7 +152,9 @@ int ex(nodeType *p, int nops, ...) {
             break;
         case typeFunc:
             createCallFrame(p->func.paramList);
-            tearDownCallFram();
+            printf("L%03d:\n", lbl++);
+            ex(p->func.stmt, 1, lbl_kept);
+            tearDownCallFrame();
             break;
         case typeOpr:
             switch(p->opr.oper) {
@@ -197,17 +209,17 @@ int ex(nodeType *p, int nops, ...) {
                     break;
                 case GETI:
                     printf("\tgeti\n"); 
-                    isDeclared = getRegName(regName, p->opr.op[0]->id.varName, 1);
+                    isDeclared = getRegName(regName, p->opr.op[0]->id.varName);
                     if (isDeclared) printf("\tpop\t%s\n", regName); 
                     break;
                 case GETC: 
                     printf("\tgetc\n"); 
-                    isDeclared = getRegName(regName, p->opr.op[0]->id.varName, 1);
+                    isDeclared = getRegName(regName, p->opr.op[0]->id.varName);
                     if (isDeclared) printf("\tpop\t%s\n", regName); 
                     break;
                 case GETS: 
                     printf("\tgets\n"); 
-                    isDeclared = getRegName(regName, p->opr.op[0]->id.varName, 1);
+                    isDeclared = getRegName(regName, p->opr.op[0]->id.varName);
                     if (isDeclared) printf("\tpop\t%s\n", regName); 
                     break;
                 case PUTI: case PUTI_:
@@ -223,7 +235,7 @@ int ex(nodeType *p, int nops, ...) {
                     if (p->opr.oper == PUTS) printf("\tputs\n"); else printf("\tputs_\n");
                     break;
                 case '=':  
-                    isDeclared = getRegName(regName, p->opr.op[0]->id.varName, 1);
+                    isDeclared = getRegName(regName, p->opr.op[0]->id.varName);
                     ex(p->opr.op[1], 1, lbl_kept);
                     if (p->opr.op[0]->type == typeId) {
                         if (isDeclared) printf("\tpop\t%s\n", regName);

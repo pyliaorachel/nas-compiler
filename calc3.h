@@ -54,6 +54,7 @@ typedef struct nodeTypeTag {
 typedef struct localSymTab {
     StrMap* symTab;
     int numOfParams;
+    int numOfLocalVars;
     struct localSymTab* prev;
 } localSymTab;
 
