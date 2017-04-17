@@ -37,7 +37,7 @@ char text[500];
 '[^']'          { yylval.conValue = (int) yytext[1]; return CHAR; }
 
 
-[-()<>=+*/;{}.%\[\]]    {
+[-()<>=+*/;{}.%\[\],]    {
                             return *yytext;
                         }
 

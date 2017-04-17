@@ -21,6 +21,7 @@ void wrapUp(void);
 void yyerror(char *s);
 StrMap* globalSymTab;
 StrMap* funcSymTab;
+localSymTab* localSymTabs;
 %}
 
 %union {

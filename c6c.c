@@ -18,6 +18,7 @@ static int lbl;
 static int globalSymIdx;
 static int funcSymIdx;
 static int funcCallLevel;
+static localSymTab* currentFrameSymTab;
 
 static int reg[4];
 static char regNames[4][3] = {"sb", "fp", "in", "sp"};
@@ -26,12 +27,18 @@ void programStarts() {
     globalSymTab = sm_new(GLOBAL_SIZE);
     funcSymTab = sm_new(FUNC_SIZE);
     globalSymIdx = funcSymIdx = funcCallLevel = 0;
+    localSymTabs = (localSymTab*) malloc(sizeof(localSymTab));
+    localSymTabs->prev = NULL;
+    localSymTabs->symTab = NULL;
+    currentFrameSymTab = localSymTabs;
+
     SB = FP = IN = SP = 0;
 }
 
 void programEnds() {
     sm_delete(globalSymTab);
     sm_delete(funcSymTab);
+    free(localSymTabs);
 }
 
 void moveRegPointer(int regIdx, int offset) {
@@ -42,10 +49,42 @@ void moveRegPointer(int regIdx, int offset) {
     reg[regIdx] += offset;
 }
 
-// return 1 for exists; 0 for new
+void createCallFrame(nodeType* paramList) {
+    funcCallLevel++;
+
+    localSymTab* symTab = (localSymTab*) malloc(sizeof(localSymTab));
+    symTab->symTab = sm_new(LOCAL_SIZE);
+    symTab->prev = currentFrameSymTab;
+    currentFrameSymTab = symTab;
+
+    int numOfParams = 0;
+    char regName[100];
+    while (paramList->type == typeOpr && paramList->opr.oper == ',') {
+        sprintf(regName, "fp[%d]", -4 - numOfParams++);
+        sm_put(currentFrameSymTab->symTab, paramList->opr.op[1]->id.varName, regName);
+        paramList = paramList->opr.op[0];
+    }
+    if (paramList != NULL) {
+        sprintf(regName, "fp[%d]", -4 - numOfParams++);
+        sm_put(currentFrameSymTab->symTab, paramList->id.varName, regName);
+    }
+
+    currentFrameSymTab->numOfParams = numOfParams;
+}
+
+void tearDownCallFram() {
+    funcCallLevel--;
+    
+    localSymTab* prevFrameSymTab = currentFrameSymTab->prev;
+    sm_delete(currentFrameSymTab->symTab);
+    free(currentFrameSymTab);
+    currentFrameSymTab = prevFrameSymTab;
+}
+
+// return 1 for var already declared; 0 for new
 int getGlobalRegName(char* regName, char* name, int offset) {
     if (sm_exists(globalSymTab, name)) {
-        sm_get(globalSymTab, name, regName, 6);
+        sm_get(globalSymTab, name, regName, 100);
         return 1;
     } else {
         sprintf(regName, "sb[%d]", globalSymIdx++);
@@ -68,7 +107,7 @@ int getRegName(char* regName, char* name, int offset) {
 
 int ex(nodeType *p, int nops, ...) {
     int lblx, lbly, lblz, lbl1, lbl2, lbl_init = lbl, lbl_kept;
-    char regName[6];
+    char regName[100];
     int isDeclared;
 
     // retrieve lbl_kept
@@ -102,7 +141,9 @@ int ex(nodeType *p, int nops, ...) {
             printf("\tpushi\t%s\n", p->array.baseName); 
             break;
         case typeFunc:
-
+            createCallFrame(p->func.paramList);
+            tearDownCallFram();
+            break;
         case typeOpr:
             switch(p->opr.oper) {
                 case FOR:
