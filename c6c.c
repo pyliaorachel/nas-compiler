@@ -155,16 +155,19 @@ int ex(nodeType *p, int nops, ...) {
                     printf("\tjmp\tL%03d\n", lbl_kept);
                     break;
                 case GETI:
-                    getRegName(regName, p->opr.op[0]->id.varName, 1);
                     printf("\tgeti\n"); 
+                    isDeclared = getRegName(regName, p->opr.op[0]->id.varName, 1);
+                    if (isDeclared) printf("\tpop\t%s\n", regName); 
                     break;
                 case GETC: 
-                    getRegName(regName, p->opr.op[0]->id.varName, 1);
                     printf("\tgetc\n"); 
+                    isDeclared = getRegName(regName, p->opr.op[0]->id.varName, 1);
+                    if (isDeclared) printf("\tpop\t%s\n", regName); 
                     break;
                 case GETS: 
-                    getRegName(regName, p->opr.op[0]->id.varName, 1);
                     printf("\tgets\n"); 
+                    isDeclared = getRegName(regName, p->opr.op[0]->id.varName, 1);
+                    if (isDeclared) printf("\tpop\t%s\n", regName); 
                     break;
                 case PUTI: case PUTI_:
                     ex(p->opr.op[0], 1, lbl_kept);
