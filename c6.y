@@ -3,28 +3,31 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "calc3.h"
-
+#include "strmap.h"
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
-nodeType *id(int i);
-nodeType *array(int i, nodeType *offset);
+nodeType *id(char* varName);
+nodeType *array(char* baseName, nodeType *offset);
 nodeType *con(long value, conTypeEnum type);
 void freeNode(nodeType *p);
 int ex(nodeType *p, int nops, ...);
 int yylex(void);
 
 void yyerror(char *s);
+
 %}
 
 %union {
-    long conValue;              /* const value, int | char | string */
-    char sIndex;                /* symbol table index */
+    int conValue;               /* const value for int and char */
+    char conStrValue[500];      /* const value for string */
+    char sKey[14];              /* symbol table key (var name) */
     nodeType *nPtr;             /* node pointer */
 };
 
-%token <conValue> INTEGER CHAR STRING
-%token <sIndex> VARIABLE
+%token <conValue> INTEGER CHAR
+%token <conStrValue> STRING
+%token <sKey> VARIABLE
 %token FOR WHILE IF PRINT READ BREAK CONTINUE
 %nonassoc IFX
 %nonassoc ELSE
@@ -74,9 +77,9 @@ variable:
         | VARIABLE '[' expr ']' { $$ = array($1, $3); }
 
 expr:
-          INTEGER               { $$ = con($1, conTypeInt); }
-        | CHAR                  { $$ = con($1, conTypeChar); }
-        | STRING                { $$ = con($1, conTypeStr); }
+          INTEGER               { $$ = con((long) $1, conTypeInt); }
+        | CHAR                  { $$ = con((long) $1, conTypeChar); }
+        | STRING                { $$ = con((long) $1, conTypeStr); }
         | variable              { $$ = $1; }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
         | expr '+' expr         { $$ = opr('+', 2, $1, $3); }
@@ -111,12 +114,16 @@ nodeType *con(long value, conTypeEnum type) {
     /* copy information */
     p->type = typeCon;
     p->con.type = type;
-    p->con.value = value;
+    if (type == conTypeStr) {
+        strcpy(p->con.strValue, (char*) value);
+    } else {
+        p->con.value = (int) value;
+    }
 
     return p;
 }
 
-nodeType *id(int i) {
+nodeType *id(char* varName) {
     nodeType *p;
     size_t nodeSize;
 
@@ -127,12 +134,12 @@ nodeType *id(int i) {
 
     /* copy information */
     p->type = typeId;
-    p->id.i = i;
+    strcpy(p->id.varName, varName);
 
     return p;
 }
 
-nodeType *array(int base, nodeType *offset) {
+nodeType *array(char* baseName, nodeType *offset) {
     nodeType *p;
     size_t nodeSize;
 
@@ -143,7 +150,7 @@ nodeType *array(int base, nodeType *offset) {
 
     /* copy information */
     p->type = typeArr;
-    p->array.base = base;
+    strcpy(p->array.baseName, baseName);
     p->array.offset = offset;
 
     return p;

@@ -4,17 +4,18 @@ typedef enum { conTypeInt, conTypeChar, conTypeStr } conTypeEnum;
 /* constants */
 typedef struct {
     conTypeEnum type;
-    long value;                  /* value of constant */
+    int value;                  /* value of constant */
+    char strValue[500];
 } conNodeType;
 
 /* identifiers */
 typedef struct {
-    int i;                      /* subscript to sym array */
+    char varName[14];                /* subscript to sym array */
 } idNodeType;
 
 /* arrays */
 typedef struct {
-    int base;
+    char baseName[14];
     struct nodeTypeTag *offset;
 } arrayNodeType;
 

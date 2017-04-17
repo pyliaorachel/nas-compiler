@@ -88,14 +88,15 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 20 "c6.y"
+#line 21 "c6.y"
 {
-    long conValue;              /* const value, int | char | string */
-    char sIndex;                /* symbol table index */
+    int conValue;               /* const value for int and char */
+    char conStrValue[500];      /* const value for string */
+    char sKey[14];              /* symbol table key (var name) */
     nodeType *nPtr;             /* node pointer */
 }
 /* Line 1529 of yacc.c.  */
-#line 99 "y.tab.h"
+#line 100 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

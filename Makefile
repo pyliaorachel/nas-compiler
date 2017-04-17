@@ -4,7 +4,7 @@ run:
 compile:
 	./c6c $(P).sc > $(P).as
 
-c6c: lex.yy.c y.tab.c c6c.c
+c6c: lex.yy.c y.tab.c strmap.c c6c.c
 	gcc -o $@ $^
 
 lex.yy.c: c6.l

@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include "calc3.h"
 #include "y.tab.h"
+#include "strmap.h"
 
 static int lbl;
 
@@ -19,22 +20,22 @@ int ex(nodeType *p, int nops, ...) {
         case typeCon:       
             switch(p->con.type){
                 case conTypeInt:
-                    printf("\tpush\t%d\n", (int) p->con.value); 
+                    printf("\tpush\t%d\n", p->con.value); 
                     break;
                 case conTypeChar:
                     printf("\tpush\t\'%c\'\n", (char) p->con.value); 
                     break;
                 case conTypeStr:
-                    printf("\tpush\t\"%s\"\n", (char*) p->con.value); 
+                    printf("\tpush\t\"%s\"\n", p->con.strValue); 
                     break;
             }
             break;
         case typeId:        
-            printf("\tpush\t%c\n", p->id.i + 'a'); 
+            printf("\tpush\t%s\n", p->id.varName); 
             break;
         case typeArr:
             ex(p->array.offset, 1, lbl_kept);
-            printf("\tpushi\t%c\n", p->array.base + 'a'); 
+            printf("\tpushi\t%s\n", p->array.baseName); 
             break;
         case typeOpr:
             switch(p->opr.oper) {
@@ -90,10 +91,10 @@ int ex(nodeType *p, int nops, ...) {
                 case READ:
                     printf("\tread\n");
                     if (p->opr.op[0]->type == typeId) {
-                        printf("\tpop\t%c\n", p->opr.op[0]->id.i + 'a');
+                        printf("\tpop\t%s\n", p->opr.op[0]->id.varName);
                     } else if (p->opr.op[0]->type == typeArr) {
                         ex(p->opr.op[0]->array.offset, 1, lbl_kept);
-                        printf("\tpopi\t%c\n", p->opr.op[0]->array.base + 'a');
+                        printf("\tpopi\t%s\n", p->opr.op[0]->array.baseName);
                     }
                     break;
                 case PRINT:     
@@ -103,10 +104,10 @@ int ex(nodeType *p, int nops, ...) {
                 case '=':       
                     ex(p->opr.op[1], 1, lbl_kept);
                     if (p->opr.op[0]->type == typeId) {
-                        printf("\tpop\t%c\n", p->opr.op[0]->id.i + 'a');
+                        printf("\tpop\t%s\n", p->opr.op[0]->id.varName);
                     } else if (p->opr.op[0]->type == typeArr) {
                         ex(p->opr.op[0]->array.offset, 1, lbl_kept);
-                        printf("\tpopi\t%c\n", p->opr.op[0]->array.base + 'a');
+                        printf("\tpopi\t%s\n", p->opr.op[0]->array.baseName);
                     }
                     break;
                 case UMINUS:    
