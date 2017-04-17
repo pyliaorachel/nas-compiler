@@ -36,6 +36,7 @@ int ex(nodeType *p, int nops, ...) {
     switch(p->type) {
         case typeCon:       
             switch(p->con.type){
+                case conTypeNull:
                 case conTypeInt:
                     printf("\tpush\t%d\n", p->con.value); 
                     break;
@@ -60,6 +61,8 @@ int ex(nodeType *p, int nops, ...) {
             ex(p->array.offset, 1, lbl_kept);
             printf("\tpushi\t%s\n", p->array.baseName); 
             break;
+        case typeFunc:
+            
         case typeOpr:
             switch(p->opr.oper) {
                 case FOR:

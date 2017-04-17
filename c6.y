@@ -10,6 +10,7 @@ nodeType *opr(int oper, int nops, ...);
 nodeType *id(char* varName);
 nodeType *array(char* baseName, nodeType *offset);
 nodeType *con(long value, conTypeEnum type);
+nodeType *func(char* funcName, nodeType *paramList, nodeType *stmt);
 void freeNode(nodeType *p);
 void programStarts(void);
 void programEnds(void);
@@ -43,7 +44,7 @@ StrMap* funcSymTab;
 %left '*' '/' '%'
 %nonassoc UMINUS
 
-%type <nPtr> stmt expr stmt_list variable
+%type <nPtr> stmt expr stmt_list variable array param param_list arg arg_list rval lval
 
 %%
 
@@ -60,8 +61,9 @@ stmt:
           ';'                               { $$ = opr(';', 2, NULL, NULL); }
         | expr ';'                          { $$ = $1; }
         | PRINT expr ';'                    { $$ = opr(PRINT, 1, $2); }
-        | READ variable ';'                 { $$ = opr(READ, 1, $2); }
-        | variable '=' expr ';'             { $$ = opr('=', 2, $1, $3); }
+        | READ rval ';'                     { $$ = opr(READ, 1, $2); }
+        | lval '=' expr ';'                 { $$ = opr('=', 2, $1, $3); }
+        | VARIABLE '(' param_list ')' stmt  { $$ = func($1, $3, $5); }
         | FOR '(' stmt stmt stmt ')' stmt   { $$ = opr(FOR, 4, $3, $4, $5, $7); }
         | WHILE '(' expr ')' stmt           { $$ = opr(WHILE, 2, $3, $5); }
         | IF '(' expr ')' stmt %prec IFX    { $$ = opr(IF, 2, $3, $5); }
@@ -76,15 +78,51 @@ stmt_list:
         | stmt_list stmt        { $$ = opr(';', 2, $1, $2); }
         ;
 
+param:
+          variable              { $$ = $1; }
+        | /* NULL */            { $$ = NULL; }
+        ;
+
+param_list:
+          param                 { $$ = $1; }
+        | param_list ',' param  { $$ = opr(',', 2, $1, $3); }
+        ;
+
+arg:
+          lval                  { $$ = $1; }
+        | expr                  { $$ = $1; }
+        | /* NULL */            { $$ = NULL; }
+        ;
+
+arg_list:   
+          arg                   { $$ = $1; }
+        | arg_list ',' arg      { $$ = opr(',', 2, $1, $3); }
+        ;
+
 variable:
           VARIABLE              { $$ = id($1); }
-        | VARIABLE '[' expr ']' { $$ = array($1, $3); }
+        ;
+
+array:
+          VARIABLE '[' expr ']' { $$ = array($1, $3); }
+        ;
+
+rval:
+          variable              { $$ = $1; }
+        | array                 { $$ = $1; }
+        ;
+
+lval:
+         variable               { $$ = $1; }
+        | array                 { $$ = $1; }
+        ;
 
 expr:
           INTEGER               { $$ = con((long) $1, conTypeInt); }
         | CHAR                  { $$ = con((long) $1, conTypeChar); }
         | STRING                { $$ = con((long) $1, conTypeStr); }
         | variable              { $$ = $1; }
+        | array                 { $$ = $1; }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
         | expr '+' expr         { $$ = opr('+', 2, $1, $3); }
         | expr '-' expr         { $$ = opr('-', 2, $1, $3); }
@@ -100,6 +138,7 @@ expr:
         | expr AND expr         { $$ = opr(AND, 2, $1, $3); }
         | expr OR expr          { $$ = opr(OR, 2, $1, $3); }
         | '(' expr ')'          { $$ = $2; }
+        | VARIABLE '(' arg_list ')' { $$ = opr('c', 2, $1, $3); }
         ;
 
 %%
@@ -139,6 +178,7 @@ nodeType *id(char* varName) {
     /* copy information */
     p->type = typeId;
     strcpy(p->id.varName, varName);
+    p->id.type = conTypeNull;
 
     return p;
 }
@@ -156,6 +196,24 @@ nodeType *array(char* baseName, nodeType *offset) {
     p->type = typeArr;
     strcpy(p->array.baseName, baseName);
     p->array.offset = offset;
+
+    return p;
+}
+
+nodeType *func(char* funcName, nodeType *paramList, nodeType *stmt) {
+    nodeType *p;
+    size_t nodeSize;
+
+    /* allocate node */
+    nodeSize = SIZEOF_NODETYPE + sizeof(funcNodeType);
+    if ((p = malloc(nodeSize)) == NULL)
+        yyerror("out of memory");
+
+    /* copy information */
+    p->type = typeFunc;
+    strcpy(p->func.funcName, funcName);
+    p->func.paramList = paramList;
+    p->func.stmt = stmt;
 
     return p;
 }

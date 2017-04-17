@@ -1,17 +1,19 @@
 #include "strmap.h"
 
-typedef enum { typeCon, typeId, typeArr, typeOpr } nodeEnum;
-typedef enum { conTypeInt, conTypeChar, conTypeStr } conTypeEnum;
+typedef enum { typeCon, typeId, typeArr, typeOpr, typeFunc } nodeEnum;
+typedef enum { conTypeInt, conTypeChar, conTypeStr, conTypeNull } conTypeEnum;
 
 /* constants */
 typedef struct {
     conTypeEnum type;
     int value;                  /* value of constant */
     char strValue[500];
+    /* TODO: union */
 } conNodeType;
 
 /* identifiers */
 typedef struct {
+    conTypeEnum type;
     char varName[14];                /* subscript to sym array */
 } idNodeType;
 
@@ -20,6 +22,13 @@ typedef struct {
     char baseName[14];
     struct nodeTypeTag *offset;
 } arrayNodeType;
+
+/* functions */
+typedef struct {
+    char funcName[14];
+    struct nodeTypeTag *paramList;
+    struct nodeTypeTag *stmt;
+} funcNodeType;
 
 /* operators */
 typedef struct {
@@ -37,6 +46,7 @@ typedef struct nodeTypeTag {
         conNodeType con;        /* constants */
         idNodeType id;          /* identifiers */
         arrayNodeType array;
+        funcNodeType func;
         oprNodeType opr;        /* operators */
     };
 } nodeType;

@@ -88,7 +88,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 25 "c6.y"
+#line 26 "c6.y"
 {
     int conValue;               /* const value for int and char */
     char conStrValue[500];      /* const value for string */
