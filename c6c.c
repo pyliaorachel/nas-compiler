@@ -4,17 +4,29 @@
 #include "y.tab.h"
 #include "strmap.h"
 
+#define SB_I 0
+#define FP_I 1
+#define IN_I 2
+#define SP_I 3
+
+#define SB reg[SB_I]
+#define FP reg[FP_I]
+#define IN reg[IN_I]
+#define SP reg[SP_I]
+
 static int lbl;
 static int globalSymIdx;
 static int funcSymIdx;
 static int funcCallLevel;
 
+static int reg[4];
+static char regNames[4][3] = {"sb", "fp", "in", "sp"};
+
 void programStarts() {
     globalSymTab = sm_new(GLOBAL_SIZE);
     funcSymTab = sm_new(FUNC_SIZE);
-    globalSymIdx = 0;
-    funcSymIdx = 0;
-    funcCallLevel = 0; // global level
+    globalSymIdx = funcSymIdx = funcCallLevel = 0;
+    SB = FP = IN = SP = 0;
 }
 
 void programEnds() {
@@ -22,30 +34,42 @@ void programEnds() {
     sm_delete(funcSymTab);
 }
 
-void getGlobalReg(char* reg, char* name) {
+void moveRegPointer(int regIdx, int offset) {
+    printf("\tpush\t%s\n", regNames[regIdx]);
+    printf("\tpush\t%d\n", offset);
+    printf("\tadd\n");
+    printf("\tpop\t%s\n", regNames[regIdx]);
+    reg[regIdx] += offset;
+}
+
+// return 1 for exists; 0 for new
+int getGlobalRegName(char* regName, char* name, int offset) {
     if (sm_exists(globalSymTab, name)) {
-        sm_get(globalSymTab, name, reg, 6);
+        sm_get(globalSymTab, name, regName, 6);
+        return 1;
     } else {
-        sprintf(reg, "sb[%d]", globalSymIdx++);
-        sm_put(globalSymTab, name, reg);
+        sprintf(regName, "sb[%d]", globalSymIdx++);
+        sm_put(globalSymTab, name, regName);
+        return 0;
     }
 }
 
-void getLocalReg(char* reg, char* name) {
+void getLocalRegName(char* regName, char* name, int offset) {
 
 }
 
-void getReg(char* reg, char* name) {
+int getRegName(char* regName, char* name, int offset) {
     if (funcCallLevel == 0) {
-        getGlobalReg(reg, name);
+        return getGlobalRegName(regName, name, offset);
     } else {
-
+        return 0;
     }
 }
 
 int ex(nodeType *p, int nops, ...) {
     int lblx, lbly, lblz, lbl1, lbl2, lbl_init = lbl, lbl_kept;
-    char reg[6];
+    char regName[6];
+    int isDeclared;
 
     // retrieve lbl_kept
     va_list ap;
@@ -70,8 +94,8 @@ int ex(nodeType *p, int nops, ...) {
             }
             break;
         case typeId:      
-            getGlobalReg(reg, p->id.varName);
-            printf("\tpush\t%s\n", reg); 
+            getGlobalRegName(regName, p->id.varName, 0);
+            printf("\tpush\t%s\n", regName); 
             break;
         case typeArr:
             ex(p->array.offset, 1, lbl_kept);
@@ -130,96 +154,38 @@ int ex(nodeType *p, int nops, ...) {
                 case CONTINUE:
                     printf("\tjmp\tL%03d\n", lbl_kept);
                     break;
-                // case READ:
-                //     printf("\tread\n");
-                //     if (p->opr.op[0]->type == typeId) {
-                //         printf("\tpop\t%s\n", p->opr.op[0]->id.varName);
-                //     } else if (p->opr.op[0]->type == typeArr) {
-                //         ex(p->opr.op[0]->array.offset, 1, lbl_kept);
-                //         printf("\tpopi\t%s\n", p->opr.op[0]->array.baseName);
-                //     }
-                //     break;
-                // case PRINT:     
-                //     ex(p->opr.op[0], 1, lbl_kept);
-                //     printf("\tputi\n");
-                //     break;
                 case GETI:
-                    getReg(reg, p->opr.op[0]->id.varName);
+                    getRegName(regName, p->opr.op[0]->id.varName, 1);
                     printf("\tgeti\n"); 
                     break;
                 case GETC: 
-                    getReg(reg, p->opr.op[0]->id.varName);
+                    getRegName(regName, p->opr.op[0]->id.varName, 1);
                     printf("\tgetc\n"); 
                     break;
                 case GETS: 
-                    getReg(reg, p->opr.op[0]->id.varName);
+                    getRegName(regName, p->opr.op[0]->id.varName, 1);
                     printf("\tgets\n"); 
                     break;
                 case PUTI: case PUTI_:
-                    switch(p->opr.op[0]->type) {
-                        case typeCon:
-                            printf("\tpush\t%d\n", p->opr.op[0]->con.value);
-                            if (p->opr.oper == PUTI) printf("\tputi\n"); else printf("\tputi_\n");
-                            break;
-                        case typeId:
-                            getReg(reg, p->opr.op[0]->id.varName);
-                            printf("\tpush\t%s\n", reg);
-                            if (p->opr.oper == PUTI) printf("\tputi\n"); else printf("\tputi_\n");
-                            break;
-                        case typeArr:
-                            getReg(reg, p->opr.op[0]->array.baseName);
-                            printf("\tpush\t%s\n", reg);
-                            if (p->opr.oper == PUTI) printf("\tputi\n"); else printf("\tputi_\n");
-                        default:
-                            ;
-                    }
+                    ex(p->opr.op[0], 1, lbl_kept);
+                    if (p->opr.oper == PUTI) printf("\tputi\n"); else printf("\tputi_\n");
                     break;
                 case PUTC: case PUTC_:
-                    switch(p->opr.op[0]->type) {
-                        case typeCon:
-                            printf("\tpush\t\'%c\'\n", p->opr.op[0]->con.value);
-                            if (p->opr.oper == PUTC) printf("\tputc\n"); else printf("\tputc_\n");
-                            break;
-                        case typeId:
-                            getReg(reg, p->opr.op[0]->id.varName);
-                            printf("\tpush\t%s\n", reg);
-                            if (p->opr.oper == PUTC) printf("\tputc\n"); else printf("\tputc_\n");
-                            break;
-                        case typeArr:
-                            getReg(reg, p->opr.op[0]->array.baseName);
-                            printf("\tpush\t%s\n", reg);
-                            if (p->opr.oper == PUTC) printf("\tputc\n"); else printf("\tputc_\n");
-                        default:
-                            ;
-                    }
+                    ex(p->opr.op[0], 1, lbl_kept);
+                    if (p->opr.oper == PUTC) printf("\tputc\n"); else printf("\tputc_\n");
                     break;
                 case PUTS: case PUTS_:
-                    switch(p->opr.op[0]->type) {
-                        case typeCon:
-                            printf("\tpush\t\"%s\"\n", p->opr.op[0]->con.strValue);
-                            if (p->opr.oper == PUTS) printf("\tputs\n"); else printf("\tputs_\n");
-                            break;
-                        case typeId:
-                            getReg(reg, p->opr.op[0]->id.varName);
-                            printf("\tpush\t%s\n", reg);
-                            if (p->opr.oper == PUTS) printf("\tputs\n"); else printf("\tputs_\n");
-                            break;
-                        case typeArr:
-                            getReg(reg, p->opr.op[0]->array.baseName);
-                            printf("\tpush\t%s\n", reg);
-                            if (p->opr.oper == PUTS) printf("\tputs\n"); else printf("\tputs_\n");
-                        default:
-                            ;
-                    }
+                    ex(p->opr.op[0], 1, lbl_kept);
+                    if (p->opr.oper == PUTS) printf("\tputs\n"); else printf("\tputs_\n");
                     break;
-                case '=':       
+                case '=':  
+                    isDeclared = getRegName(regName, p->opr.op[0]->id.varName, 1);
                     ex(p->opr.op[1], 1, lbl_kept);
                     if (p->opr.op[0]->type == typeId) {
-                        getGlobalReg(reg, p->opr.op[0]->id.varName);
-                        printf("\tpop\t%s\n", reg);
+                        if (isDeclared) printf("\tpop\t%s\n", regName);
                     } else if (p->opr.op[0]->type == typeArr) {
                         ex(p->opr.op[0]->array.offset, 1, lbl_kept);
-                        printf("\tpopi\t%s\n", p->opr.op[0]->array.baseName);
+                        if (isDeclared) printf("\tpopi\t%s\n", p->opr.op[0]->array.baseName);
                     }
                     break;
                 case UMINUS:    
