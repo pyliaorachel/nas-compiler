@@ -63,10 +63,15 @@ char text[500];
 "break"     return BREAK;
 "continue"  return CONTINUE;
 
-@?[a-z]+[a-z0-9]*   { 
-                        strcpy(yylval.sKey, yytext);
-                        return VARIABLE;
-                    }
+^[ \t\n]*[a-z]+[a-z0-9]*    { 
+                                strcpy(yylval.sKey, yytext);
+                                return DECL_VARIABLE;
+                            }
+
+@?[a-z]+[a-z0-9]*           { 
+                                strcpy(yylval.sKey, yytext);
+                                return VARIABLE;
+                            }
 
 \/\/.*\n	;	/* skip comments */
 

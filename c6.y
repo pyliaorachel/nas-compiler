@@ -32,7 +32,7 @@ StrMap* funcSymTab;
 
 %token <conValue> INTEGER CHAR
 %token <conStrValue> STRING
-%token <sKey> VARIABLE
+%token <sKey> VARIABLE DECL_VARIABLE
 %token FOR WHILE IF BREAK CONTINUE 
 %token GETI GETS GETC PUTI PUTS PUTC PUTI_ PUTS_ PUTC_
 %nonassoc IFX
@@ -45,7 +45,7 @@ StrMap* funcSymTab;
 %left '*' '/' '%'
 %nonassoc UMINUS
 
-%type <nPtr> stmt expr stmt_list variable array param param_list arg arg_list rval lval
+%type <nPtr> stmt expr stmt_list variable array param param_list arg arg_list
 
 %%
 
@@ -59,26 +59,27 @@ main:
         ;
 
 stmt:
-          ';'                               { $$ = opr(';', 2, NULL, NULL); }
-        | expr ';'                          { $$ = $1; }
-        | GETI '(' variable ')' ';'         { $$ = opr(GETI, 1, $3); }
-        | GETC '(' variable ')' ';'         { $$ = opr(GETC, 1, $3); }
-        | GETS '(' variable ')' ';'         { $$ = opr(GETS, 1, $3); }
-        | PUTI '(' arg ')' ';'              { $$ = opr(PUTI, 1, $3); }
-        | PUTC '(' arg ')' ';'              { $$ = opr(PUTC, 1, $3); }
-        | PUTS '(' arg ')' ';'              { $$ = opr(PUTS, 1, $3); }
-        | PUTI_ '(' arg ')' ';'             { $$ = opr(PUTI_, 1, $3); }
-        | PUTC_ '(' arg ')' ';'             { $$ = opr(PUTC_, 1, $3); }
-        | PUTS_ '(' arg ')' ';'             { $$ = opr(PUTS_, 1, $3); }
-        | lval '=' expr ';'                 { $$ = opr('=', 2, $1, $3); }
-        | VARIABLE '(' param_list ')' stmt  { $$ = func($1, $3, $5); }
-        | FOR '(' stmt stmt stmt ')' stmt   { $$ = opr(FOR, 4, $3, $4, $5, $7); }
-        | WHILE '(' expr ')' stmt           { $$ = opr(WHILE, 2, $3, $5); }
-        | IF '(' expr ')' stmt %prec IFX    { $$ = opr(IF, 2, $3, $5); }
-        | IF '(' expr ')' stmt ELSE stmt    { $$ = opr(IF, 3, $3, $5, $7); }
-        | BREAK ';'                         { $$ = opr(BREAK, 2, NULL, NULL); }
-        | CONTINUE ';'                      { $$ = opr(CONTINUE, 2, NULL, NULL); }
-        | '{' stmt_list '}'                 { $$ = $2; }
+          ';'                                                   { $$ = opr(';', 2, NULL, NULL); }
+        | expr ';'                                              { $$ = $1; }
+        | GETI '(' variable ')' ';'                             { $$ = opr(GETI, 1, $3); }
+        | GETC '(' variable ')' ';'                             { $$ = opr(GETC, 1, $3); }
+        | GETS '(' variable ')' ';'                             { $$ = opr(GETS, 1, $3); }
+        | PUTI '(' arg ')' ';'                                  { $$ = opr(PUTI, 1, $3); }
+        | PUTC '(' arg ')' ';'                                  { $$ = opr(PUTC, 1, $3); }
+        | PUTS '(' arg ')' ';'                                  { $$ = opr(PUTS, 1, $3); }
+        | PUTI_ '(' arg ')' ';'                                 { $$ = opr(PUTI_, 1, $3); }
+        | PUTC_ '(' arg ')' ';'                                 { $$ = opr(PUTC_, 1, $3); }
+        | PUTS_ '(' arg ')' ';'                                 { $$ = opr(PUTS_, 1, $3); }
+        | variable '=' expr ';'                                 { $$ = opr('=', 2, $1, $3); }
+        | array '=' expr ';'                                    { $$ = opr('=', 2, $1, $3); }
+        | DECL_VARIABLE '(' param_list ')' '{' stmt_list '}'    { $$ = func($1, $3, $6); }
+        | FOR '(' stmt stmt stmt ')' stmt                       { $$ = opr(FOR, 4, $3, $4, $5, $7); }
+        | WHILE '(' expr ')' stmt                               { $$ = opr(WHILE, 2, $3, $5); }
+        | IF '(' expr ')' stmt %prec IFX                        { $$ = opr(IF, 2, $3, $5); }
+        | IF '(' expr ')' stmt ELSE stmt                        { $$ = opr(IF, 3, $3, $5, $7); }
+        | BREAK ';'                                             { $$ = opr(BREAK, 2, NULL, NULL); }
+        | CONTINUE ';'                                          { $$ = opr(CONTINUE, 2, NULL, NULL); }
+        | '{' stmt_list '}'                                     { $$ = $2; }
         ;
 
 stmt_list:
@@ -97,8 +98,7 @@ param_list:
         ;
 
 arg:
-          rval                  { $$ = $1; }
-        | expr                  { $$ = $1; }
+          expr                  { $$ = $1; }
         | /* NULL */            { $$ = NULL; }
         ;
 
@@ -109,20 +109,11 @@ arg_list:
 
 variable:
           VARIABLE              { $$ = id($1); }
+        | DECL_VARIABLE         { $$ = id($1); }
         ;
 
 array:
           VARIABLE '[' expr ']' { $$ = array($1, $3); }
-        ;
-
-rval:
-          variable              { $$ = $1; }
-        | array                 { $$ = $1; }
-        ;
-
-lval:
-         variable               { $$ = $1; }
-        | array                 { $$ = $1; }
         ;
 
 expr:
