@@ -49,8 +49,6 @@ char text[500];
 "while"     return WHILE;
 "if"        return IF;
 "else"      return ELSE;
-"print"     return PRINT;
-"read"      return READ;
 "geti"      return GETI;
 "gets"      return GETS;
 "getc"      return GETC;

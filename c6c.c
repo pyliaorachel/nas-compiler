@@ -130,19 +130,19 @@ int ex(nodeType *p, int nops, ...) {
                 case CONTINUE:
                     printf("\tjmp\tL%03d\n", lbl_kept);
                     break;
-                case READ:
-                    printf("\tread\n");
-                    if (p->opr.op[0]->type == typeId) {
-                        printf("\tpop\t%s\n", p->opr.op[0]->id.varName);
-                    } else if (p->opr.op[0]->type == typeArr) {
-                        ex(p->opr.op[0]->array.offset, 1, lbl_kept);
-                        printf("\tpopi\t%s\n", p->opr.op[0]->array.baseName);
-                    }
-                    break;
-                case PRINT:     
-                    ex(p->opr.op[0], 1, lbl_kept);
-                    printf("\tputi\n");
-                    break;
+                // case READ:
+                //     printf("\tread\n");
+                //     if (p->opr.op[0]->type == typeId) {
+                //         printf("\tpop\t%s\n", p->opr.op[0]->id.varName);
+                //     } else if (p->opr.op[0]->type == typeArr) {
+                //         ex(p->opr.op[0]->array.offset, 1, lbl_kept);
+                //         printf("\tpopi\t%s\n", p->opr.op[0]->array.baseName);
+                //     }
+                //     break;
+                // case PRINT:     
+                //     ex(p->opr.op[0], 1, lbl_kept);
+                //     printf("\tputi\n");
+                //     break;
                 case GETI:
                     getReg(reg, p->opr.op[0]->id.varName);
                     printf("\tgeti\n"); 

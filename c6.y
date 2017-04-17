@@ -33,7 +33,8 @@ StrMap* funcSymTab;
 %token <conValue> INTEGER CHAR
 %token <conStrValue> STRING
 %token <sKey> VARIABLE
-%token FOR WHILE IF PRINT READ BREAK CONTINUE GETI GETC GETS PUTI PUTC PUTS PUTI_ PUTC_ PUTS_
+%token FOR WHILE IF BREAK CONTINUE 
+%token GETI GETS GETC PUTI PUTS PUTC PUTI_ PUTS_ PUTC_
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -60,8 +61,6 @@ main:
 stmt:
           ';'                               { $$ = opr(';', 2, NULL, NULL); }
         | expr ';'                          { $$ = $1; }
-        | PRINT expr ';'                    { $$ = opr(PRINT, 1, $2); }
-        | READ lval ';'                     { $$ = opr(READ, 1, $2); }
         | GETI '(' variable ')' ';'         { $$ = opr(GETI, 1, $3); }
         | GETC '(' variable ')' ';'         { $$ = opr(GETC, 1, $3); }
         | GETS '(' variable ')' ';'         { $$ = opr(GETS, 1, $3); }
