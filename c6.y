@@ -11,11 +11,15 @@ nodeType *id(char* varName);
 nodeType *array(char* baseName, nodeType *offset);
 nodeType *con(long value, conTypeEnum type);
 void freeNode(nodeType *p);
+void programStarts(void);
+void programEnds(void);
 int ex(nodeType *p, int nops, ...);
 int yylex(void);
+void wrapUp(void);
 
 void yyerror(char *s);
-
+StrMap* globalSymTab;
+StrMap* funcSymTab;
 %}
 
 %union {
@@ -44,11 +48,11 @@ void yyerror(char *s);
 %%
 
 program:
-        function                { exit(0); }
+        main                { wrapUp(); }
         ;
 
-function:
-          function stmt         { ex($2, 0); freeNode($2); }
+main:
+          main stmt         { ex($2, 0); freeNode($2); }
         | /* NULL */
         ;
 
@@ -190,13 +194,19 @@ void freeNode(nodeType *p) {
     free (p);
 }
 
+void wrapUp() {
+    programEnds();
+    exit(0);
+}
+
 void yyerror(char *s) {
     fprintf(stdout, "%s\n", s);
 }
 
 int main(int argc, char **argv) {
-extern FILE* yyin;
+    extern FILE* yyin;
     yyin = fopen(argv[1], "r");
+    programStarts();
     yyparse();
     return 0;
 }

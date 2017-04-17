@@ -1,3 +1,5 @@
+#include "strmap.h"
+
 typedef enum { typeCon, typeId, typeArr, typeOpr } nodeEnum;
 typedef enum { conTypeInt, conTypeChar, conTypeStr } conTypeEnum;
 
@@ -38,3 +40,10 @@ typedef struct nodeTypeTag {
         oprNodeType opr;        /* operators */
     };
 } nodeType;
+
+#define GLOBAL_SIZE 100
+#define LOCAL_SIZE 100
+#define FUNC_SIZE 100
+
+extern StrMap* globalSymTab;
+extern StrMap* funcSymTab;

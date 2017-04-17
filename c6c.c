@@ -5,9 +5,26 @@
 #include "strmap.h"
 
 static int lbl;
+static int globalSymIdx;
+static int funcSymIdx;
+
+void programStarts() {
+    printf("starts\n");
+    globalSymTab = sm_new(GLOBAL_SIZE);
+    funcSymTab = sm_new(FUNC_SIZE);
+    globalSymIdx = 0;
+    funcSymIdx = 0;
+}
+
+void programEnds() {
+    printf("ends\n");
+    sm_delete(globalSymTab);
+    sm_delete(funcSymTab);
+}
 
 int ex(nodeType *p, int nops, ...) {
     int lblx, lbly, lblz, lbl1, lbl2, lbl_init = lbl, lbl_kept;
+    char reg[6];
 
     // retrieve lbl_kept
     va_list ap;
@@ -30,8 +47,14 @@ int ex(nodeType *p, int nops, ...) {
                     break;
             }
             break;
-        case typeId:        
-            printf("\tpush\t%s\n", p->id.varName); 
+        case typeId:      
+            if (sm_exists(globalSymTab, p->id.varName)) {
+                sm_get(globalSymTab, p->id.varName, reg, 6);
+            } else {
+                sprintf(reg, "sb[%d]", globalSymIdx++);
+                sm_put(globalSymTab, p->id.varName, reg);
+            }
+            printf("\tpush\t%s\n", reg); 
             break;
         case typeArr:
             ex(p->array.offset, 1, lbl_kept);
@@ -104,7 +127,13 @@ int ex(nodeType *p, int nops, ...) {
                 case '=':       
                     ex(p->opr.op[1], 1, lbl_kept);
                     if (p->opr.op[0]->type == typeId) {
-                        printf("\tpop\t%s\n", p->opr.op[0]->id.varName);
+                        if (sm_exists(globalSymTab, p->opr.op[0]->id.varName)) {
+                            sm_get(globalSymTab, p->opr.op[0]->id.varName, reg, 6);
+                        } else {
+                            sprintf(reg, "sb[%d]", globalSymIdx++);
+                            sm_put(globalSymTab, p->opr.op[0]->id.varName, reg);
+                        }
+                        printf("\tpop\t%s\n", reg);
                     } else if (p->opr.op[0]->type == typeArr) {
                         ex(p->opr.op[0]->array.offset, 1, lbl_kept);
                         printf("\tpopi\t%s\n", p->opr.op[0]->array.baseName);
