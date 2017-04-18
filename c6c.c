@@ -85,7 +85,7 @@ void createCallFrame(funcNodeType* func, char* jmpLabelName) {
     nodeType* paramList = func->paramList;
     int numOfParams = 0;
     char regName[100];
-    while (paramList->type == typeOpr && paramList->opr.oper == ',') {
+    while (paramList != NULL && paramList->type == typeOpr && paramList->opr.oper == ',') {
         sprintf(regName, "fp[%d]", -4 - numOfParams++);
         sm_put(currentFrameSymTab->symTab, paramList->opr.op[1]->id.varName, regName);
         paramList = paramList->opr.op[0];

@@ -1,10 +1,9 @@
-c = 0;
+c = 100;
 
-hello (a, b) {
-	@c = 2;
-	b = 1;
-	return a + b + @c;
+hello () {
+	c = 30;
+	return @c;
 }
 
-d = hello(hello(1, 2), 5);
+d = hello();
 puti(d);
