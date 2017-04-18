@@ -3,7 +3,7 @@ c = 0;
 hello (a, b) {
 	@c = 2;
 	b = 1;
-	puti(b + @c);
+	puti(a + b + @c);
 }
 
 d = hello(1, 2);

@@ -14,6 +14,18 @@
 #define IN reg[IN_I]
 #define SP reg[SP_I]
 
+void programStarts();
+void programEnds();
+void moveRegPointer(int regIdx, int offset);
+void createCallFrame(funcNodeType* func, char* jmpLabelName);
+void tearDownCallFrame(char* jmpLabelName);
+int pushArgs(nodeType* argList, int lbl_kept);
+int getGlobalRegName(char* regName, char* name);
+int getLocalRegName(char* regName, char* name);
+int getRegName(char* regName, char* name);
+int getFuncLabel(char* labelName, char* name);
+int ex(nodeType *p, int nops, ...);
+
 static int lbl;
 static int globalSymIdx;
 static int funcSymIdx;
@@ -49,7 +61,11 @@ void moveRegPointer(int regIdx, int offset) {
     reg[regIdx] += offset;
 }
 
-void createCallFrame(funcNodeType* func) {
+void createCallFrame(funcNodeType* func, char* jmpLabelName) {
+    // jump over function declaration
+    sprintf(jmpLabelName, "L%03d", lbl++);
+    printf("\tjmp\t%s\n", jmpLabelName);
+
     // deepen function call level
     funcCallLevel++;
 
@@ -77,19 +93,37 @@ void createCallFrame(funcNodeType* func) {
     currentFrameSymTab->numOfLocalVars = 0;
 
     // label function & register function name
-    char label[5];
-    sprintf(label, "L%03d", lbl++);
-    printf("%s:\n", label);
-    sm_put(funcSymTab, func->funcName, label);
+    char funcLabelName[5];
+    int isDeclared = getFuncLabel(funcLabelName, func->funcName);
+    printf("%s:\n", funcLabelName);
 }
 
-void tearDownCallFrame() {
+void tearDownCallFrame(char* jmpLabelName) {
     funcCallLevel--;
 
     localSymTab* prevFrameSymTab = currentFrameSymTab->prev;
     sm_delete(currentFrameSymTab->symTab);
     free(currentFrameSymTab);
     currentFrameSymTab = prevFrameSymTab;
+
+    printf("\tret\n");
+
+    // label next section
+    printf("%s:\n", jmpLabelName);
+}
+
+// return number of arguments; recursion to be consistent with param list
+int pushArgs(nodeType* argList, int lbl_kept) {
+    if (argList == NULL) return 0;
+
+    if (argList->type != typeOpr || argList->opr.oper != ',') {
+        ex(argList, 1, lbl_kept);       
+        return 1;
+    }
+
+    int numOfArgs = pushArgs(argList->opr.op[0], lbl_kept);
+    ex(argList->opr.op[1], 1, lbl_kept);
+    return 1 + numOfArgs;
 }
 
 // return 1 for var already declared; 0 for new
@@ -125,10 +159,24 @@ int getRegName(char* regName, char* name) {
     }
 }
 
+int getFuncLabel(char* labelName, char* name) {
+    if (sm_exists(funcSymTab, name)) {
+        sm_get(funcSymTab, name, labelName, 5);
+        return 1;
+    } else {
+        sprintf(labelName, "L%03d", lbl++);
+        sm_put(funcSymTab, name, labelName);
+        return 0;
+    }
+}
+
 int ex(nodeType *p, int nops, ...) {
     int lblx, lbly, lblz, lbl1, lbl2, lbl_init = lbl, lbl_kept;
     char regName[100];
+    char labelName[5];
+    char jmpLabelName[5];
     int isDeclared;
+    int numOfArgs;
 
     // retrieve lbl_kept
     va_list ap;
@@ -161,9 +209,9 @@ int ex(nodeType *p, int nops, ...) {
             printf("\tpushi\t%s\n", p->array.baseName); 
             break;
         case typeFunc:
-            createCallFrame(&p->func);
+            createCallFrame(&p->func, jmpLabelName);
             ex(p->func.stmt, 1, lbl_kept);
-            tearDownCallFrame();
+            tearDownCallFrame(jmpLabelName);
             break;
         case typeOpr:
             switch(p->opr.oper) {
@@ -258,7 +306,9 @@ int ex(nodeType *p, int nops, ...) {
                     printf("\tneg\n");
                     break;
                 case 'c':
-                    printf("func call! %s\n", p->opr.op[0]->id.varName);
+                    numOfArgs = pushArgs(p->opr.op[1], lbl_kept);
+                    isDeclared = getFuncLabel(labelName, p->opr.op[0]->id.varName);
+                    printf("\tcall\t%s, %d\n", labelName, numOfArgs);
                     break;
                 default:
                     ex(p->opr.op[0], 1, lbl_kept);
