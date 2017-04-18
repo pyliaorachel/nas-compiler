@@ -1,3 +1,9 @@
+/*
+ * TODO: 
+ * 1. return value
+ * 2. arrays
+ * 3. what to do with in/ac
+*/
 #include <stdio.h>
 #include <stdarg.h>
 #include "calc3.h"
@@ -309,6 +315,9 @@ int ex(nodeType *p, int nops, ...) {
                     numOfArgs = pushArgs(p->opr.op[1], lbl_kept);
                     isDeclared = getFuncLabel(labelName, p->opr.op[0]->id.varName);
                     printf("\tcall\t%s, %d\n", labelName, numOfArgs);
+                    break;
+                case RETURN:
+                    ex(p->opr.op[0], 1, lbl_kept);
                     break;
                 default:
                     ex(p->opr.op[0], 1, lbl_kept);

@@ -49,24 +49,25 @@
      IF = 265,
      BREAK = 266,
      CONTINUE = 267,
-     GETI = 268,
-     GETS = 269,
-     GETC = 270,
-     PUTI = 271,
-     PUTS = 272,
-     PUTC = 273,
-     PUTI_ = 274,
-     PUTS_ = 275,
-     PUTC_ = 276,
-     IFX = 277,
-     ELSE = 278,
-     OR = 279,
-     AND = 280,
-     NE = 281,
-     EQ = 282,
-     LE = 283,
-     GE = 284,
-     UMINUS = 285
+     RETURN = 268,
+     GETI = 269,
+     GETS = 270,
+     GETC = 271,
+     PUTI = 272,
+     PUTS = 273,
+     PUTC = 274,
+     PUTI_ = 275,
+     PUTS_ = 276,
+     PUTC_ = 277,
+     IFX = 278,
+     ELSE = 279,
+     OR = 280,
+     AND = 281,
+     NE = 282,
+     EQ = 283,
+     LE = 284,
+     GE = 285,
+     UMINUS = 286
    };
 #endif
 /* Tokens.  */
@@ -80,24 +81,25 @@
 #define IF 265
 #define BREAK 266
 #define CONTINUE 267
-#define GETI 268
-#define GETS 269
-#define GETC 270
-#define PUTI 271
-#define PUTS 272
-#define PUTC 273
-#define PUTI_ 274
-#define PUTS_ 275
-#define PUTC_ 276
-#define IFX 277
-#define ELSE 278
-#define OR 279
-#define AND 280
-#define NE 281
-#define EQ 282
-#define LE 283
-#define GE 284
-#define UMINUS 285
+#define RETURN 268
+#define GETI 269
+#define GETS 270
+#define GETC 271
+#define PUTI 272
+#define PUTS 273
+#define PUTC 274
+#define PUTI_ 275
+#define PUTS_ 276
+#define PUTC_ 277
+#define IFX 278
+#define ELSE 279
+#define OR 280
+#define AND 281
+#define NE 282
+#define EQ 283
+#define LE 284
+#define GE 285
+#define UMINUS 286
 
 
 
@@ -112,7 +114,7 @@ typedef union YYSTYPE
     nodeType *nPtr;             /* node pointer */
 }
 /* Line 1529 of yacc.c.  */
-#line 116 "y.tab.h"
+#line 118 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

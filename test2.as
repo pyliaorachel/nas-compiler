@@ -10,9 +10,12 @@ L001:
 	add
 	push	sb[0]
 	add
-	puti
 	ret
 L000:
 	push	1
 	push	2
 	call	L001, 2
+	push	5
+	call	L001, 2
+	push	sb[1]
+	puti

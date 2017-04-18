@@ -37,7 +37,7 @@ char text[500];
 '[^']'          { yylval.conValue = (int) yytext[1]; return CHAR; }
 
 
-[-()<>=+*/;{}.%\[\],]    {
+[-()<>=+*/;{}.%\[\],]   {
                             return *yytext;
                         }
 
@@ -62,6 +62,7 @@ char text[500];
 "||"        return OR;
 "break"     return BREAK;
 "continue"  return CONTINUE;
+"return"    return RETURN;
 
 ^[ \t\n]*[a-z]+[a-z0-9]*    { 
                                 strcpy(yylval.sKey, yytext);

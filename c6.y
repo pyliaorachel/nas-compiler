@@ -34,7 +34,7 @@ localSymTab* localSymTabs;
 %token <conValue> INTEGER CHAR
 %token <conStrValue> STRING
 %token <sKey> VARIABLE DECL_VARIABLE
-%token FOR WHILE IF BREAK CONTINUE 
+%token FOR WHILE IF BREAK CONTINUE RETURN
 %token GETI GETS GETC PUTI PUTS PUTC PUTI_ PUTS_ PUTC_
 %nonassoc IFX
 %nonassoc ELSE
@@ -80,6 +80,7 @@ stmt:
         | IF '(' expr ')' stmt ELSE stmt                        { $$ = opr(IF, 3, $3, $5, $7); }
         | BREAK ';'                                             { $$ = opr(BREAK, 2, NULL, NULL); }
         | CONTINUE ';'                                          { $$ = opr(CONTINUE, 2, NULL, NULL); }
+        | RETURN expr ';'                                       { $$ = opr(RETURN, 1, $2); }
         | '{' stmt_list '}'                                     { $$ = $2; }
         ;
 
@@ -118,8 +119,8 @@ array:
         ;
 
 expr:
-          INTEGER               { $$ = con((long) $1, conTypeInt); }
-        | CHAR                  { $$ = con((long) $1, conTypeChar); }
+          INTEGER               { $$ = con($1, conTypeInt); }
+        | CHAR                  { $$ = con($1, conTypeChar); }
         | STRING                { $$ = con((long) $1, conTypeStr); }
         | variable              { $$ = $1; }
         | array                 { $$ = $1; }
