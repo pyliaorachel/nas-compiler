@@ -11,10 +11,14 @@ nodeType *id(char* varName);
 nodeType *array(char* baseName, nodeType *offset);
 nodeType *con(long value, conTypeEnum type);
 nodeType *func(char* funcName, nodeType *paramList, nodeType *stmt);
+void appendToList(nodeListType* nodeList, nodeType* node);
 void freeNode(nodeType *p);
+void freeNodeList(nodeListType* nodeList);
 void programStarts(void);
 void programEnds(void);
 int ex(nodeType *p, int nops, ...);
+void exStmtList(); 
+void exFuncList(); 
 int yylex(void);
 void wrapUp(void);
 
@@ -22,6 +26,8 @@ void yyerror(char *s);
 StrMap* globalSymTab;
 StrMap* funcSymTab;
 localSymTab* localSymTabs;
+nodeListType* funcList;
+nodeListType* stmtList;
 %}
 
 %union {
@@ -46,17 +52,26 @@ localSymTab* localSymTabs;
 %left '*' '/' '%'
 %nonassoc UMINUS
 
-%type <nPtr> stmt expr stmt_list variable array param param_list arg arg_list
+%type <nPtr> func_decl stmt expr stmt_list variable array param param_list arg arg_list
 
 %%
 
 program:
-        main                { wrapUp(); }
+        main                { 
+                                exStmtList(); 
+                                exFuncList(); 
+                                wrapUp(); 
+                            }
         ;
 
 main:
-          main stmt         { ex($2, 0); freeNode($2); }
+          main stmt         { appendToList(stmtList, $2); }
+        | main func_decl    { appendToList(funcList, $2); }
         | /* NULL */
+        ;
+
+func_decl:
+          DECL_VARIABLE '(' param_list ')' '{' stmt_list '}'    { $$ = func($1, $3, $6); }
         ;
 
 stmt:
@@ -73,7 +88,6 @@ stmt:
         | PUTS_ '(' arg ')' ';'                                 { $$ = opr(PUTS_, 1, $3); }
         | variable '=' expr ';'                                 { $$ = opr('=', 2, $1, $3); }
         | array '=' expr ';'                                    { $$ = opr('=', 2, $1, $3); }
-        | DECL_VARIABLE '(' param_list ')' '{' stmt_list '}'    { $$ = func($1, $3, $6); }
         | FOR '(' stmt stmt stmt ')' stmt                       { $$ = opr(FOR, 4, $3, $4, $5, $7); }
         | WHILE '(' expr ')' stmt                               { $$ = opr(WHILE, 2, $3, $5); }
         | IF '(' expr ')' stmt %prec IFX                        { $$ = opr(IF, 2, $3, $5); }
@@ -242,6 +256,25 @@ nodeType *opr(int oper, int nops, ...) {
     return p;
 }
 
+void appendToList(nodeListType* nodeList, nodeType* node) {
+    nodeListNodeType *p;
+
+    /* allocate node */
+    if ((p = malloc(sizeof(nodeListNodeType))) == NULL)
+        yyerror("out of memory");
+
+    p->node = node;
+    p->next = NULL;
+    if (nodeList->tail) {
+        nodeList->tail->next = p;
+        nodeList->tail = p;
+    } else {
+        nodeList->head = p;
+        nodeList->tail = p;
+    }
+    nodeList->nops++;
+}
+
 void freeNode(nodeType *p) {
     int i;
 
@@ -253,7 +286,21 @@ void freeNode(nodeType *p) {
     free (p);
 }
 
+void freeNodeList(nodeListType* nodeList) {
+    nodeListNodeType *p = nodeList->head;
+
+    while (p) {
+        nodeList->head = p->next;
+        freeNode(p->node);
+        free(p);
+        p = nodeList->head;
+    }
+
+    free(nodeList);
+}
+
 void wrapUp() {
+    printf("wrapup");
     programEnds();
     exit(0);
 }

@@ -31,6 +31,9 @@ int getLocalRegName(char* regName, char* name);
 int getRegName(char* regName, char* name);
 int getFuncLabel(char* labelName, char* name);
 int ex(nodeType *p, int nops, ...);
+void exStmtList();
+void exFuncList();
+void freeNodeList();
 
 static int lbl;
 static int globalSymIdx;
@@ -50,6 +53,9 @@ void programStarts() {
     localSymTabs->symTab = NULL;
     currentFrameSymTab = localSymTabs;
 
+    funcList = malloc(sizeof(nodeListType)); funcList->type = listTypeFunc; funcList->nops = 0; funcList->head = funcList->tail = NULL;
+    stmtList = malloc(sizeof(nodeListType)); stmtList->type = listTypeStmt; stmtList->nops = 0; stmtList->head = stmtList->tail = NULL;
+
     SB = FP = IN = SP = 0;
 }
 
@@ -57,6 +63,8 @@ void programEnds() {
     sm_delete(globalSymTab);
     sm_delete(funcSymTab);
     free(localSymTabs);
+    freeNodeList(funcList);
+    freeNodeList(stmtList);
 }
 
 void moveRegPointer(int regIdx, int offset) {
@@ -297,7 +305,6 @@ int ex(nodeType *p, int nops, ...) {
                     isDeclared = getRegName(regName, p->opr.op[0]->id.varName);
                     ex(p->opr.op[1], 1, lbl_kept);
                     if (p->opr.op[0]->type == typeId) {
-                        printf("%s isDeclared? %d\n", regName, isDeclared);
                         if (isDeclared) printf("\tpop\t%s\n", regName);
                     } else if (p->opr.op[0]->type == typeArr) {
                         ex(p->opr.op[0]->array.offset, 1, lbl_kept);
@@ -339,3 +346,47 @@ int ex(nodeType *p, int nops, ...) {
     }
     return 0;
 }
+
+void exStmtList() {
+    nodeListNodeType *p = stmtList->head;
+
+    printf("start stmt %d\n", stmtList->nops);
+    //pushGlobalVariables();
+
+    while(p) {
+        nodeType *n = p->node;
+        printf("execute %d\n", n->type);
+        ex(n, 0);
+        p = p->next; 
+    }
+
+    printf("end stmt\n");
+}
+
+void exFuncList() {
+    nodeListNodeType *p = funcList->head;
+
+    printf("start func %d\n", funcList->nops);
+
+    while(p) {
+        nodeType *n = p->node;
+        printf("execute func %d\n", n->type);
+        ex(n, 0);
+        p = p->next; 
+    }
+
+    printf("end func\n");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

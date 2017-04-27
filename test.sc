@@ -6,4 +6,9 @@ hello () {
 }
 
 d = hello();
+
+oh() {
+	@d = 100;
+}
+
 puti(d);

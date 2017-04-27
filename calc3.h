@@ -1,6 +1,7 @@
 #include "strmap.h"
 
 typedef enum { typeCon, typeId, typeArr, typeOpr, typeFunc } nodeEnum;
+typedef enum { listTypeFunc, listTypeStmt } nodeListEnum;
 typedef enum { conTypeInt, conTypeChar, conTypeStr, conTypeNull } conTypeEnum;
 
 /* constants */
@@ -37,6 +38,20 @@ typedef struct {
     struct nodeTypeTag *op[1];  /* operands (expandable) */
 } oprNodeType;
 
+/* node linked list (global funcitons & statements) */
+typedef struct nodeListNodeType {
+    struct nodeTypeTag *node;            /* type of node list */
+    struct nodeListNodeType *next;
+} nodeListNodeType;
+
+typedef struct {
+    nodeListEnum type;                   /* type of node list */
+    int nops;                            /* number of operands */
+    struct nodeListNodeType *head;
+    struct nodeListNodeType *tail;
+} nodeListType;
+
+/* node type */
 typedef struct nodeTypeTag {
     nodeEnum type;              /* type of node */
 
@@ -65,7 +80,8 @@ typedef struct localSymTab {
 extern StrMap* globalSymTab;
 extern StrMap* funcSymTab;
 extern localSymTab* localSymTabs;
-
+extern nodeListType* funcList;
+extern nodeListType* stmtList;
 
 
 
