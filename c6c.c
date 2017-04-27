@@ -111,11 +111,6 @@ void tearDownCallFrame(char* jmpLabelName) {
     sm_delete(currentFrameSymTab->symTab);
     free(currentFrameSymTab);
     currentFrameSymTab = prevFrameSymTab;
-
-    printf("\tret\n");
-
-    // label next section
-    printf("%s:\n", jmpLabelName);
 }
 
 // return number of arguments; recursion to be consistent with param list
@@ -217,6 +212,7 @@ int ex(nodeType *p, int nops, ...) {
         case typeFunc:
             createCallFrame(&p->func, jmpLabelName);
             ex(p->func.stmt, 1, lbl_kept);
+            printf("%s:\n", jmpLabelName); // label next section
             tearDownCallFrame(jmpLabelName);
             break;
         case typeOpr:
@@ -301,6 +297,7 @@ int ex(nodeType *p, int nops, ...) {
                     isDeclared = getRegName(regName, p->opr.op[0]->id.varName);
                     ex(p->opr.op[1], 1, lbl_kept);
                     if (p->opr.op[0]->type == typeId) {
+                        printf("%s isDeclared? %d\n", regName, isDeclared);
                         if (isDeclared) printf("\tpop\t%s\n", regName);
                     } else if (p->opr.op[0]->type == typeArr) {
                         ex(p->opr.op[0]->array.offset, 1, lbl_kept);
@@ -318,6 +315,7 @@ int ex(nodeType *p, int nops, ...) {
                     break;
                 case RETURN:
                     ex(p->opr.op[0], 1, lbl_kept);
+                    printf("\tret\n");
                     break;
                 default:
                     ex(p->opr.op[0], 1, lbl_kept);

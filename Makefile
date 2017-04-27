@@ -1,8 +1,14 @@
 run: 
-	./nas/nas $(P)
+	./nas/nas $(P).as
+
+run-test:
+	./nas/nas ./test/$(P).as
 
 compile:
 	./c6c $(P).sc > $(P).as
+
+compile-test:
+	./c6c ./test/$(P).sc > ./test/$(P).as
 
 c6c: lex.yy.c y.tab.c strmap.c c6c.c
 	gcc -o $@ $^
@@ -22,4 +28,4 @@ cleannas:
 clean:
 	rm lex.yy.c y.tab.* c6c
 
-.PHONY: run compile nas clean cleannas
+.PHONY: run run-test compile compile-test nas clean cleannas

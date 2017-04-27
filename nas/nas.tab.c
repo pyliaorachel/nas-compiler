@@ -1990,19 +1990,19 @@ int main(int argc, char *argv[]) {
 
 #define EVAL(opr) st[SP-2] = st[SP-2] opr st[SP-1]; SP--; i++; break;
 
-      case LT: EVAL(<)
-      case GT: EVAL(>)
-      case GE: EVAL(>=)
-      case LE: EVAL(<=)
-      case NE: EVAL(!=)
-      case EQ: EVAL(==)
-      case ADD: EVAL(+)
-      case SUB: EVAL(-)
-      case MUL: EVAL(*)
-      case DIV: EVAL(/)
-      case MOD: EVAL(%)
-      case AND: EVAL(&&)
-      case OR: EVAL(||)
+      case LT: printf("%ld < %ld = %ld\n", st[SP-2], st[SP-1], st[SP-2] < st[SP-1]); EVAL(<)
+      case GT: printf("%ld > %ld = %ld\n", st[SP-2], st[SP-1], st[SP-2] > st[SP-1]); EVAL(>)
+      case GE: printf("%ld >= %ld = %ld\n", st[SP-2], st[SP-1], st[SP-2] >= st[SP-1]); EVAL(>=)
+      case LE: printf("%ld <= %ld = %ld\n", st[SP-2], st[SP-1], st[SP-2] <= st[SP-1]); EVAL(<=)
+      case NE: printf("%ld != %ld = %ld\n", st[SP-2], st[SP-1], st[SP-2] != st[SP-1]); EVAL(!=)
+      case EQ: printf("%ld == %ld = %ld\n", st[SP-2], st[SP-1], st[SP-2] == st[SP-1]); EVAL(==)
+      case ADD: printf("%ld + %ld = %ld\n", st[SP-2], st[SP-1], st[SP-2] + st[SP-1]); EVAL(+)
+      case SUB: printf("%ld - %ld = %ld\n", st[SP-2], st[SP-1], st[SP-2] - st[SP-1]); EVAL(-)
+      case MUL: printf("%ld * %ld = %ld\n", st[SP-2], st[SP-1], st[SP-2] * st[SP-1]); EVAL(*)
+      case DIV: printf("%ld / %ld = %ld\n", st[SP-2], st[SP-1], st[SP-2] / st[SP-1]); EVAL(/)
+      case MOD: printf("%ld % %ld = %ld\n", st[SP-2], st[SP-1], st[SP-2] % st[SP-1]); EVAL(%)
+      case AND: printf("%ld && %ld = %ld\n", st[SP-2], st[SP-1], st[SP-2] && st[SP-1]); EVAL(&&)
+      case OR: printf("%ld || %ld = %ld\n", st[SP-2], st[SP-1], st[SP-2] || st[SP-1]); EVAL(||)
       case NEG:
 	st[SP-1] = -st[SP-1]; i++; break;
       case J0:
