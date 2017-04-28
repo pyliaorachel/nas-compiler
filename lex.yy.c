@@ -644,13 +644,14 @@ int yy_flex_debug = 0;
 char *yytext;
 #line 1 "c6.l"
 #line 4 "c6.l"
+#include <ctype.h>
 #include <stdlib.h>
 #include "calc3.h"
 #include "y.tab.h"
 void yyerror(char *);
 char text[500];
 
-#line 654 "lex.yy.c"
+#line 655 "lex.yy.c"
 
 #define INITIAL 0
 #define S 1
@@ -836,10 +837,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 13 "c6.l"
+#line 14 "c6.l"
 
 
-#line 843 "lex.yy.c"
+#line 844 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -925,7 +926,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 15 "c6.l"
+#line 16 "c6.l"
 {
                     yylval.conValue = (long) atoi(yytext);
                     return INTEGER;
@@ -933,7 +934,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 20 "c6.l"
+#line 21 "c6.l"
 {
                     yylval.conValue = (long) atoi(yytext);
                     return INTEGER;
@@ -941,195 +942,199 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 25 "c6.l"
+#line 26 "c6.l"
 { BEGIN S; *text = 0; }
 	YY_BREAK
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 26 "c6.l"
+#line 27 "c6.l"
 { strcat(text, yytext); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 27 "c6.l"
+#line 28 "c6.l"
 { strcpy(yylval.conStrValue, text); BEGIN 0; return STRING; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 28 "c6.l"
+#line 29 "c6.l"
 { strcat(text, "\""); }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 29 "c6.l"
+#line 30 "c6.l"
 { strcat(text, "\n"); }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 30 "c6.l"
+#line 31 "c6.l"
 { strcat(text, "\t"); }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 31 "c6.l"
+#line 32 "c6.l"
 { strcat(text, "\\"); }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 33 "c6.l"
+#line 34 "c6.l"
 { yylval.conValue = (int) '\n'; return CHAR; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 34 "c6.l"
+#line 35 "c6.l"
 { yylval.conValue = (int) '\t'; return CHAR; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 35 "c6.l"
+#line 36 "c6.l"
 { yylval.conValue = (int) '\''; return CHAR; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 36 "c6.l"
+#line 37 "c6.l"
 { yylval.conValue = 0; return CHAR; }
 	YY_BREAK
 case 14:
 /* rule 14 can match eol */
 YY_RULE_SETUP
-#line 37 "c6.l"
+#line 38 "c6.l"
 { yylval.conValue = (int) yytext[1]; return CHAR; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 40 "c6.l"
+#line 41 "c6.l"
 {
                             return *yytext;
                         }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 44 "c6.l"
+#line 45 "c6.l"
 return GE;
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 45 "c6.l"
+#line 46 "c6.l"
 return LE;
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 46 "c6.l"
+#line 47 "c6.l"
 return EQ;
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 47 "c6.l"
+#line 48 "c6.l"
 return NE;
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 48 "c6.l"
+#line 49 "c6.l"
 return FOR;
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 49 "c6.l"
+#line 50 "c6.l"
 return WHILE;
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 50 "c6.l"
+#line 51 "c6.l"
 return IF;
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 51 "c6.l"
+#line 52 "c6.l"
 return ELSE;
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 52 "c6.l"
+#line 53 "c6.l"
 return GETI;
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 53 "c6.l"
+#line 54 "c6.l"
 return GETS;
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 54 "c6.l"
+#line 55 "c6.l"
 return GETC;
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 55 "c6.l"
+#line 56 "c6.l"
 return PUTI;
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 56 "c6.l"
+#line 57 "c6.l"
 return PUTS;
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 57 "c6.l"
+#line 58 "c6.l"
 return PUTC;
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 58 "c6.l"
+#line 59 "c6.l"
 return PUTI_;
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 59 "c6.l"
+#line 60 "c6.l"
 return PUTS_;
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 60 "c6.l"
+#line 61 "c6.l"
 return PUTC_;
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 61 "c6.l"
+#line 62 "c6.l"
 return AND;
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 62 "c6.l"
+#line 63 "c6.l"
 return OR;
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 63 "c6.l"
+#line 64 "c6.l"
 return BREAK;
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 64 "c6.l"
+#line 65 "c6.l"
 return CONTINUE;
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 65 "c6.l"
+#line 66 "c6.l"
 return RETURN;
 	YY_BREAK
 case 38:
 /* rule 38 can match eol */
 YY_RULE_SETUP
-#line 67 "c6.l"
+#line 68 "c6.l"
 { 
-                                strcpy(yylval.sKey, yytext);
+                                // remove leading zeros
+                                int i = 0;
+                                while (isspace(yytext[i])) i++;
+
+                                strcpy(yylval.sKey, yytext+i);
                                 return DECL_VARIABLE;
                             }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 72 "c6.l"
+#line 77 "c6.l"
 { 
                                 strcpy(yylval.sKey, yytext);
                                 return VARIABLE;
@@ -1138,26 +1143,26 @@ YY_RULE_SETUP
 case 40:
 /* rule 40 can match eol */
 YY_RULE_SETUP
-#line 77 "c6.l"
+#line 82 "c6.l"
 ;	/* skip comments */
 	YY_BREAK
 case 41:
 /* rule 41 can match eol */
 YY_RULE_SETUP
-#line 79 "c6.l"
+#line 84 "c6.l"
 ;   /* ignore whitespace */
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 81 "c6.l"
+#line 86 "c6.l"
 yyerror("Unknown character");
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 82 "c6.l"
+#line 87 "c6.l"
 ECHO;
 	YY_BREAK
-#line 1161 "lex.yy.c"
+#line 1166 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(S):
 	yyterminate();
@@ -2158,7 +2163,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 82 "c6.l"
+#line 87 "c6.l"
 
 
 

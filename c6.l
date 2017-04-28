@@ -1,6 +1,7 @@
 %option caseless
 
 %{
+#include <ctype.h>
 #include <stdlib.h>
 #include "calc3.h"
 #include "y.tab.h"
@@ -65,7 +66,11 @@ char text[500];
 "return"    return RETURN;
 
 ^[ \t\n]*[a-z]+[a-z0-9]*    { 
-                                strcpy(yylval.sKey, yytext);
+                                // remove leading zeros
+                                int i = 0;
+                                while (isspace(yytext[i])) i++;
+
+                                strcpy(yylval.sKey, yytext+i);
                                 return DECL_VARIABLE;
                             }
 

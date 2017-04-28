@@ -129,11 +129,12 @@ void tearDownCallFrame(funcNodeType* func) {
 }
 
 void makeRoomGlobalVariables() {
-    moveRegPointer(SP_I, sm_get_count(globalSymTab));
+    int numOfGlobalVars = sm_get_count(globalSymTab);
+    if (numOfGlobalVars) moveRegPointer(SP_I, numOfGlobalVars);
 }
 
 void makeRoomLocalVariables(funcNodeType* func) {
-    moveRegPointer(SP_I, func->numOfLocalVars);
+    if (func->numOfLocalVars) moveRegPointer(SP_I, func->numOfLocalVars);
 }
 
 // return number of arguments; recursion to be consistent with param list
