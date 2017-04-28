@@ -18,10 +18,6 @@
 	puti
 	end
 L000:
-	push	sp
-	push	0
-	add
-	pop	sp
 	push	fp[-7]
 	push	fp[-6]
 	add

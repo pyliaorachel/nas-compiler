@@ -1,14 +1,30 @@
+RUN := ./nas/nas
+COMPILE := ./c6c
+
+TEST_FILES := $(basename $(wildcard ./test/*.sc))
+
 run: 
-	./nas/nas $(P).as
+	$(RUN) $(P).as
 
 run-test:
-	./nas/nas ./test/$(P).as
+	$(RUN) ./test/$(P).as
+
+run-all-tests: 
+	for file in $(TEST_FILES); do 			\
+		echo "==========$$file=========="; 	\
+		$(RUN) $$file.as; 					\
+	done
 
 compile:
-	./c6c $(P).sc > $(P).as
+	$(COMPILE) $(P).sc > $(P).as
 
 compile-test:
-	./c6c ./test/$(P).sc > ./test/$(P).as
+	$(COMPILE) ./test/$(P).sc > ./test/$(P).as
+
+compile-all-tests:
+	for file in $(TEST_FILES); do 			\
+		$(COMPILE) $$file.sc > $$file.as; 	\
+	done
 
 c6c: lex.yy.c y.tab.c strmap.c c6c.c
 	gcc -o $@ $^
@@ -25,7 +41,10 @@ nas:
 cleannas:
 	$(MAKE) -C nas clean
 
+cleantest:
+	rm ./test/*.as
+
 clean:
 	rm lex.yy.c y.tab.* c6c
 
-.PHONY: run run-test compile compile-test nas clean cleannas
+.PHONY: run run-test run-all-tests compile compile-test compile-all-tests $(TEST_FILES) nas clean cleannas cleantest

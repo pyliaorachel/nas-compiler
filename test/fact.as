@@ -1,34 +1,39 @@
-	jmp	L000
-L001:
-	push	fp[-4]
+	push	sp
 	push	1
-	compLT
-	j0	L002
-	push	1
-	ret
-L002:
-	push	fp[-4]
-	push	fp[-4]
-	push	1
-	sub
-	call	L001, 1
-	mul
-	ret
-L000:
+	add
+	pop	sp
 	push	"Please enter a +ve int <= 12: "
 	puts_
 	geti
+	pop	sb[0]
 	push	sb[0]
 	push	12
 	compLE
-	j0	L003
+	j0	L004
 	push	sb[0]
-	call	L001, 1
+	call	L002, 1
 	puti
-	jmp	L004
-L003:
+	jmp	L005
+L004:
 	push	sb[0]
 	puti_
 	push	" > 12!!"
 	puts
-L004:
+L005:
+	end
+L002:
+	push	fp[-4]
+	push	1
+	compLT
+	j0	L006
+	push	1
+	ret
+L006:
+	push	fp[-4]
+	push	fp[-4]
+	push	1
+	sub
+	call	L002, 1
+	mul
+	ret
+	ret

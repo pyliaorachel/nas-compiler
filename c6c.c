@@ -1,15 +1,20 @@
 /*
  * TODO: 
- * 1. return value
- * 2. arrays
+ * 1. arrays
+ * 2. error checking 
  * 3. what to do with in/ac
 */
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <assert.h>
 #include "calc3.h"
 #include "y.tab.h"
 #include "strmap.h"
+
+/*****************************************************************************
+                    Macro, Function & Variable Declarations
+ *****************************************************************************/
 
 #define SB_I 0
 #define FP_I 1
@@ -40,29 +45,53 @@ void exStmtList();
 void exFuncList();
 void freeNodeList();
 
-static int lbl;
-static int globalSymIdx;
-static int funcSymIdx;
-static int funcCallLevel;
-static localSymTab* currentFrameSymTab;
-static int isScan;
+static int lbl;                                 // label
+static int funcCallLevel;                       // level of function calls
+static localSymTab* currentFrameSymTab;         // symbol table for current frame
+static int isScan;                              // 1: scanning; 0: execution
 
 static int reg[4];
 static char regNames[4][3] = {"sb", "fp", "in", "sp"};
 
+/*****************************************************************************
+                            Program Init & End
+ *****************************************************************************/
+
 void programStarts() {
+    // init symbol tables
     globalSymTab = sm_new(GLOBAL_SIZE);
     funcSymTab = sm_new(FUNC_SIZE);
-    globalSymIdx = funcSymIdx = funcCallLevel = 0;
     localSymTabs = (localSymTab*) malloc(sizeof(localSymTab));
     localSymTabs->prev = NULL;
     localSymTabs->symTab = NULL;
     currentFrameSymTab = localSymTabs;
 
+    // init function & statement lists
     funcList = malloc(sizeof(nodeListType)); funcList->type = listTypeFunc; funcList->nops = 0; funcList->head = funcList->tail = NULL;
     stmtList = malloc(sizeof(nodeListType)); stmtList->type = listTypeStmt; stmtList->nops = 0; stmtList->head = stmtList->tail = NULL;
 
+    // init pointer values
     SB = FP = IN = SP = 0;
+}
+
+void preScan(nodeListType *list) {
+    isScan = 1;
+
+    nodeListNodeType *p = list->head;
+
+    while(p) {
+        nodeType *n = p->node;
+        ex(n, 0);
+        p = p->next; 
+    }
+
+    isScan = 0;
+}
+
+void preProcess() {
+    preScan(stmtList);
+    preScan(funcList);
+    makeRoomGlobalVariables();
 }
 
 void programEnds() {
@@ -73,19 +102,15 @@ void programEnds() {
     freeNodeList(stmtList);
 }
 
-void moveRegPointer(int regIdx, int offset) {
-    printf("\tpush\t%s\n", regNames[regIdx]);
-    printf("\tpush\t%d\n", offset);
-    printf("\tadd\n");
-    printf("\tpop\t%s\n", regNames[regIdx]);
-    reg[regIdx] += offset;
-}
+/*****************************************************************************
+                            Function Init & End
+ *****************************************************************************/
 
 void createCallFrame(funcNodeType* func) {
     // deepen function call level
     funcCallLevel++;
 
-    // create symbol table
+    // create local symbol table
     localSymTab* symTab = (localSymTab*) malloc(sizeof(localSymTab));
     symTab->symTab = sm_new(LOCAL_SIZE);
     symTab->prev = currentFrameSymTab;
@@ -105,16 +130,18 @@ void createCallFrame(funcNodeType* func) {
         sm_put(currentFrameSymTab->symTab, paramList->id.varName, regName);
     }
 
+    // store meta data
     if (!isScan) assert(numOfParams == func->numOfParams);
     else func->numOfParams = numOfParams;
     currentFrameSymTab->numOfParams = numOfParams;
     currentFrameSymTab->numOfLocalVars = 0;
 
+    // push space onto stack for local variables
     if (!isScan) makeRoomLocalVariables(func);
 }
 
 void tearDownCallFrame(funcNodeType* func) {
-    // keep variable information
+    // keep variable information if scanning
     int numOfLocalVars = currentFrameSymTab->numOfLocalVars;
     if (!isScan) assert(numOfLocalVars == func->numOfLocalVars);
     else func->numOfLocalVars = numOfLocalVars;
@@ -128,6 +155,18 @@ void tearDownCallFrame(funcNodeType* func) {
     currentFrameSymTab = prevFrameSymTab;
 }
 
+/*****************************************************************************
+                            Utility Functions
+ *****************************************************************************/
+
+void moveRegPointer(int regIdx, int offset) {
+    printf("\tpush\t%s\n", regNames[regIdx]);
+    printf("\tpush\t%d\n", offset);
+    printf("\tadd\n");
+    printf("\tpop\t%s\n", regNames[regIdx]);
+    reg[regIdx] += offset;
+}
+
 void makeRoomGlobalVariables() {
     int numOfGlobalVars = sm_get_count(globalSymTab);
     if (numOfGlobalVars) moveRegPointer(SP_I, numOfGlobalVars);
@@ -137,7 +176,7 @@ void makeRoomLocalVariables(funcNodeType* func) {
     if (func->numOfLocalVars) moveRegPointer(SP_I, func->numOfLocalVars);
 }
 
-// return number of arguments; recursion to be consistent with param list
+// return number of arguments; use recursion for being consistent with param list's order
 int pushArgs(nodeType* argList, int lbl_kept) {
     if (argList == NULL) return 0;
 
@@ -151,13 +190,18 @@ int pushArgs(nodeType* argList, int lbl_kept) {
     return 1 + numOfArgs;
 }
 
-// return 1 for var already declared; 0 for new
+/*****************************************************************************
+                        Naming Related Utility Functions
+ *****************************************************************************/
+
+// return 1 for var already declared; 0 for newly declared ones
 int getGlobalRegName(char* regName, char* name) {
     if (sm_exists(globalSymTab, name)) {
         sm_get(globalSymTab, name, regName, REG_NAME_L);
         return 1;
     } else {
-        sprintf(regName, "sb[%d]", globalSymIdx++);
+        int numOfGlobalVars = sm_get_count(globalSymTab);
+        sprintf(regName, "sb[%d]", numOfGlobalVars);
         sm_put(globalSymTab, name, regName);
         return 0;
     }
@@ -195,7 +239,11 @@ int getFuncLabel(char* labelName, char* name) {
     }
 }
 
-/* conditional print assembly code depending on whether at the scanning stage */
+/*****************************************************************************
+                            Main Execution Functions
+ *****************************************************************************/
+
+/* conditionally print assembly code depending on whether at the scanning stage */
 #define PRINTF(args...) if (!isScan) printf(args)
 
 int ex(nodeType *p, int nops, ...) {
@@ -232,6 +280,7 @@ int ex(nodeType *p, int nops, ...) {
             PRINTF("\tpush\t%s\n", regName); 
             break;
         case typeArr:
+            /* TODO */
             ex(p->array.offset, 1, lbl_kept);
             PRINTF("\tpushi\t%s\n", p->array.baseName); 
             break;
@@ -239,7 +288,7 @@ int ex(nodeType *p, int nops, ...) {
             createCallFrame(&p->func);
             ex(p->func.stmt, 1, lbl_kept);
             tearDownCallFrame(&p->func);
-            PRINTF("\tret\n"); // in case 'return' is not specified
+            PRINTF("\tret\n"); // in case 'return' is not specified; 'ret' may be duplicated, but doesn't matter
             break;
         case typeOpr:
             switch(p->opr.oper) {
@@ -307,17 +356,29 @@ int ex(nodeType *p, int nops, ...) {
                     getRegName(regName, p->opr.op[0]->id.varName);
                     PRINTF("\tpop\t%s\n", regName); 
                     break;
-                case PUTI: case PUTI_:
+                case PUTI: 
                     ex(p->opr.op[0], 1, lbl_kept);
-                    if (p->opr.oper == PUTI) { PRINTF("\tputi\n"); } else { PRINTF("\tputi_\n"); }
+                    PRINTF("\tputi\n");
                     break;
-                case PUTC: case PUTC_:
+                case PUTI_:
                     ex(p->opr.op[0], 1, lbl_kept);
-                    if (p->opr.oper == PUTC) { PRINTF("\tputc\n"); } else { PRINTF("\tputc_\n"); }
+                    PRINTF("\tputi_\n");
                     break;
-                case PUTS: case PUTS_:
+                case PUTC: 
                     ex(p->opr.op[0], 1, lbl_kept);
-                    if (p->opr.oper == PUTS) { PRINTF("\tputs\n"); } else { PRINTF("\tputs_\n"); }
+                    PRINTF("\tputc\n");
+                    break;
+                case PUTC_:
+                    ex(p->opr.op[0], 1, lbl_kept);
+                    PRINTF("\tputc_\n");
+                    break;
+                case PUTS: 
+                    ex(p->opr.op[0], 1, lbl_kept);
+                    PRINTF("\tputs\n"); 
+                    break;
+                case PUTS_:
+                    ex(p->opr.op[0], 1, lbl_kept);
+                    PRINTF("\tputs_\n");
                     break;
                 case '=':  
                     getRegName(regName, p->opr.op[0]->id.varName);
@@ -325,6 +386,7 @@ int ex(nodeType *p, int nops, ...) {
                     if (p->opr.op[0]->type == typeId) {
                         PRINTF("\tpop\t%s\n", regName);
                     } else if (p->opr.op[0]->type == typeArr) {
+                        /* TODO */
                         ex(p->opr.op[0]->array.offset, 1, lbl_kept);
                         PRINTF("\tpopi\t%s\n", p->opr.op[0]->array.baseName);
                     }
@@ -363,26 +425,6 @@ int ex(nodeType *p, int nops, ...) {
                 }
     }
     return 0;
-}
-
-void preScan(nodeListType *list) {
-    isScan = 1;
-
-    nodeListNodeType *p = list->head;
-
-    while(p) {
-        nodeType *n = p->node;
-        ex(n, 0);
-        p = p->next; 
-    }
-
-    isScan = 0;
-}
-
-void preProcess() {
-    preScan(stmtList);
-    preScan(funcList);
-    makeRoomGlobalVariables();
 }
 
 void exStmtList() {
