@@ -38,13 +38,13 @@ y.tab.c: c6.y
 nas:
 	$(MAKE) -C nas nas
 
+clean:
+	rm lex.yy.c y.tab.* c6c
+	
 cleannas:
 	$(MAKE) -C nas clean
 
 cleantest:
 	rm ./test/*.as
-
-clean:
-	rm lex.yy.c y.tab.* c6c
 
 .PHONY: run run-test run-all-tests compile compile-test compile-all-tests $(TEST_FILES) nas clean cleannas cleantest
