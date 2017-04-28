@@ -1,21 +1,9 @@
-c = 100;
+CdF = "hello";
 
 hello () {
-	@c = 30;
-	aaaaa = 5;
-	return @c + aaaaa;
+	@cdf = 'c';
 }
 
-d = hello();
-puti(d);
+hello();
 
-oh() {
-	@d = 50;
-	fff = 1;
-}
-
-puti(d);
-
-oh();
-
-puti(d);
+putc(cDf);

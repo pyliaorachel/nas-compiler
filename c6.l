@@ -70,11 +70,19 @@ char text[500];
                                 int i = 0;
                                 while (isspace(yytext[i])) i++;
 
+                                // lowercase
+                                char* p = yytext + i;
+                                for ( ; *p; ++p) *p = tolower(*p);
+
                                 strcpy(yylval.sKey, yytext+i);
                                 return DECL_VARIABLE;
                             }
 
 @?[a-z]+[a-z0-9]*           { 
+                                // lowercase
+                                char* p = yytext;
+                                for ( ; *p; ++p) *p = tolower(*p);
+
                                 strcpy(yylval.sKey, yytext);
                                 return VARIABLE;
                             }
