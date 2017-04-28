@@ -333,7 +333,7 @@ int ex(nodeType *p, int nops, ...) {
                     ex(p->opr.op[0], 1, lbl_kept);
                     PRINTF("\tneg\n");
                     break;
-                case 'c':
+                case CALL:
                     numOfArgs = pushArgs(p->opr.op[1], lbl_kept);
                     getFuncLabel(labelName, p->opr.op[0]->id.varName);
                     PRINTF("\tcall\t%s, %d\n", labelName, numOfArgs);

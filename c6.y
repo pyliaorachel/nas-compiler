@@ -42,7 +42,7 @@ nodeListType* stmtList;
 %token <conStrValue> STRING
 %token <sKey> VARIABLE DECL_VARIABLE
 %token FOR WHILE IF BREAK CONTINUE RETURN
-%token GETI GETS GETC PUTI PUTS PUTC PUTI_ PUTS_ PUTC_
+%token GETI GETS GETC PUTI PUTS PUTC PUTI_ PUTS_ PUTC_ CALL
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -98,7 +98,7 @@ stmt:
         | CONTINUE ';'                                          { $$ = opr(CONTINUE, 2, NULL, NULL); }
         | RETURN expr ';'                                       { $$ = opr(RETURN, 1, $2); }
         | '{' stmt_list '}'                                     { $$ = $2; }
-        | DECL_VARIABLE '(' param_list ')' ';'                  { $$ = opr('c', 2, id($1), $3); }
+        | DECL_VARIABLE '(' param_list ')' ';'                  { $$ = opr(CALL, 2, id($1), $3); }
         ;
 
 stmt_list:
@@ -156,7 +156,7 @@ expr:
         | expr AND expr         { $$ = opr(AND, 2, $1, $3); }
         | expr OR expr          { $$ = opr(OR, 2, $1, $3); }
         | '(' expr ')'          { $$ = $2; }
-        | VARIABLE '(' arg_list ')' { $$ = opr('c', 2, id($1), $3); }
+        | VARIABLE '(' arg_list ')' { $$ = opr(CALL, 2, id($1), $3); }
         ;
 
 %%
