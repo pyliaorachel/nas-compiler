@@ -17,6 +17,7 @@ void freeNodeList(nodeListType* nodeList);
 void programStarts(void);
 void programEnds(void);
 int ex(nodeType *p, int nops, ...);
+void preProcess();
 void exStmtList(); 
 void exFuncList(); 
 int yylex(void);
@@ -58,6 +59,7 @@ nodeListType* stmtList;
 
 program:
         main                { 
+                                preProcess();
                                 exStmtList(); 
                                 exFuncList(); 
                                 wrapUp(); 
@@ -229,6 +231,8 @@ nodeType *func(char* funcName, nodeType *paramList, nodeType *stmt) {
     strcpy(p->func.funcName, funcName);
     p->func.paramList = paramList;
     p->func.stmt = stmt;
+    p->func.numOfLocalVars = 0;
+    p->func.numOfParams = 0;
 
     return p;
 }
@@ -300,7 +304,6 @@ void freeNodeList(nodeListType* nodeList) {
 }
 
 void wrapUp() {
-    printf("wrapup");
     programEnds();
     exit(0);
 }

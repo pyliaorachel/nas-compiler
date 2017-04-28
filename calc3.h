@@ -20,15 +20,17 @@ typedef struct {
 
 /* arrays */
 typedef struct {
-    char baseName[14];
     struct nodeTypeTag *offset;
+    char baseName[14];
 } arrayNodeType;
 
 /* functions */
 typedef struct {
-    char funcName[14];
     struct nodeTypeTag *paramList;
     struct nodeTypeTag *stmt;
+    int numOfParams;
+    int numOfLocalVars;
+    char funcName[14];
 } funcNodeType;
 
 /* operators */
@@ -76,6 +78,9 @@ typedef struct localSymTab {
 #define GLOBAL_SIZE 100
 #define LOCAL_SIZE 100
 #define FUNC_SIZE 100
+
+#define LABEL_NAME_L 6
+#define REG_NAME_L 100
 
 extern StrMap* globalSymTab;
 extern StrMap* funcSymTab;
