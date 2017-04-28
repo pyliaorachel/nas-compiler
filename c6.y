@@ -98,6 +98,7 @@ stmt:
         | CONTINUE ';'                                          { $$ = opr(CONTINUE, 2, NULL, NULL); }
         | RETURN expr ';'                                       { $$ = opr(RETURN, 1, $2); }
         | '{' stmt_list '}'                                     { $$ = $2; }
+        | DECL_VARIABLE '(' param_list ')' ';'                  { $$ = opr('c', 2, id($1), $3); }
         ;
 
 stmt_list:

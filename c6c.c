@@ -238,6 +238,7 @@ int ex(nodeType *p, int nops, ...) {
             createCallFrame(&p->func);
             ex(p->func.stmt, 1, lbl_kept);
             tearDownCallFrame(&p->func);
+            PRINTF("\tret\n"); // in case 'return' is not specified
             break;
         case typeOpr:
             switch(p->opr.oper) {
