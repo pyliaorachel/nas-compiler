@@ -55,7 +55,7 @@ nodeListType* stmtList;
 %left '*' '/' '%'
 %nonassoc UMINUS
 
-%type <nPtr> func_decl stmt expr stmt_list variable array array_list param param_list arg arg_list
+%type <nPtr> func_decl stmt expr stmt_list variable array array_list param_arg_list
 
 %%
 
@@ -75,21 +75,21 @@ main:
         ;
 
 func_decl:
-          DECL_VARIABLE '(' param_list ')' '{' stmt_list '}'    { $$ = func($1, $3, $6); }
+          DECL_VARIABLE '(' param_arg_list ')' '{' stmt_list '}'    { $$ = func($1, $3, $6); }
         ;
 
 stmt:
           ';'                                                   { $$ = opr(';', 2, NULL, NULL); }
-        | expr ';'                                              { printf("expr ;");$$ = $1; }
+        | expr ';'                                              { $$ = $1; }
         | GETI '(' variable ')' ';'                             { $$ = opr(GETI, 1, $3); }
         | GETC '(' variable ')' ';'                             { $$ = opr(GETC, 1, $3); }
         | GETS '(' variable ')' ';'                             { $$ = opr(GETS, 1, $3); }
-        | PUTI '(' arg ')' ';'                                  { $$ = opr(PUTI, 1, $3); }
-        | PUTC '(' arg ')' ';'                                  { $$ = opr(PUTC, 1, $3); }
-        | PUTS '(' arg ')' ';'                                  { $$ = opr(PUTS, 1, $3); }
-        | PUTI_ '(' arg ')' ';'                                 { $$ = opr(PUTI_, 1, $3); }
-        | PUTC_ '(' arg ')' ';'                                 { $$ = opr(PUTC_, 1, $3); }
-        | PUTS_ '(' arg ')' ';'                                 { $$ = opr(PUTS_, 1, $3); }
+        | PUTI '(' expr ')' ';'                                 { $$ = opr(PUTI, 1, $3); }
+        | PUTC '(' expr ')' ';'                                 { $$ = opr(PUTC, 1, $3); }
+        | PUTS '(' expr ')' ';'                                 { $$ = opr(PUTS, 1, $3); }
+        | PUTI_ '(' expr ')' ';'                                { $$ = opr(PUTI_, 1, $3); }
+        | PUTC_ '(' expr ')' ';'                                { $$ = opr(PUTC_, 1, $3); }
+        | PUTS_ '(' expr ')' ';'                                { $$ = opr(PUTS_, 1, $3); }
         | variable '=' expr ';'                                 { $$ = opr('=', 2, $1, $3); }
         | array '=' expr ';'                                    { $$ = opr('=', 2, $1, $3); }
         | FOR '(' stmt stmt stmt ')' stmt                       { $$ = opr(FOR, 4, $3, $4, $5, $7); }
@@ -100,7 +100,7 @@ stmt:
         | CONTINUE ';'                                          { $$ = opr(CONTINUE, 2, NULL, NULL); }
         | RETURN expr ';'                                       { $$ = opr(RETURN, 1, $2); }
         | '{' stmt_list '}'                                     { $$ = $2; }
-        | DECL_VARIABLE '(' arg_list ')' ';'                    { printf("call %s\n", $1);$$ = opr(CALL, 2, id($1), $3); }
+        | DECL_VARIABLE '(' param_arg_list ')' ';'              { $$ = opr(CALL, 2, id($1), $3); }
         | DECL_ARRAY array ';'                                  { $$ = opr(DECL_ARRAY, 1, $2); }
         ;
 
@@ -109,45 +109,31 @@ stmt_list:
         | stmt_list stmt        { $$ = opr(';', 2, $1, $2); }
         ;
 
-param:
-          variable              { $$ = $1; }
-        | /* NULL */            { $$ = NULL; }
-        ;
-
-param_list:
-          param                 { $$ = $1; }
-        | param_list ',' param  { $$ = opr(',', 2, $1, $3); }
-        ;
-
-arg:
-          expr                  { printf("arg %d\n", $1->type); $$ = $1; }
-        | /* NULL */            { $$ = NULL; }
-        ;
-
-arg_list:   
-          arg                   { $$ = $1; }
-        | arg_list ',' arg      { $$ = opr(',', 2, $1, $3); }
+param_arg_list:   
+          expr                      { $$ = $1; }
+        | param_arg_list ',' expr   { $$ = opr(',', 2, $1, $3); }
+        | /* NULL */                { $$ = NULL; }
         ;
 
 variable:
           VARIABLE              { $$ = id($1); }
-        | DECL_VARIABLE         { printf("decalre %s\n", $1);$$ = id($1); }
+        | DECL_VARIABLE         { $$ = id($1); }
         ;
 
 array:
-          array_list ']'        { printf("end array\n");$$ = $1; }
+          array_list ']'        { $$ = $1; }
         ;
 
 array_list:
-          variable '[' expr         { printf("start array %s\n", $1->id.varName);$$ = array($1, $3); }
-        | array_list ']' '[' expr   { printf("go!\n");$$ = extendArray($1, $4); }
+          variable '[' expr         { $$ = array($1, $3); }
+        | array_list ']' '[' expr   { $$ = extendArray($1, $4); }
         ;
 
 expr:
           INTEGER               { $$ = con($1, conTypeInt); }
         | CHAR                  { $$ = con($1, conTypeChar); }
         | STRING                { $$ = con((long) $1, conTypeStr); }
-        | array                 { printf("expr is array\n"); $$ = $1; }
+        | array                 { $$ = $1; }
         | variable              { $$ = $1; }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
         | expr '+' expr         { $$ = opr('+', 2, $1, $3); }
@@ -164,7 +150,7 @@ expr:
         | expr AND expr         { $$ = opr(AND, 2, $1, $3); }
         | expr OR expr          { $$ = opr(OR, 2, $1, $3); }
         | '(' expr ')'          { $$ = $2; }
-        | VARIABLE '(' arg_list ')' { $$ = opr(CALL, 2, id($1), $3); }
+        | VARIABLE '(' param_arg_list ')' { $$ = opr(CALL, 2, id($1), $3); }
         ;
 
 %%

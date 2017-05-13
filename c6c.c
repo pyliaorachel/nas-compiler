@@ -139,11 +139,13 @@ void createCallFrame(funcNodeType* func) {
     int numOfParams = 0;
     char regName[REG_NAME_L];
     while (paramList != NULL && paramList->type == typeOpr && paramList->opr.oper == ',') {
+        assert(paramList->opr.op[1]->type == typeId); // param list must consist of variables
         sprintf(regName, "fp[%d]", -4 - numOfParams++);
         sm_put(currentFrameSymTab->symTab, paramList->opr.op[1]->id.varName, regName);
         paramList = paramList->opr.op[0];
     }
     if (paramList != NULL) {
+        assert(paramList->type == typeId); // param list must consist of variables
         sprintf(regName, "fp[%d]", -4 - numOfParams++);
         sm_put(currentFrameSymTab->symTab, paramList->id.varName, regName);
     }
