@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <assert.h>
 #include "calc3.h"
 #include "strmap.h"
 
@@ -99,7 +100,12 @@ stmt:
         | RETURN expr ';'                                       { $$ = opr(RETURN, 1, $2); }
         | '{' stmt_list '}'                                     { $$ = $2; }
         | DECL_VARIABLE '(' param_list ')' ';'                  { $$ = opr(CALL, 2, id($1), $3); }
-        | DECL_ARRAY array ';'                                  { $$ = opr(DECL_ARRAY, 1, $2); }
+        | DECL_ARRAY array ';'                                  { 
+                                                                    // not supporting VLA
+                                                                    assert($2->array.offset->type == typeCon); 
+                                                                    assert($2->array.offset->con.type != conTypeStr && $2->array.offset->con.type != conTypeNull); 
+                                                                    $$ = opr(DECL_ARRAY, 1, $2); 
+                                                                }
         ;
 
 stmt_list:

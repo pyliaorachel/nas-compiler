@@ -34,10 +34,10 @@ void moveRegPointer(int regIdx, int offset);
 void makeRoomGlobalVariables();
 void makeRoomLocalVariables(funcNodeType* func);
 int pushArgs(nodeType* argList, int lbl_kept);
-void declareArray(arrayNodeType* array, int lbl_kept);
-int getGlobalRegName(char* regName, char* name);
-int getLocalRegName(char* regName, char* name);
-int getRegName(char* regName, char* name);
+void declareArray(char* regName, arrayNodeType* array, int lbl_kept);
+int getGlobalRegName(char* regName, char* name, int size);
+int getLocalRegName(char* regName, char* name, int size);
+int getRegName(char* regName, char* name, int size);
 int getFuncLabel(char* labelName, char* name);
 int ex(nodeType *p, int nops, ...);
 void preScan(nodeListType *list);
@@ -178,9 +178,7 @@ void moveRegPointer(int regIdx, int offset) {
 }
 
 void makeRoomGlobalVariables() {
-    assert(globalSymTab->size == sm_get_count(globalSymTab->symTab));
-    int numOfGlobalVars = globalSymTab->size;
-    if (numOfGlobalVars) moveRegPointer(SP_I, numOfGlobalVars);
+    if (globalSymTab->size) moveRegPointer(SP_I, globalSymTab->size);
 }
 
 void makeRoomLocalVariables(funcNodeType* func) {
@@ -201,12 +199,8 @@ int pushArgs(nodeType* argList, int lbl_kept) {
     return 1 + numOfArgs;
 }
 
-void declareArray(arrayNodeType* array, int lbl_kept) {
-    printf("declare array %s\n", array->baseName);
-    PRINTF("\tpush\tsp\n");
-    ex(array->offset, 1, lbl_kept);
-    PRINTF("\tadd\n");
-    PRINTF("\tpop\tsp\n");
+void declareArray(char* regName, arrayNodeType* array, int lbl_kept) {
+    getRegName(regName, array->baseName, array->offset->con.value);
 }
 
 /*****************************************************************************
@@ -214,38 +208,35 @@ void declareArray(arrayNodeType* array, int lbl_kept) {
  *****************************************************************************/
 
 // return 1 for var already declared; 0 for newly declared ones
-int getGlobalRegName(char* regName, char* name) {
+int getGlobalRegName(char* regName, char* name, int size) {
     if (sm_exists(globalSymTab->symTab, name)) {
         sm_get(globalSymTab->symTab, name, regName, REG_NAME_L);
         return 1;
     } else {
-        assert(globalSymTab->size == sm_get_count(globalSymTab->symTab));
-        int numOfGlobalVars = globalSymTab->size;
-        sprintf(regName, "sb[%d]", numOfGlobalVars);
+        sprintf(regName, "sb[%d]", globalSymTab->size += size);
         sm_put(globalSymTab->symTab, name, regName);
-        globalSymTab->size++;
         return 0;
     }
 }
 
-int getLocalRegName(char* regName, char* name) {
+int getLocalRegName(char* regName, char* name, int size) {
     if (sm_exists(currentFrameSymTab->symTab, name)) {
         sm_get(currentFrameSymTab->symTab, name, regName, REG_NAME_L);
         return 1;
     } else {
-        sprintf(regName, "fp[%d]", currentFrameSymTab->numOfLocalVars++);
+        sprintf(regName, "fp[%d]", currentFrameSymTab->numOfLocalVars += size);
         sm_put(currentFrameSymTab->symTab, name, regName);
         return 0;
     }
 }
 
-int getRegName(char* regName, char* name) {
+int getRegName(char* regName, char* name, int size) {
     if (funcCallLevel == 0) {
-        return getGlobalRegName(regName, name);
+        return getGlobalRegName(regName, name, size);
     } else if (name[0] == '@') {
-        return getGlobalRegName(regName, name+1);
+        return getGlobalRegName(regName, name+1, size);
     } else {
-        return getLocalRegName(regName, name);
+        return getLocalRegName(regName, name, size);
     }
 }
 
@@ -295,7 +286,7 @@ int ex(nodeType *p, int nops, ...) {
             }
             break;
         case typeId:      
-            getRegName(regName, p->id.varName);
+            getRegName(regName, p->id.varName, 1);
             PRINTF("\tpush\t%s\n", regName); 
             break;
         case typeArr:
@@ -362,17 +353,17 @@ int ex(nodeType *p, int nops, ...) {
                     break;
                 case GETI:
                     PRINTF("\tgeti\n"); 
-                    getRegName(regName, p->opr.op[0]->id.varName);
+                    getRegName(regName, p->opr.op[0]->id.varName, 1);
                     PRINTF("\tpop\t%s\n", regName); 
                     break;
                 case GETC: 
                     PRINTF("\tgetc\n"); 
-                    getRegName(regName, p->opr.op[0]->id.varName);
+                    getRegName(regName, p->opr.op[0]->id.varName, 1);
                     PRINTF("\tpop\t%s\n", regName); 
                     break;
                 case GETS: 
                     PRINTF("\tgets\n"); 
-                    getRegName(regName, p->opr.op[0]->id.varName);
+                    getRegName(regName, p->opr.op[0]->id.varName, 1);
                     PRINTF("\tpop\t%s\n", regName); 
                     break;
                 case PUTI: 
@@ -400,7 +391,7 @@ int ex(nodeType *p, int nops, ...) {
                     PRINTF("\tputs_\n");
                     break;
                 case '=':  
-                    getRegName(regName, p->opr.op[0]->id.varName);
+                    getRegName(regName, p->opr.op[0]->id.varName, 1);
                     ex(p->opr.op[1], 1, lbl_kept);
                     if (p->opr.op[0]->type == typeId) {
                         PRINTF("\tpop\t%s\n", regName);
@@ -424,7 +415,7 @@ int ex(nodeType *p, int nops, ...) {
                     PRINTF("\tret\n");
                     break;
                 case DECL_ARRAY:
-                    declareArray(&p->opr.op[0]->array, lbl_kept);
+                    declareArray(regName, &p->opr.op[0]->array, lbl_kept);
                     break;
                 default:
                     ex(p->opr.op[0], 1, lbl_kept);
