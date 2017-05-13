@@ -80,7 +80,7 @@ func_decl:
 
 stmt:
           ';'                                                   { $$ = opr(';', 2, NULL, NULL); }
-        | expr ';'                                              { $$ = $1; }
+        | expr ';'                                              { printf("expr ;");$$ = $1; }
         | GETI '(' variable ')' ';'                             { $$ = opr(GETI, 1, $3); }
         | GETC '(' variable ')' ';'                             { $$ = opr(GETC, 1, $3); }
         | GETS '(' variable ')' ';'                             { $$ = opr(GETS, 1, $3); }
@@ -100,7 +100,7 @@ stmt:
         | CONTINUE ';'                                          { $$ = opr(CONTINUE, 2, NULL, NULL); }
         | RETURN expr ';'                                       { $$ = opr(RETURN, 1, $2); }
         | '{' stmt_list '}'                                     { $$ = $2; }
-        | DECL_VARIABLE '(' param_list ')' ';'                  { $$ = opr(CALL, 2, id($1), $3); }
+        | DECL_VARIABLE '(' arg_list ')' ';'                    { printf("call %s\n", $1);$$ = opr(CALL, 2, id($1), $3); }
         | DECL_ARRAY array ';'                                  { $$ = opr(DECL_ARRAY, 1, $2); }
         ;
 
@@ -120,7 +120,7 @@ param_list:
         ;
 
 arg:
-          expr                  { $$ = $1; }
+          expr                  { printf("arg %d\n", $1->type); $$ = $1; }
         | /* NULL */            { $$ = NULL; }
         ;
 
@@ -131,23 +131,23 @@ arg_list:
 
 variable:
           VARIABLE              { $$ = id($1); }
-        | DECL_VARIABLE         { $$ = id($1); }
+        | DECL_VARIABLE         { printf("decalre %s\n", $1);$$ = id($1); }
         ;
 
 array:
-          array_list ']'        { $$ = $1; }
+          array_list ']'        { printf("end array\n");$$ = $1; }
         ;
 
 array_list:
-          variable '[' expr         { $$ = array($1, $3); }
-        | array_list ']' '[' expr   { $$ = extendArray($1, $4); }
+          variable '[' expr         { printf("start array %s\n", $1->id.varName);$$ = array($1, $3); }
+        | array_list ']' '[' expr   { printf("go!\n");$$ = extendArray($1, $4); }
         ;
 
 expr:
           INTEGER               { $$ = con($1, conTypeInt); }
         | CHAR                  { $$ = con($1, conTypeChar); }
         | STRING                { $$ = con((long) $1, conTypeStr); }
-        | array                 { $$ = $1; }
+        | array                 { printf("expr is array\n"); $$ = $1; }
         | variable              { $$ = $1; }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
         | expr '+' expr         { $$ = opr('+', 2, $1, $3); }
@@ -224,6 +224,7 @@ nodeType *array(nodeType *idNode, nodeType *offset) {
     p->array.offsetListHead = (arrayOffsetNodeType*) malloc(sizeof(arrayOffsetNodeType));
     p->array.offsetListHead->offset = offset;
     p->array.offsetListHead->next = NULL;
+    p->array.offsetListTail = p->array.offsetListHead;
     p->array.dim = 1;
 
     /* dump id node */
@@ -235,10 +236,11 @@ nodeType *array(nodeType *idNode, nodeType *offset) {
 nodeType *extendArray(nodeType *p, nodeType *offset) {
     arrayOffsetNodeType* n = (arrayOffsetNodeType*) malloc(sizeof(arrayOffsetNodeType));
     n->offset = offset;
+    n->next = NULL;
 
-    // append in reverse order
-    n->next = p->array.offsetListHead;
-    p->array.offsetListHead = n;
+    // append
+    p->array.offsetListTail->next = n;
+    p->array.offsetListTail = n;
 
     p->array.dim += 1;
     return p;

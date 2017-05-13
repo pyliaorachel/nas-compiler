@@ -26,6 +26,7 @@ typedef struct arrayOffsetNodeType {
 
 typedef struct {
     struct arrayOffsetNodeType *offsetListHead;
+    struct arrayOffsetNodeType *offsetListTail;
     int dim;
     char baseName[14];
 } arrayNodeType ;
@@ -96,7 +97,7 @@ typedef struct localSymTab {
 
 #define LABEL_NAME_L 6
 #define REG_NAME_L 100
-#define DIM_STR_L 60
+#define DIM_STR_L 100
 
 extern symTab* globalSymTab;
 extern symTab* funcSymTab;

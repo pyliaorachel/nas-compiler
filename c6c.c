@@ -35,8 +35,9 @@ void makeRoomGlobalVariables();
 void makeRoomLocalVariables(funcNodeType* func);
 int pushArgs(nodeType* argList, int lbl_kept);
 void declareArray(char* regName, arrayNodeType* array, int lbl_kept);
-void pushArrayPtr(arrayNodeType* array, int lbl_kept);
-void pushArray(arrayNodeType* array, int lbl_kept);
+int isArrayPtr(nodeType* p);
+void pushPtr(nodeType* p, int lbl_kept);
+void pushArray(nodeType* p, int lbl_kept);
 int getGlobalRegName(char* regName, char* name, int size);
 int getLocalRegName(char* regName, char* name, int size);
 int getRegName(char* regName, char* name, int size);
@@ -208,22 +209,23 @@ int pushArgs(nodeType* argList, int lbl_kept) {
 
 void declareArray(char* regName, arrayNodeType* array, int lbl_kept) {
     StrMap* arrayDimTab = getArrayDimSymTab();
-    char dimStr[DIM_STR_L];
+    char dimStr[DIM_STR_L], buffer[DIM_STR_L];
 
     // calculate offset
     assert(array->dim >= 1);
     arrayOffsetNodeType *n = array->offsetListHead;
     int offset = n->offset->con.value;
-    sprintf(dimStr, "%d", n->offset->con.value);
+    sprintf(dimStr, "%d,%d", array->dim, n->offset->con.value); // prepend count -> count,dim1,dim2,...
     n = n->next;
 
     while (n) {
-        // not supporting VLA
+        // not supporting VLA, always assert static declaration
         assert(n->offset->type == typeCon); 
         assert(n->offset->con.type != conTypeStr && n->offset->con.type != conTypeNull); 
 
         offset *= n->offset->con.value;
-        sprintf(dimStr, "%s,%d", dimStr, n->offset->con.value);
+        sprintf(buffer, "%s,%d", dimStr, n->offset->con.value);
+        strcpy(dimStr, buffer);
         n = n->next;
     }
 
@@ -233,43 +235,84 @@ void declareArray(char* regName, arrayNodeType* array, int lbl_kept) {
     sm_put(arrayDimTab, array->baseName, dimStr);
 }
 
-void pushArrayPtr(arrayNodeType* array, int lbl_kept) {
+int isArrayPtr(nodeType* p) {
     StrMap* arrayDimTab = getArrayDimSymTab();
     char dimStr[DIM_STR_L];
-    int dim;
+    int arrayDim;
+
+    if (p->type == typeId && sm_exists(arrayDimTab, p->id.varName)) {
+        return 1;
+    } else if (p->type == typeArr) {
+        assert(sm_exists(arrayDimTab, p->array.baseName));
+
+        // check dimension count
+        sm_get(arrayDimTab, p->array.baseName, dimStr, DIM_STR_L);
+        arrayDim = atoi(strtok(dimStr, ","));
+
+        return p->array.dim < arrayDim;
+    }
+    
+    return 0;
+}
+
+void pushPtr(nodeType* p, int lbl_kept) {
+    StrMap* arrayDimTab = getArrayDimSymTab();
+    char dimStr[DIM_STR_L];
+    int dim; char* tempDim;
     char regName[REG_NAME_L], baseRegName[3] = {0}, baseRegOffset[REG_NAME_L] = {0};
 
-    getRegName(regName, array->baseName, -1);
-    strncpy(baseRegName, regName, 2);
-    strncpy(baseRegOffset, regName + 3, strlen(regName) - 4);
+    if (p->type == typeArr) {
+        getRegName(regName, p->array.baseName, -1);
+        strncpy(baseRegName, regName, 2);
+        strncpy(baseRegOffset, regName + 3, strlen(regName) - 4);
 
-    PRINTF("\tpush\t%s\n", baseRegName);
-    PRINTF("\tpush\t%s\n", baseRegOffset); 
+        PRINTF("\tpush\t%s\n", baseRegName);
+        PRINTF("\tpush\t%s\n", baseRegOffset); 
 
-    // calculate offset
-    arrayOffsetNodeType *n = array->offsetListHead;
-    ex(n->offset, 1, lbl_kept);
-
-    n = n->next;
-    sm_get(arrayDimTab, array->baseName, dimStr, DIM_STR_L);
-    dim = atoi(strtok(dimStr, ","));
-
-    while (n) {
-        PRINTF("\tpush\t%d\n", dim); 
-        PRINTF("\tmul\n"); 
+        // calculate offset
+        PRINTF("\tpush\t0\n"); 
+        arrayOffsetNodeType *n = p->array.offsetListHead;
         ex(n->offset, 1, lbl_kept);
         PRINTF("\tadd\n"); 
 
         n = n->next;
-        dim = atoi(strtok(NULL, ","));
+        sm_get(arrayDimTab, p->array.baseName, dimStr, DIM_STR_L);
+        dim = atoi(strtok(dimStr, ",")); // dummy, dim count
+        dim = atoi(strtok(NULL, ",")); // dummy, first dimension
+
+        while (n) {
+            dim = atoi(strtok(NULL, ","));
+            PRINTF("\tpush\t%d\n", dim); 
+            PRINTF("\tmul\n"); 
+            ex(n->offset, 1, lbl_kept);
+            PRINTF("\tadd\n"); 
+
+            n = n->next;
+        }
+
+        tempDim = strtok(NULL, ",");
+        while (tempDim) {
+            dim = atoi(tempDim);
+            PRINTF("\tpush\t%d\n", dim); 
+            PRINTF("\tmul\n"); 
+            tempDim = strtok(NULL, ",");
+        }
+
+        PRINTF("\tadd\n"); 
+    } else if (p->type == typeId) {
+        getRegName(regName, p->id.varName, 1);
+        strncpy(baseRegName, regName, 2);
+        strncpy(baseRegOffset, regName + 3, strlen(regName) - 4);
+
+        PRINTF("\tpush\t%s\n", baseRegName);
+        PRINTF("\tpush\t%s\n", baseRegOffset); 
     }
 
-    PRINTF("\tadd\n"); 
     PRINTF("\tadd\n");    
 }
 
-void pushArray(arrayNodeType* array, int lbl_kept) {
-    pushArrayPtr(array, lbl_kept);
+void pushArray(nodeType* p, int lbl_kept) {
+    pushPtr(p, lbl_kept);
     PRINTF("\tpop\tac\n"); 
     PRINTF("\tpush\tac[0]\n");  
 }
@@ -371,13 +414,23 @@ int ex(nodeType *p, int nops, ...) {
             }
             break;
         case typeId: 
-            PRINTF("\n\t// push variable %s\n", p->id.varName);      
-            getRegName(regName, p->id.varName, 1);
-            PRINTF("\tpush\t%s\n", regName); 
+            if (!isArrayPtr(p)) {
+                PRINTF("\n\t// push variable %s\n", p->id.varName);      
+                getRegName(regName, p->id.varName, 1);
+                PRINTF("\tpush\t%s\n", regName); 
+            } else {
+                PRINTF("\n\t// push pointer %s\n", p->id.varName);      
+                pushPtr(p, lbl_kept);        
+            }
             break;
         case typeArr:
-            PRINTF("\n\t// push array %s\n", p->array.baseName); 
-            pushArray(&p->array, lbl_kept);
+            if (!isArrayPtr(p)) {
+                PRINTF("\n\t// push array %s\n", p->array.baseName); 
+                pushArray(p, lbl_kept);
+            } else {
+                PRINTF("\n\t// push pointer %s\n", p->array.baseName);      
+                pushPtr(p, lbl_kept);    
+            }
             break;
         case typeFunc:
             PRINTF("\n\t// declare function\n"); 
@@ -497,7 +550,7 @@ int ex(nodeType *p, int nops, ...) {
                     } else if (p->opr.op[0]->type == typeArr) {
                         PRINTF("\n\t// array assignment %s\n", p->opr.op[0]->array.baseName); 
                         ex(p->opr.op[1], 1, lbl_kept);
-                        pushArrayPtr(&p->opr.op[0]->array, lbl_kept);
+                        pushPtr(p->opr.op[0], lbl_kept);
                         PRINTF("\tpop\tac\n");
                         PRINTF("\tpop\tac[0]\n");
                     }
