@@ -139,7 +139,8 @@ variable:
         ;
 
 array:
-          VARIABLE '[' expr ']' { $$ = array($1, $3); }
+          VARIABLE '[' expr ']'         { $$ = array($1, $3); }
+        | DECL_VARIABLE '[' expr ']'    { $$ = array($1, $3); }
         ;
 
 expr:

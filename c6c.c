@@ -35,6 +35,8 @@ void makeRoomGlobalVariables();
 void makeRoomLocalVariables(funcNodeType* func);
 int pushArgs(nodeType* argList, int lbl_kept);
 void declareArray(char* regName, arrayNodeType* array, int lbl_kept);
+void pushArrayPtr(arrayNodeType* array, int lbl_kept);
+void pushArray(arrayNodeType* array, int lbl_kept);
 int getGlobalRegName(char* regName, char* name, int size);
 int getLocalRegName(char* regName, char* name, int size);
 int getRegName(char* regName, char* name, int size);
@@ -203,18 +205,41 @@ void declareArray(char* regName, arrayNodeType* array, int lbl_kept) {
     getRegName(regName, array->baseName, array->offset->con.value);
 }
 
+void pushArrayPtr(arrayNodeType* array, int lbl_kept) {
+    char regName[REG_NAME_L], baseRegName[3] = {0}, baseRegOffset[REG_NAME_L] = {0};
+
+    getRegName(regName, array->baseName, -1);
+    strncpy(baseRegName, regName, 2);
+    strncpy(baseRegOffset, regName + 3, strlen(regName) - 4);
+
+    PRINTF("\tpush\t%s\n", baseRegName);
+    PRINTF("\tpush\t%s\n", baseRegOffset); 
+    ex(array->offset, 1, lbl_kept);
+    PRINTF("\tadd\n"); 
+    PRINTF("\tadd\n");    
+}
+
+void pushArray(arrayNodeType* array, int lbl_kept) {
+    pushArrayPtr(array, lbl_kept);
+    PRINTF("\tpop\tac\n"); 
+    PRINTF("\tpush\tac[0]\n");  
+}
+
 /*****************************************************************************
                         Naming Related Utility Functions
  *****************************************************************************/
 
 // return 1 for var already declared; 0 for newly declared ones
+// size < 0 -> needs to be already declared
 int getGlobalRegName(char* regName, char* name, int size) {
     if (sm_exists(globalSymTab->symTab, name)) {
         sm_get(globalSymTab->symTab, name, regName, REG_NAME_L);
         return 1;
     } else {
-        sprintf(regName, "sb[%d]", globalSymTab->size += size);
+        assert(size > 0);
+        sprintf(regName, "sb[%d]", globalSymTab->size);
         sm_put(globalSymTab->symTab, name, regName);
+        globalSymTab->size += size;
         return 0;
     }
 }
@@ -224,8 +249,10 @@ int getLocalRegName(char* regName, char* name, int size) {
         sm_get(currentFrameSymTab->symTab, name, regName, REG_NAME_L);
         return 1;
     } else {
-        sprintf(regName, "fp[%d]", currentFrameSymTab->numOfLocalVars += size);
+        assert(size > 0);
+        sprintf(regName, "fp[%d]", currentFrameSymTab->numOfLocalVars);
         sm_put(currentFrameSymTab->symTab, name, regName);
+        currentFrameSymTab->numOfLocalVars += size;
         return 0;
     }
 }
@@ -272,6 +299,7 @@ int ex(nodeType *p, int nops, ...) {
     if (!p) return 0;
     switch(p->type) {
         case typeCon:       
+            PRINTF("\n\t// push constant\n"); 
             switch(p->con.type){
                 case conTypeNull:
                 case conTypeInt:
@@ -285,16 +313,17 @@ int ex(nodeType *p, int nops, ...) {
                     break;
             }
             break;
-        case typeId:      
+        case typeId: 
+            PRINTF("\n\t// push variable %s\n", p->id.varName);      
             getRegName(regName, p->id.varName, 1);
             PRINTF("\tpush\t%s\n", regName); 
             break;
         case typeArr:
-            /* TODO */
-            ex(p->array.offset, 1, lbl_kept);
-            PRINTF("\tpushi\t%s\n", p->array.baseName); 
+            PRINTF("\n\t// push array %s\n", p->array.baseName); 
+            pushArray(&p->array, lbl_kept);
             break;
         case typeFunc:
+            PRINTF("\n\t// declare function\n"); 
             createCallFrame(&p->func);
             ex(p->func.stmt, 1, lbl_kept);
             tearDownCallFrame(&p->func);
@@ -303,6 +332,7 @@ int ex(nodeType *p, int nops, ...) {
         case typeOpr:
             switch(p->opr.oper) {
                 case FOR:
+                    PRINTF("\n\t// for loop\n"); 
                     lblz = lbl++;
                     lbly = lbl++;
                     lblx = lbl++;
@@ -317,6 +347,7 @@ int ex(nodeType *p, int nops, ...) {
                     PRINTF("L%03d:\n", lbly);
                     break;
                 case WHILE:
+                    PRINTF("\n\t// while loop\n"); 
                     lbl1 = lbl++;
                     lbl2 = lbl++; // consistent order continue_target -> break target, as with FOR
                     PRINTF("L%03d:\n", lbl1);
@@ -327,6 +358,7 @@ int ex(nodeType *p, int nops, ...) {
                     PRINTF("L%03d:\n", lbl2);
                     break;
                 case IF:
+                    PRINTF("\n\t// if statement\n"); 
                     lbl1 = lbl++;
                     ex(p->opr.op[0], 1, lbl_kept);
                     if (p->opr.nops > 2) {
@@ -352,53 +384,65 @@ int ex(nodeType *p, int nops, ...) {
                     PRINTF("\tjmp\tL%03d\n", lbl_kept);
                     break;
                 case GETI:
+                    PRINTF("\n\t// I/O\n"); 
                     PRINTF("\tgeti\n"); 
                     getRegName(regName, p->opr.op[0]->id.varName, 1);
                     PRINTF("\tpop\t%s\n", regName); 
                     break;
                 case GETC: 
+                    PRINTF("\n\t// I/O\n"); 
                     PRINTF("\tgetc\n"); 
                     getRegName(regName, p->opr.op[0]->id.varName, 1);
                     PRINTF("\tpop\t%s\n", regName); 
                     break;
                 case GETS: 
+                    PRINTF("\n\t// I/O\n"); 
                     PRINTF("\tgets\n"); 
                     getRegName(regName, p->opr.op[0]->id.varName, 1);
                     PRINTF("\tpop\t%s\n", regName); 
                     break;
                 case PUTI: 
+                    PRINTF("\n\t// I/O\n"); 
                     ex(p->opr.op[0], 1, lbl_kept);
                     PRINTF("\tputi\n");
                     break;
                 case PUTI_:
+                    PRINTF("\n\t// I/O\n"); 
                     ex(p->opr.op[0], 1, lbl_kept);
                     PRINTF("\tputi_\n");
                     break;
                 case PUTC: 
+                    PRINTF("\n\t// I/O\n"); 
                     ex(p->opr.op[0], 1, lbl_kept);
                     PRINTF("\tputc\n");
                     break;
                 case PUTC_:
+                    PRINTF("\n\t// I/O\n"); 
                     ex(p->opr.op[0], 1, lbl_kept);
                     PRINTF("\tputc_\n");
                     break;
                 case PUTS: 
+                    PRINTF("\n\t// I/O\n"); 
                     ex(p->opr.op[0], 1, lbl_kept);
                     PRINTF("\tputs\n"); 
                     break;
                 case PUTS_:
+                    PRINTF("\n\t// I/O\n"); 
                     ex(p->opr.op[0], 1, lbl_kept);
                     PRINTF("\tputs_\n");
                     break;
                 case '=':  
-                    getRegName(regName, p->opr.op[0]->id.varName, 1);
-                    ex(p->opr.op[1], 1, lbl_kept);
                     if (p->opr.op[0]->type == typeId) {
+                        PRINTF("\n\t// variable assignment %s\n", p->opr.op[0]->id.varName); 
+                        getRegName(regName, p->opr.op[0]->id.varName, 1);
+                        ex(p->opr.op[1], 1, lbl_kept);
                         PRINTF("\tpop\t%s\n", regName);
                     } else if (p->opr.op[0]->type == typeArr) {
-                        /* TODO */
-                        ex(p->opr.op[0]->array.offset, 1, lbl_kept);
-                        PRINTF("\tpopi\t%s\n", p->opr.op[0]->array.baseName);
+                        PRINTF("\n\t// array assignment %s\n", p->opr.op[0]->array.baseName); 
+                        ex(p->opr.op[1], 1, lbl_kept);
+                        pushArrayPtr(&p->opr.op[0]->array, lbl_kept);
+                        PRINTF("\tpop\tac\n");
+                        PRINTF("\tpop\tac[0]\n");
                     }
                     break;
                 case UMINUS:    
@@ -406,6 +450,7 @@ int ex(nodeType *p, int nops, ...) {
                     PRINTF("\tneg\n");
                     break;
                 case CALL:
+                    PRINTF("\n\t// function call %s\n", p->opr.op[0]->id.varName); 
                     numOfArgs = pushArgs(p->opr.op[1], lbl_kept);
                     getFuncLabel(labelName, p->opr.op[0]->id.varName);
                     PRINTF("\tcall\t%s, %d\n", labelName, numOfArgs);
