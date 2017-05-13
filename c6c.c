@@ -40,6 +40,7 @@ void pushArray(arrayNodeType* array, int lbl_kept);
 int getGlobalRegName(char* regName, char* name, int size);
 int getLocalRegName(char* regName, char* name, int size);
 int getRegName(char* regName, char* name, int size);
+StrMap* getArrayDimSymTab();
 int getFuncLabel(char* labelName, char* name);
 int ex(nodeType *p, int nops, ...);
 void preScan(nodeListType *list);
@@ -67,9 +68,11 @@ void programStarts() {
     // init symbol tables
     globalSymTab = (symTab*) malloc(sizeof(symTab));
     globalSymTab->symTab = sm_new(GLOBAL_SIZE);
+    globalSymTab->arrayDimTab = sm_new(GLOBAL_SIZE);
     globalSymTab->size = 0;
     funcSymTab = (symTab*) malloc(sizeof(symTab));
     funcSymTab->symTab = sm_new(FUNC_SIZE);
+    funcSymTab->arrayDimTab = sm_new(FUNC_SIZE);
     funcSymTab->size = 0;
     localSymTabs = (localSymTab*) malloc(sizeof(localSymTab));
     localSymTabs->prev = NULL;
@@ -106,7 +109,9 @@ void preProcess() {
 
 void programEnds() {
     sm_delete(globalSymTab->symTab);
+    sm_delete(globalSymTab->arrayDimTab);
     sm_delete(funcSymTab->symTab);
+    sm_delete(funcSymTab->arrayDimTab);
     free(globalSymTab);
     free(funcSymTab);
     free(localSymTabs);
@@ -202,10 +207,36 @@ int pushArgs(nodeType* argList, int lbl_kept) {
 }
 
 void declareArray(char* regName, arrayNodeType* array, int lbl_kept) {
-    getRegName(regName, array->baseName, array->offset->con.value);
+    StrMap* arrayDimTab = getArrayDimSymTab();
+    char dimStr[DIM_STR_L];
+
+    // calculate offset
+    assert(array->dim >= 1);
+    arrayOffsetNodeType *n = array->offsetListHead;
+    int offset = n->offset->con.value;
+    sprintf(dimStr, "%d", n->offset->con.value);
+    n = n->next;
+
+    while (n) {
+        // not supporting VLA
+        assert(n->offset->type == typeCon); 
+        assert(n->offset->con.type != conTypeStr && n->offset->con.type != conTypeNull); 
+
+        offset *= n->offset->con.value;
+        sprintf(dimStr, "%s,%d", dimStr, n->offset->con.value);
+        n = n->next;
+    }
+
+    // declare
+    getRegName(regName, array->baseName, offset);
+    assert(!sm_exists(arrayDimTab, array->baseName));
+    sm_put(arrayDimTab, array->baseName, dimStr);
 }
 
 void pushArrayPtr(arrayNodeType* array, int lbl_kept) {
+    StrMap* arrayDimTab = getArrayDimSymTab();
+    char dimStr[DIM_STR_L];
+    int dim;
     char regName[REG_NAME_L], baseRegName[3] = {0}, baseRegOffset[REG_NAME_L] = {0};
 
     getRegName(regName, array->baseName, -1);
@@ -214,7 +245,25 @@ void pushArrayPtr(arrayNodeType* array, int lbl_kept) {
 
     PRINTF("\tpush\t%s\n", baseRegName);
     PRINTF("\tpush\t%s\n", baseRegOffset); 
-    ex(array->offset, 1, lbl_kept);
+
+    // calculate offset
+    arrayOffsetNodeType *n = array->offsetListHead;
+    ex(n->offset, 1, lbl_kept);
+
+    n = n->next;
+    sm_get(arrayDimTab, array->baseName, dimStr, DIM_STR_L);
+    dim = atoi(strtok(dimStr, ","));
+
+    while (n) {
+        PRINTF("\tpush\t%d\n", dim); 
+        PRINTF("\tmul\n"); 
+        ex(n->offset, 1, lbl_kept);
+        PRINTF("\tadd\n"); 
+
+        n = n->next;
+        dim = atoi(strtok(NULL, ","));
+    }
+
     PRINTF("\tadd\n"); 
     PRINTF("\tadd\n");    
 }
@@ -265,6 +314,14 @@ int getRegName(char* regName, char* name, int size) {
     } else {
         return getLocalRegName(regName, name, size);
     }
+}
+
+StrMap* getArrayDimSymTab() {
+    if (funcCallLevel == 0) {
+        return globalSymTab->arrayDimTab;
+    } else {
+        return currentFrameSymTab->arrayDimTab;
+    }    
 }
 
 int getFuncLabel(char* labelName, char* name) {
@@ -460,7 +517,7 @@ int ex(nodeType *p, int nops, ...) {
                     PRINTF("\tret\n");
                     break;
                 case DECL_ARRAY:
-                    declareArray(regName, &p->opr.op[0]->array, lbl_kept);
+                    if (isScan) declareArray(regName, &p->opr.op[0]->array, lbl_kept);
                     break;
                 default:
                     ex(p->opr.op[0], 1, lbl_kept);

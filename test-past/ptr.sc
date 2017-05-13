@@ -1,0 +1,11 @@
+main(){
+	a=10;
+	b=20;
+	c=30;
+	puti(&a);
+	puti(&b);
+	puti(&c);
+	puti(*&a);
+	puti(*&b);
+	puti(*&c);
+}

@@ -9,7 +9,8 @@
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
 nodeType *id(char* varName);
-nodeType *array(char* baseName, nodeType *offset);
+nodeType *array(nodeType* idNode, nodeType *offset);
+nodeType *extendArray(nodeType *p, nodeType *offset);
 nodeType *con(long value, conTypeEnum type);
 nodeType *func(char* funcName, nodeType *paramList, nodeType *stmt);
 void appendToList(nodeListType* nodeList, nodeType* node);
@@ -54,7 +55,7 @@ nodeListType* stmtList;
 %left '*' '/' '%'
 %nonassoc UMINUS
 
-%type <nPtr> func_decl stmt expr stmt_list variable array param param_list arg arg_list
+%type <nPtr> func_decl stmt expr stmt_list variable array array_list param param_list arg arg_list
 
 %%
 
@@ -100,12 +101,7 @@ stmt:
         | RETURN expr ';'                                       { $$ = opr(RETURN, 1, $2); }
         | '{' stmt_list '}'                                     { $$ = $2; }
         | DECL_VARIABLE '(' param_list ')' ';'                  { $$ = opr(CALL, 2, id($1), $3); }
-        | DECL_ARRAY array ';'                                  { 
-                                                                    // not supporting VLA
-                                                                    assert($2->array.offset->type == typeCon); 
-                                                                    assert($2->array.offset->con.type != conTypeStr && $2->array.offset->con.type != conTypeNull); 
-                                                                    $$ = opr(DECL_ARRAY, 1, $2); 
-                                                                }
+        | DECL_ARRAY array ';'                                  { $$ = opr(DECL_ARRAY, 1, $2); }
         ;
 
 stmt_list:
@@ -139,16 +135,20 @@ variable:
         ;
 
 array:
-          VARIABLE '[' expr ']'         { $$ = array($1, $3); }
-        | DECL_VARIABLE '[' expr ']'    { $$ = array($1, $3); }
+          array_list ']'        { $$ = $1; }
+        ;
+
+array_list:
+          variable '[' expr         { $$ = array($1, $3); }
+        | array_list ']' '[' expr   { $$ = extendArray($1, $4); }
         ;
 
 expr:
           INTEGER               { $$ = con($1, conTypeInt); }
         | CHAR                  { $$ = con($1, conTypeChar); }
         | STRING                { $$ = con((long) $1, conTypeStr); }
-        | variable              { $$ = $1; }
         | array                 { $$ = $1; }
+        | variable              { $$ = $1; }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
         | expr '+' expr         { $$ = opr('+', 2, $1, $3); }
         | expr '-' expr         { $$ = opr('-', 2, $1, $3); }
@@ -209,7 +209,7 @@ nodeType *id(char* varName) {
     return p;
 }
 
-nodeType *array(char* baseName, nodeType *offset) {
+nodeType *array(nodeType *idNode, nodeType *offset) {
     nodeType *p;
     size_t nodeSize;
 
@@ -220,9 +220,27 @@ nodeType *array(char* baseName, nodeType *offset) {
 
     /* copy information */
     p->type = typeArr;
-    strcpy(p->array.baseName, baseName);
-    p->array.offset = offset;
+    strcpy(p->array.baseName, idNode->id.varName);
+    p->array.offsetListHead = (arrayOffsetNodeType*) malloc(sizeof(arrayOffsetNodeType));
+    p->array.offsetListHead->offset = offset;
+    p->array.offsetListHead->next = NULL;
+    p->array.dim = 1;
 
+    /* dump id node */
+    freeNode(idNode);
+
+    return p;
+}
+
+nodeType *extendArray(nodeType *p, nodeType *offset) {
+    arrayOffsetNodeType* n = (arrayOffsetNodeType*) malloc(sizeof(arrayOffsetNodeType));
+    n->offset = offset;
+
+    // append in reverse order
+    n->next = p->array.offsetListHead;
+    p->array.offsetListHead = n;
+
+    p->array.dim += 1;
     return p;
 }
 
@@ -295,6 +313,13 @@ void freeNode(nodeType *p) {
     if (p->type == typeOpr) {
         for (i = 0; i < p->opr.nops; i++)
             freeNode(p->opr.op[i]);
+    } else if (p->type == typeArr) {
+        arrayOffsetNodeType* n = p->array.offsetListHead;
+        while (n) {
+            p->array.offsetListHead = n->next;
+            free(n);
+            n = p->array.offsetListHead;
+        }
     }
     free (p);
 }

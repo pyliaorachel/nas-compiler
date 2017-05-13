@@ -19,10 +19,16 @@ typedef struct {
 } idNodeType;
 
 /* arrays */
-typedef struct {
+typedef struct arrayOffsetNodeType {
     struct nodeTypeTag *offset;
+    struct arrayOffsetNodeType *next;
+} arrayOffsetNodeType;
+
+typedef struct {
+    struct arrayOffsetNodeType *offsetListHead;
+    int dim;
     char baseName[14];
-} arrayNodeType;
+} arrayNodeType ;
 
 /* functions */
 typedef struct {
@@ -71,11 +77,13 @@ typedef struct nodeTypeTag {
 /* symbol tables */
 typedef struct symTab {
     StrMap* symTab;
+    StrMap* arrayDimTab;
     int size;
 } symTab;
 
 typedef struct localSymTab {
     StrMap* symTab;
+    StrMap* arrayDimTab;
     int size;
     int numOfParams;
     int numOfLocalVars;
@@ -88,6 +96,7 @@ typedef struct localSymTab {
 
 #define LABEL_NAME_L 6
 #define REG_NAME_L 100
+#define DIM_STR_L 60
 
 extern symTab* globalSymTab;
 extern symTab* funcSymTab;
