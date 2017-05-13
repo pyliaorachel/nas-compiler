@@ -24,8 +24,8 @@ int yylex(void);
 void wrapUp(void);
 
 void yyerror(char *s);
-StrMap* globalSymTab;
-StrMap* funcSymTab;
+symTab* globalSymTab;
+symTab* funcSymTab;
 localSymTab* localSymTabs;
 nodeListType* funcList;
 nodeListType* stmtList;
@@ -41,7 +41,7 @@ nodeListType* stmtList;
 %token <conValue> INTEGER CHAR
 %token <conStrValue> STRING
 %token <sKey> VARIABLE DECL_VARIABLE
-%token FOR WHILE IF BREAK CONTINUE RETURN
+%token FOR WHILE IF BREAK CONTINUE RETURN DECL_ARRAY
 %token GETI GETS GETC PUTI PUTS PUTC PUTI_ PUTS_ PUTC_ CALL
 %nonassoc IFX
 %nonassoc ELSE
@@ -99,6 +99,7 @@ stmt:
         | RETURN expr ';'                                       { $$ = opr(RETURN, 1, $2); }
         | '{' stmt_list '}'                                     { $$ = $2; }
         | DECL_VARIABLE '(' param_list ')' ';'                  { $$ = opr(CALL, 2, id($1), $3); }
+        | DECL_ARRAY array ';'                                  { $$ = opr(DECL_ARRAY, 1, $2); }
         ;
 
 stmt_list:

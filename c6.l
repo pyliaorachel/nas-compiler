@@ -64,6 +64,7 @@ char text[500];
 "break"     return BREAK;
 "continue"  return CONTINUE;
 "return"    return RETURN;
+"array"     return DECL_ARRAY;
 
 ^[ \t\n]*[a-z]+[a-z0-9]*    { 
                                 // remove leading zeros

@@ -28,10 +28,13 @@
 
 void programStarts();
 void programEnds();
-void moveRegPointer(int regIdx, int offset);
 void createCallFrame(funcNodeType* func);
 void tearDownCallFrame(funcNodeType* func);
+void moveRegPointer(int regIdx, int offset);
+void makeRoomGlobalVariables();
+void makeRoomLocalVariables(funcNodeType* func);
 int pushArgs(nodeType* argList, int lbl_kept);
+void declareArray(arrayNodeType* array, int lbl_kept);
 int getGlobalRegName(char* regName, char* name);
 int getLocalRegName(char* regName, char* name);
 int getRegName(char* regName, char* name);
@@ -39,8 +42,6 @@ int getFuncLabel(char* labelName, char* name);
 int ex(nodeType *p, int nops, ...);
 void preScan(nodeListType *list);
 void preProcess();
-void makeRoomGlobalVariables();
-void makeRoomLocalVariables(funcNodeType* func);
 void exStmtList();
 void exFuncList();
 void freeNodeList();
@@ -53,14 +54,21 @@ static int isScan;                              // 1: scanning; 0: execution
 static int reg[4];
 static char regNames[4][3] = {"sb", "fp", "in", "sp"};
 
+/* conditionally print assembly code depending on whether at the scanning stage */
+#define PRINTF(args...) if (!isScan) printf(args)
+
 /*****************************************************************************
                             Program Init & End
  *****************************************************************************/
 
 void programStarts() {
     // init symbol tables
-    globalSymTab = sm_new(GLOBAL_SIZE);
-    funcSymTab = sm_new(FUNC_SIZE);
+    globalSymTab = (symTab*) malloc(sizeof(symTab));
+    globalSymTab->symTab = sm_new(GLOBAL_SIZE);
+    globalSymTab->size = 0;
+    funcSymTab = (symTab*) malloc(sizeof(symTab));
+    funcSymTab->symTab = sm_new(FUNC_SIZE);
+    funcSymTab->size = 0;
     localSymTabs = (localSymTab*) malloc(sizeof(localSymTab));
     localSymTabs->prev = NULL;
     localSymTabs->symTab = NULL;
@@ -95,8 +103,10 @@ void preProcess() {
 }
 
 void programEnds() {
-    sm_delete(globalSymTab);
-    sm_delete(funcSymTab);
+    sm_delete(globalSymTab->symTab);
+    sm_delete(funcSymTab->symTab);
+    free(globalSymTab);
+    free(funcSymTab);
     free(localSymTabs);
     freeNodeList(funcList);
     freeNodeList(stmtList);
@@ -168,7 +178,8 @@ void moveRegPointer(int regIdx, int offset) {
 }
 
 void makeRoomGlobalVariables() {
-    int numOfGlobalVars = sm_get_count(globalSymTab);
+    assert(globalSymTab->size == sm_get_count(globalSymTab->symTab));
+    int numOfGlobalVars = globalSymTab->size;
     if (numOfGlobalVars) moveRegPointer(SP_I, numOfGlobalVars);
 }
 
@@ -190,19 +201,29 @@ int pushArgs(nodeType* argList, int lbl_kept) {
     return 1 + numOfArgs;
 }
 
+void declareArray(arrayNodeType* array, int lbl_kept) {
+    printf("declare array %s\n", array->baseName);
+    PRINTF("\tpush\tsp\n");
+    ex(array->offset, 1, lbl_kept);
+    PRINTF("\tadd\n");
+    PRINTF("\tpop\tsp\n");
+}
+
 /*****************************************************************************
                         Naming Related Utility Functions
  *****************************************************************************/
 
 // return 1 for var already declared; 0 for newly declared ones
 int getGlobalRegName(char* regName, char* name) {
-    if (sm_exists(globalSymTab, name)) {
-        sm_get(globalSymTab, name, regName, REG_NAME_L);
+    if (sm_exists(globalSymTab->symTab, name)) {
+        sm_get(globalSymTab->symTab, name, regName, REG_NAME_L);
         return 1;
     } else {
-        int numOfGlobalVars = sm_get_count(globalSymTab);
+        assert(globalSymTab->size == sm_get_count(globalSymTab->symTab));
+        int numOfGlobalVars = globalSymTab->size;
         sprintf(regName, "sb[%d]", numOfGlobalVars);
-        sm_put(globalSymTab, name, regName);
+        sm_put(globalSymTab->symTab, name, regName);
+        globalSymTab->size++;
         return 0;
     }
 }
@@ -229,12 +250,13 @@ int getRegName(char* regName, char* name) {
 }
 
 int getFuncLabel(char* labelName, char* name) {
-    if (sm_exists(funcSymTab, name)) {
-        sm_get(funcSymTab, name, labelName, LABEL_NAME_L);
+    if (sm_exists(funcSymTab->symTab, name)) {
+        sm_get(funcSymTab->symTab, name, labelName, LABEL_NAME_L);
         return 1;
     } else {
         sprintf(labelName, "L%03d", lbl++);
-        sm_put(funcSymTab, name, labelName);
+        sm_put(funcSymTab->symTab, name, labelName);
+        funcSymTab->size++;
         return 0;
     }
 }
@@ -242,9 +264,6 @@ int getFuncLabel(char* labelName, char* name) {
 /*****************************************************************************
                             Main Execution Functions
  *****************************************************************************/
-
-/* conditionally print assembly code depending on whether at the scanning stage */
-#define PRINTF(args...) if (!isScan) printf(args)
 
 int ex(nodeType *p, int nops, ...) {
     int lblx, lbly, lblz, lbl1, lbl2, lbl_init = lbl, lbl_kept;
@@ -403,6 +422,9 @@ int ex(nodeType *p, int nops, ...) {
                 case RETURN:
                     ex(p->opr.op[0], 1, lbl_kept);
                     PRINTF("\tret\n");
+                    break;
+                case DECL_ARRAY:
+                    declareArray(&p->opr.op[0]->array, lbl_kept);
                     break;
                 default:
                     ex(p->opr.op[0], 1, lbl_kept);

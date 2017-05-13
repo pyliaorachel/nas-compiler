@@ -68,8 +68,15 @@ typedef struct nodeTypeTag {
     };
 } nodeType;
 
+/* symbol tables */
+typedef struct symTab {
+    StrMap* symTab;
+    int size;
+} symTab;
+
 typedef struct localSymTab {
     StrMap* symTab;
+    int size;
     int numOfParams;
     int numOfLocalVars;
     struct localSymTab* prev;
@@ -82,8 +89,8 @@ typedef struct localSymTab {
 #define LABEL_NAME_L 6
 #define REG_NAME_L 100
 
-extern StrMap* globalSymTab;
-extern StrMap* funcSymTab;
+extern symTab* globalSymTab;
+extern symTab* funcSymTab;
 extern localSymTab* localSymTabs;
 extern nodeListType* funcList;
 extern nodeListType* stmtList;
