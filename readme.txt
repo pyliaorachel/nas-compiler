@@ -76,8 +76,11 @@ Global statements & function declarations are stored in nodes and chained in lin
 	- arraydimtab to keep track of dimension info
 2. arg & param list
 	- combine to avoid conflict
-3. pointer
+3. ref & deref
 4. tester using gcc
+5. func call pass array
+	- only 1 dim allowed
+6. char array assignment, put, get, static string concat
 
 
 

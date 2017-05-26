@@ -54,7 +54,7 @@ nodeListType* stmtList;
 %left GE LE EQ NE '>' '<'
 %left '+' '-'
 %left '*' '/' '%'
-%nonassoc UMINUS
+%nonassoc UMINUS REF DEREF
 
 %type <nPtr> func_decl stmt expr stmt_list assignment assignment_list array_decl_list lvalue variable array array_list param_arg_list
 
@@ -157,6 +157,8 @@ expr:
         | array                 { $$ = $1; }
         | variable              { $$ = $1; }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
+        | '&' expr %prec REF    { $$ = opr(REF, 1, $2); }
+        | '*' expr %prec DEREF  { $$ = opr(DEREF, 1, $2); }
         | expr '+' expr         { 
                                     if ($1->type == typeCon && $1->con.type == conTypeStr &&
                                         $3->type == typeCon && $3->con.type == conTypeStr) {

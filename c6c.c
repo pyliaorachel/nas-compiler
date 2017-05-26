@@ -39,7 +39,7 @@ void assignArray(nodeType* p, int lbl_kept);
 int isArrayPtr(nodeType* p);
 void pushBasePtr(nodeType* p);
 void pushPtr(nodeType* p, int lbl_kept);
-void pushArray(nodeType* p, int lbl_kept);
+void pushPtrValue(nodeType* p, int lbl_kept);
 void putCharArray(nodeType* p, int hasNewLine, int lbl_kept);
 void getCharArray(nodeType* p, int lbl_kept);
 void assignCharArray(nodeType* p, char* str, int lbl_kept);
@@ -364,7 +364,7 @@ void pushPtr(nodeType* p, int lbl_kept) {
     PRINTF("\tadd\n");    
 }
 
-void pushArray(nodeType* p, int lbl_kept) {
+void pushPtrValue(nodeType* p, int lbl_kept) {
     pushPtr(p, lbl_kept);
     PRINTF("\tpop\tac\n"); 
     PRINTF("\tpush\tac[0]\n");  
@@ -569,7 +569,7 @@ int ex(nodeType *p, int nops, ...) {
         case typeArr:
             if (!isArrayPtr(p)) {
                 PRINTF("\n\t// push array %s\n", p->array.baseName); 
-                pushArray(p, lbl_kept);
+                pushPtrValue(p, lbl_kept);
             } else {
                 PRINTF("\n\t// push pointer %s\n", p->array.baseName);      
                 pushPtr(p, lbl_kept);    
@@ -763,6 +763,17 @@ int ex(nodeType *p, int nops, ...) {
                 case UMINUS:    
                     ex(p->opr.op[0], 1, lbl_kept);
                     PRINTF("\tneg\n");
+                    break;
+                case REF:
+                    PRINTF("\n\t// variable/array element reference\n");
+                    assert((p->opr.op[0]->type == typeId || p->opr.op[0]->type == typeArr) && !isArrayPtr(p->opr.op[0]));
+                    pushPtr(p->opr.op[0],lbl_kept);
+                    break;
+                case DEREF:    
+                    PRINTF("\n\t// variable/array element dereference\n");
+                    ex(p->opr.op[0], 1, lbl_kept);
+                    PRINTF("\tpop\tac\n"); 
+                    PRINTF("\tpush\tac[0]\n");  
                     break;
                 case CALL:
                     PRINTF("\n\t// function call %s\n", p->opr.op[0]->id.varName); 

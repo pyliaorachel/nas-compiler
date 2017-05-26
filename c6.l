@@ -38,9 +38,6 @@ char text[500];
 ''              { yylval.conValue = 0; return CHAR; }
 '[^']'          { yylval.conValue = (int) yytext[1]; return CHAR; }
 
-[-()<>=+*/;{}.%\[\],]   {
-                            return *yytext;
-                        }
 
 ">="        return GE;
 "<="        return LE;
@@ -65,6 +62,11 @@ char text[500];
 "continue"  return CONTINUE;
 "return"    return RETURN;
 "array"     return DECL_ARRAY;
+
+
+[-()<>=+*/;{}.%\[\],&]   {
+                            return *yytext;
+                        }
 
 ^[ \t\n]*[a-z]+[a-z0-9]*    { 
                                 // remove leading zeros

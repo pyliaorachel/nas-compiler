@@ -69,7 +69,9 @@
      EQ = 285,
      LE = 286,
      GE = 287,
-     UMINUS = 288
+     DEREF = 288,
+     REF = 289,
+     UMINUS = 290
    };
 #endif
 /* Tokens.  */
@@ -103,7 +105,9 @@
 #define EQ 285
 #define LE 286
 #define GE 287
-#define UMINUS 288
+#define DEREF 288
+#define REF 289
+#define UMINUS 290
 
 
 
@@ -118,7 +122,7 @@ typedef union YYSTYPE
     nodeType *nPtr;             /* node pointer */
 }
 /* Line 1529 of yacc.c.  */
-#line 122 "y.tab.h"
+#line 126 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

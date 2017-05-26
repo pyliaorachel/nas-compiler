@@ -372,23 +372,23 @@ struct yy_trans_info
 static yyconst flex_int16_t yy_accept[169] =
     {   0,
         0,    0,    4,    4,   46,   44,   43,   43,   44,    3,
-       16,   44,   44,   16,    1,    2,   16,   16,   16,   44,
+       39,   39,   44,   39,    1,    2,   39,   39,   39,   44,
        41,   41,   41,   41,   41,   41,   41,   41,   41,   41,
        41,   44,   43,   43,   40,   40,   40,   40,   40,   40,
-       40,   40,   40,   40,   40,    4,    5,    9,   43,   20,
-       34,    0,   14,    0,    0,    2,   18,   19,   17,   41,
-       41,   41,   41,   41,   41,   41,   41,   41,   23,   41,
-       41,   41,   35,   43,   40,   40,   40,   40,   40,   40,
-       40,   40,   40,   23,   40,   40,   40,    4,    6,    7,
+       40,   40,   40,   40,   40,    4,    5,    9,   43,   19,
+       33,    0,   14,    0,    0,    2,   17,   18,   16,   41,
+       41,   41,   41,   41,   41,   41,   41,   41,   22,   41,
+       41,   41,   34,   43,   40,   40,   40,   40,   40,   40,
+       40,   40,   40,   22,   40,   40,   40,    4,    6,    7,
         8,   15,   15,    0,    0,    0,    0,   42,   41,   41,
 
-       41,   41,   21,   41,   41,   41,   41,   40,   40,   40,
-       40,   40,   40,   21,   40,   40,   40,   40,   12,   13,
-       10,   11,   41,   41,   41,   24,   27,   25,   26,   30,
-       28,   29,   41,   41,   40,   40,   40,   24,   27,   25,
-       26,   30,   28,   29,   40,   40,   39,   36,   41,   33,
-       31,   32,   41,   22,   39,   36,   40,   40,   22,   41,
-       38,   40,   38,   41,   40,   37,   37,    0
+       41,   41,   20,   41,   41,   41,   41,   40,   40,   40,
+       40,   40,   40,   20,   40,   40,   40,   40,   12,   13,
+       10,   11,   41,   41,   41,   23,   26,   24,   25,   29,
+       27,   28,   41,   41,   40,   40,   40,   23,   26,   24,
+       25,   29,   27,   28,   40,   40,   38,   35,   41,   32,
+       30,   31,   41,   21,   38,   35,   40,   40,   21,   41,
+       37,   40,   37,   41,   40,   36,   36,    0
     } ;
 
 static yyconst flex_int32_t yy_ec[256] =
@@ -1024,130 +1024,130 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 41 "c6.l"
-{
-                            return *yytext;
-                        }
+#line 42 "c6.l"
+return GE;
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 45 "c6.l"
-return GE;
+#line 43 "c6.l"
+return LE;
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 46 "c6.l"
-return LE;
+#line 44 "c6.l"
+return EQ;
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 47 "c6.l"
-return EQ;
+#line 45 "c6.l"
+return NE;
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 48 "c6.l"
-return NE;
+#line 46 "c6.l"
+return FOR;
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 49 "c6.l"
-return FOR;
+#line 47 "c6.l"
+return WHILE;
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 50 "c6.l"
-return WHILE;
+#line 48 "c6.l"
+return IF;
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 51 "c6.l"
-return IF;
+#line 49 "c6.l"
+return ELSE;
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 52 "c6.l"
-return ELSE;
+#line 50 "c6.l"
+return GETI;
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 53 "c6.l"
-return GETI;
+#line 51 "c6.l"
+return GETS;
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 54 "c6.l"
-return GETS;
+#line 52 "c6.l"
+return GETC;
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 55 "c6.l"
-return GETC;
+#line 53 "c6.l"
+return PUTI;
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 56 "c6.l"
-return PUTI;
+#line 54 "c6.l"
+return PUTS;
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 57 "c6.l"
-return PUTS;
+#line 55 "c6.l"
+return PUTC;
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 58 "c6.l"
-return PUTC;
+#line 56 "c6.l"
+return PUTI_;
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 59 "c6.l"
-return PUTI_;
+#line 57 "c6.l"
+return PUTS_;
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 60 "c6.l"
-return PUTS_;
+#line 58 "c6.l"
+return PUTC_;
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 61 "c6.l"
-return PUTC_;
+#line 59 "c6.l"
+return AND;
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 62 "c6.l"
-return AND;
+#line 60 "c6.l"
+return OR;
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 63 "c6.l"
-return OR;
+#line 61 "c6.l"
+return BREAK;
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 64 "c6.l"
-return BREAK;
+#line 62 "c6.l"
+return CONTINUE;
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 65 "c6.l"
-return CONTINUE;
+#line 63 "c6.l"
+return RETURN;
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 66 "c6.l"
-return RETURN;
+#line 64 "c6.l"
+return DECL_ARRAY;
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
 #line 67 "c6.l"
-return DECL_ARRAY;
+{
+                            return *yytext;
+                        }
 	YY_BREAK
 case 40:
 /* rule 40 can match eol */
 YY_RULE_SETUP
-#line 69 "c6.l"
+#line 71 "c6.l"
 { 
                                 // remove leading zeros
                                 int i = 0;
@@ -1163,7 +1163,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 82 "c6.l"
+#line 84 "c6.l"
 { 
                                 // lowercase
                                 char* p = yytext;
@@ -1176,23 +1176,23 @@ YY_RULE_SETUP
 case 42:
 /* rule 42 can match eol */
 YY_RULE_SETUP
-#line 91 "c6.l"
+#line 93 "c6.l"
 ;	/* skip comments */
 	YY_BREAK
 case 43:
 /* rule 43 can match eol */
 YY_RULE_SETUP
-#line 93 "c6.l"
+#line 95 "c6.l"
 ;   /* ignore whitespace */
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 95 "c6.l"
+#line 97 "c6.l"
 yyerror("Unknown character");
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 96 "c6.l"
+#line 98 "c6.l"
 ECHO;
 	YY_BREAK
 #line 1199 "lex.yy.c"
@@ -2196,7 +2196,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 96 "c6.l"
+#line 98 "c6.l"
 
 
 
