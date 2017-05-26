@@ -42,6 +42,7 @@ void pushPtr(nodeType* p, int lbl_kept);
 void pushArray(nodeType* p, int lbl_kept);
 void putCharArray(nodeType* p, int hasNewLine, int lbl_kept);
 void getCharArray(nodeType* p, int lbl_kept);
+void assignCharArray(nodeType* p, char* str, int lbl_kept);
 int getGlobalRegName(char* regName, char* name, int size);
 int getLocalRegName(char* regName, char* name, int size);
 int getRegName(char* regName, char* name, int size);
@@ -442,6 +443,23 @@ void getCharArray(nodeType* p, int lbl_kept) {
     PRINTF("\tpop\tac[0]\n");  
 }
 
+void assignCharArray(nodeType* p, char* str, int lbl_kept) {
+    int l = strlen(str);
+
+    pushPtr(p, lbl_kept);
+    PRINTF("\tpop\tac\n"); 
+
+    // start push char by going through each char in string
+    for (int i = 0; i < l; i++) {
+        PRINTF("\tpush\t\'%c\'\n", str[i]);
+        PRINTF("\tpop\tac[%d]\n", i);
+    }
+
+    // mark the last char as \0
+    PRINTF("\tpush\t0\n");
+    PRINTF("\tpop\tac[%d]\n", l);  
+}
+
 /*****************************************************************************
                         Naming Related Utility Functions
  *****************************************************************************/
@@ -708,18 +726,25 @@ int ex(nodeType *p, int nops, ...) {
                     }
                     break;
                 case '=':  
-                    if (p->opr.op[0]->type == typeId) {
-                        PRINTF("\n\t// variable assignment %s\n", p->opr.op[0]->id.varName); 
-                        getRegName(regName, p->opr.op[0]->id.varName, 1);
-                        ex(p->opr.op[1], 1, lbl_kept);
-                        PRINTF("\tpop\t%s\n", regName);
-                    } else if (p->opr.op[0]->type == typeArr) {
-                        PRINTF("\n\t// array assignment %s\n", p->opr.op[0]->array.baseName); 
-                        ex(p->opr.op[1], 1, lbl_kept);
-                        pushPtr(p->opr.op[0], lbl_kept);
-                        PRINTF("\tpop\tac\n");
-                        PRINTF("\tpop\tac[0]\n");
-                    } else if (p->opr.op[0]->type == typeOpr) {
+                    if (p->opr.op[0]->type != typeOpr) {
+                        if (!isArrayPtr(p->opr.op[0]) || p->opr.op[1]->type != typeCon || p->opr.op[1]->con.type != conTypeStr) {
+                            if (p->opr.op[0]->type == typeId) {
+                                PRINTF("\n\t// variable assignment %s\n", p->opr.op[0]->id.varName); 
+                                getRegName(regName, p->opr.op[0]->id.varName, 1);
+                                ex(p->opr.op[1], 1, lbl_kept);
+                                PRINTF("\tpop\t%s\n", regName);
+                            } else if (p->opr.op[0]->type == typeArr) {
+                                PRINTF("\n\t// array assignment %s\n", p->opr.op[0]->array.baseName); 
+                                ex(p->opr.op[1], 1, lbl_kept);
+                                pushPtr(p->opr.op[0], lbl_kept);
+                                PRINTF("\tpop\tac\n");
+                                PRINTF("\tpop\tac[0]\n");
+                            }
+                        } else {
+                            PRINTF("\n\t// char array assignment\n");
+                            assignCharArray(p->opr.op[0], p->opr.op[1]->con.strValue, lbl_kept);
+                        }
+                    } else {
                         switch (p->opr.op[0]->opr.oper) {
                             case DECL_ARRAY:
                                 PRINTF("\n\t// array declaration & assignment %s\n", p->opr.op[0]->opr.op[0]->array.baseName);

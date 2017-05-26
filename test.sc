@@ -1,7 +1,5 @@
 array a[1000];
 
-gets(a[3]);
-puts(a[3]);
-
-gets(a);
+a = "12345";
+a[1] = '4';
 puts(a);
