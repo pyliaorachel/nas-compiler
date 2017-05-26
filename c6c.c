@@ -361,7 +361,7 @@ void pushPtr(nodeType* p, int lbl_kept) {
 
 void pushPtrValue(nodeType* p, int lbl_kept) {
     pushPtr(p, lbl_kept);
-    PRINTF("\tpop\tac\n"); 
+    PRINTF("\n\tpop\tac\n"); 
     PRINTF("\tpush\tac[0]\n");  
 }
 
@@ -641,7 +641,7 @@ int ex(nodeType *p, int nops, ...) {
                     } else if (p->opr.op[0]->type == typeArr) {
                         PRINTF("\n\t// get to array %s\n", p->opr.op[0]->array.baseName); 
                         pushPtr(p->opr.op[0], lbl_kept);
-                        PRINTF("\tpop\tac\n");
+                        PRINTF("\n\tpop\tac\n");
                         PRINTF("\tpop\tac[0]\n");
                     }
                     break;
@@ -655,7 +655,7 @@ int ex(nodeType *p, int nops, ...) {
                     } else if (p->opr.op[0]->type == typeArr) {
                         PRINTF("\n\t// get to array %s\n", p->opr.op[0]->array.baseName); 
                         pushPtr(p->opr.op[0], lbl_kept);
-                        PRINTF("\tpop\tac\n");
+                        PRINTF("\n\tpop\tac\n");
                         PRINTF("\tpop\tac[0]\n");
                     }
                     break;
@@ -670,7 +670,7 @@ int ex(nodeType *p, int nops, ...) {
                         } else if (p->opr.op[0]->type == typeArr) {
                             PRINTF("\n\t// get to array %s\n", p->opr.op[0]->array.baseName); 
                             pushPtr(p->opr.op[0], lbl_kept);
-                            PRINTF("\tpop\tac\n");
+                            PRINTF("\n\tpop\tac\n");
                             PRINTF("\tpop\tac[0]\n");
                         }
                     } else {
@@ -727,12 +727,12 @@ int ex(nodeType *p, int nops, ...) {
                                 PRINTF("\n\t// variable assignment %s\n", p->opr.op[0]->id.varName); 
                                 getRegName(regName, p->opr.op[0]->id.varName, 1);
                                 ex(p->opr.op[1], 1, lbl_kept);
-                                PRINTF("\tpop\t%s\n", regName);
+                                PRINTF("\n\tpop\t%s\n", regName);
                             } else if (p->opr.op[0]->type == typeArr) {
                                 PRINTF("\n\t// array assignment %s\n", p->opr.op[0]->array.baseName); 
                                 ex(p->opr.op[1], 1, lbl_kept);
                                 pushPtr(p->opr.op[0], lbl_kept);
-                                PRINTF("\tpop\tac\n");
+                                PRINTF("\n\tpop\tac\n");
                                 PRINTF("\tpop\tac[0]\n");
                             }
                         } else {
@@ -743,6 +743,7 @@ int ex(nodeType *p, int nops, ...) {
                         switch (p->opr.op[0]->opr.oper) {
                             case DECL_ARRAY:
                                 PRINTF("\n\t// array declaration & assignment %s\n", p->opr.op[0]->opr.op[0]->array.baseName);
+                                
                                 // declare
                                 ex(p->opr.op[0], 1, lbl_kept);
                                 // calculate expression
@@ -750,6 +751,17 @@ int ex(nodeType *p, int nops, ...) {
 
                                 if (!isScan) assignArray(p->opr.op[0]->opr.op[0], lbl_kept);
                                 break;
+                            case DEREF:
+                                PRINTF("\n\t// dereference assignment\n");
+
+                                // calculate expression
+                                ex(p->opr.op[1], 1, lbl_kept);
+                                // calculate dereference expression
+                                ex(p->opr.op[0]->opr.op[0], 1, lbl_kept);
+
+                                PRINTF("\n\tpop\tac\n"); 
+                                PRINTF("\tpop\tac[0]\n");  
+
                             default:
                                 break;
                         }
@@ -765,9 +777,10 @@ int ex(nodeType *p, int nops, ...) {
                     pushPtr(p->opr.op[0],lbl_kept);
                     break;
                 case DEREF:    
+                    // rvalue here, assignment cases handled in '=' case
                     PRINTF("\n\t// variable/array element dereference\n");
                     ex(p->opr.op[0], 1, lbl_kept);
-                    PRINTF("\tpop\tac\n"); 
+                    PRINTF("\n\tpop\tac\n"); 
                     PRINTF("\tpush\tac[0]\n");  
                     break;
                 case CALL:

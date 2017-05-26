@@ -134,6 +134,7 @@ param_arg_list:
 lvalue:
           variable              { $$ = $1; }
         | array                 { $$ = $1; }
+        | '*' expr %prec DEREF  { $$ = opr(DEREF, 1, $2); }
         ;
 
 variable:
