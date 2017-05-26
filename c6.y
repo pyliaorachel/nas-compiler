@@ -55,7 +55,7 @@ nodeListType* stmtList;
 %left '*' '/' '%'
 %nonassoc UMINUS
 
-%type <nPtr> func_decl stmt expr stmt_list assignment assignment_list array_assignment_list lvalue variable array array_list param_arg_list
+%type <nPtr> func_decl stmt expr stmt_list assignment assignment_list array_decl_list lvalue variable array array_list param_arg_list
 
 %%
 
@@ -100,7 +100,7 @@ stmt:
         | RETURN expr ';'                                       { $$ = opr(RETURN, 1, $2); }
         | '{' stmt_list '}'                                     { $$ = $2; }
         | DECL_VARIABLE '(' param_arg_list ')' ';'              { $$ = opr(CALL, 2, id($1), $3); }
-        | array_assignment_list ';'                             { $$ = $1; }
+        | array_decl_list ';'                                   { $$ = $1; }
         ;
 
 stmt_list:
@@ -117,9 +117,9 @@ assignment_list:
         | assignment_list ',' assignment            { $$ = opr(',', 2, $1, $3); }
         ;
 
-array_assignment_list:
+array_decl_list:
           DECL_ARRAY array                          { $$ = opr(DECL_ARRAY, 1, $2); }
-        | array_assignment_list ',' array           { $$ = opr(',', 2, $1, opr(DECL_ARRAY, 1, $3)); }
+        | array_decl_list ',' array           { $$ = opr(',', 2, $1, opr(DECL_ARRAY, 1, $3)); }
         ;
 
 param_arg_list:   

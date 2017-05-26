@@ -550,7 +550,7 @@ static const char *const yytname[] =
   "EQ", "LE", "GE", "'+'", "'-'", "'*'", "'/'", "'%'", "UMINUS", "'('",
   "')'", "'{'", "'}'", "';'", "'='", "','", "']'", "'['", "$accept",
   "program", "main", "func_decl", "stmt", "stmt_list", "assignment",
-  "assignment_list", "array_assignment_list", "param_arg_list", "lvalue",
+  "assignment_list", "array_decl_list", "param_arg_list", "lvalue",
   "variable", "array", "array_list", "expr", 0
 };
 #endif
