@@ -267,10 +267,8 @@ void pushPtr(nodeType* p, int lbl_kept) {
         if (sm_exists(currentFrameSymTab->symTab, p->array.baseName)) {
             // param is array pointer
             getRegName(regName, p->array.baseName, -1);
-            strncpy(baseRegName, regName, 2);
-            strncpy(baseRegOffset, regName + 3, strlen(regName) - 4);
 
-            PRINTF("\tpush\t%s[%s]\n", baseRegName, baseRegOffset);
+            PRINTF("\tpush\t%s\n", regName);
 
             // calculate offset
             PRINTF("\tpush\t0\n"); 
@@ -519,20 +517,44 @@ int ex(nodeType *p, int nops, ...) {
                 case GETI:
                     PRINTF("\n\t// I/O\n"); 
                     PRINTF("\tgeti\n"); 
-                    getRegName(regName, p->opr.op[0]->id.varName, 1);
-                    PRINTF("\tpop\t%s\n", regName); 
+                    if (p->opr.op[0]->type == typeId) {
+                        PRINTF("\n\t// get to variable %s\n", p->opr.op[0]->id.varName); 
+                        getRegName(regName, p->opr.op[0]->id.varName, 1);
+                        PRINTF("\tpop\t%s\n", regName);
+                    } else if (p->opr.op[0]->type == typeArr) {
+                        PRINTF("\n\t// get to array %s\n", p->opr.op[0]->array.baseName); 
+                        pushPtr(p->opr.op[0], lbl_kept);
+                        PRINTF("\tpop\tac\n");
+                        PRINTF("\tpop\tac[0]\n");
+                    }
                     break;
                 case GETC: 
                     PRINTF("\n\t// I/O\n"); 
                     PRINTF("\tgetc\n"); 
-                    getRegName(regName, p->opr.op[0]->id.varName, 1);
-                    PRINTF("\tpop\t%s\n", regName); 
+                    if (p->opr.op[0]->type == typeId) {
+                        PRINTF("\n\t// get to variable %s\n", p->opr.op[0]->id.varName); 
+                        getRegName(regName, p->opr.op[0]->id.varName, 1);
+                        PRINTF("\tpop\t%s\n", regName);
+                    } else if (p->opr.op[0]->type == typeArr) {
+                        PRINTF("\n\t// get to array %s\n", p->opr.op[0]->array.baseName); 
+                        pushPtr(p->opr.op[0], lbl_kept);
+                        PRINTF("\tpop\tac\n");
+                        PRINTF("\tpop\tac[0]\n");
+                    }
                     break;
                 case GETS: 
                     PRINTF("\n\t// I/O\n"); 
                     PRINTF("\tgets\n"); 
-                    getRegName(regName, p->opr.op[0]->id.varName, 1);
-                    PRINTF("\tpop\t%s\n", regName); 
+                    if (p->opr.op[0]->type == typeId) {
+                        PRINTF("\n\t// get to variable %s\n", p->opr.op[0]->id.varName); 
+                        getRegName(regName, p->opr.op[0]->id.varName, 1);
+                        PRINTF("\tpop\t%s\n", regName);
+                    } else if (p->opr.op[0]->type == typeArr) {
+                        PRINTF("\n\t// get to array %s\n", p->opr.op[0]->array.baseName); 
+                        pushPtr(p->opr.op[0], lbl_kept);
+                        PRINTF("\tpop\tac\n");
+                        PRINTF("\tpop\tac[0]\n");
+                    }
                     break;
                 case PUTI: 
                     PRINTF("\n\t// I/O\n"); 

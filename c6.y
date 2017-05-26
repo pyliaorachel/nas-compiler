@@ -55,7 +55,7 @@ nodeListType* stmtList;
 %left '*' '/' '%'
 %nonassoc UMINUS
 
-%type <nPtr> func_decl stmt expr stmt_list variable array array_list param_arg_list
+%type <nPtr> func_decl stmt expr stmt_list lvalue variable array array_list param_arg_list
 
 %%
 
@@ -81,17 +81,16 @@ func_decl:
 stmt:
           ';'                                                   { $$ = opr(';', 2, NULL, NULL); }
         | expr ';'                                              { $$ = $1; }
-        | GETI '(' variable ')' ';'                             { $$ = opr(GETI, 1, $3); }
-        | GETC '(' variable ')' ';'                             { $$ = opr(GETC, 1, $3); }
-        | GETS '(' variable ')' ';'                             { $$ = opr(GETS, 1, $3); }
+        | GETI '(' lvalue ')' ';'                               { $$ = opr(GETI, 1, $3); }
+        | GETC '(' lvalue ')' ';'                               { $$ = opr(GETC, 1, $3); }
+        | GETS '(' lvalue ')' ';'                               { $$ = opr(GETS, 1, $3); }
         | PUTI '(' expr ')' ';'                                 { $$ = opr(PUTI, 1, $3); }
         | PUTC '(' expr ')' ';'                                 { $$ = opr(PUTC, 1, $3); }
         | PUTS '(' expr ')' ';'                                 { $$ = opr(PUTS, 1, $3); }
         | PUTI_ '(' expr ')' ';'                                { $$ = opr(PUTI_, 1, $3); }
         | PUTC_ '(' expr ')' ';'                                { $$ = opr(PUTC_, 1, $3); }
         | PUTS_ '(' expr ')' ';'                                { $$ = opr(PUTS_, 1, $3); }
-        | variable '=' expr ';'                                 { $$ = opr('=', 2, $1, $3); }
-        | array '=' expr ';'                                    { $$ = opr('=', 2, $1, $3); }
+        | lvalue '=' expr ';'                                   { $$ = opr('=', 2, $1, $3); }
         | FOR '(' stmt stmt stmt ')' stmt                       { $$ = opr(FOR, 4, $3, $4, $5, $7); }
         | WHILE '(' expr ')' stmt                               { $$ = opr(WHILE, 2, $3, $5); }
         | IF '(' expr ')' stmt %prec IFX                        { $$ = opr(IF, 2, $3, $5); }
@@ -113,6 +112,11 @@ param_arg_list:
           expr                      { $$ = $1; }
         | param_arg_list ',' expr   { $$ = opr(',', 2, $1, $3); }
         | /* NULL */                { $$ = NULL; }
+        ;
+
+lvalue:
+          variable              { $$ = $1; }
+        | array                 { $$ = $1; }
         ;
 
 variable:

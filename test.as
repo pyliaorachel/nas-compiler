@@ -1,31 +1,25 @@
 	push	sp
-	push	451
+	push	27
 	add
 	pop	sp
-
-	// variable assignment c
-
-	// push constant
-	push	1
-	pop	sb[0]
 
 	// I/O
 
 	// push pointer a
 	push	sb
-	push	1
+	push	0
 	push	0
 
 	// push constant
-	push	4
+	push	2
 	add
-	push	10
+	push	3
 	mul
 
 	// push constant
-	push	1
+	push	2
 	add
-	push	9
+	push	3
 	mul
 	add
 	push	8
@@ -37,19 +31,19 @@
 
 	// push pointer a
 	push	sb
-	push	1
+	push	0
 	push	0
 
 	// push constant
-	push	4
+	push	2
 	add
-	push	10
+	push	3
 	mul
 
 	// push constant
-	push	1
+	push	2
 	add
-	push	9
+	push	3
 	mul
 	add
 	push	8
@@ -61,19 +55,19 @@
 
 	// push array a
 	push	sb
-	push	1
+	push	0
 	push	0
 
 	// push constant
-	push	4
+	push	2
 	add
-	push	10
+	push	3
 	mul
 
 	// push constant
-	push	1
+	push	2
 	add
-	push	9
+	push	3
 	mul
 
 	// push constant
@@ -91,19 +85,19 @@
 
 	// push array a
 	push	sb
-	push	1
+	push	0
 	push	0
 
 	// push constant
-	push	4
+	push	2
 	add
-	push	10
+	push	3
 	mul
 
 	// push constant
-	push	1
+	push	2
 	add
-	push	9
+	push	3
 	mul
 
 	// push constant
@@ -115,22 +109,46 @@
 	add
 	pop	ac
 	push	ac[0]
-	puti
+	putc
 
 	// I/O
 
-	// push variable c
-	push	sb[0]
-	puti
+	// push array a
+	push	sb
+	push	0
+	push	0
+
+	// push constant
+	push	2
+	add
+	push	3
+	mul
+
+	// push constant
+	push	2
+	add
+	push	3
+	mul
+
+	// push constant
+	push	2
+	add
+	add
+	push	8
+	mul
+	add
+	pop	ac
+	push	ac[0]
+	puts
 	end
 L000:
 
 	// declare function
 
-	// array assignment b
+	// I/O
+	geti
 
-	// push constant
-	push	0
+	// get to array b
 	push	fp[-4]
 	push	0
 
@@ -143,15 +161,31 @@ L000:
 	pop	ac
 	pop	ac[0]
 
-	// array assignment b
+	// I/O
+	getc
 
-	// push constant
-	push	1
+	// get to array b
 	push	fp[-4]
 	push	0
 
 	// push constant
 	push	1
+	add
+	push	8
+	mul
+	add
+	pop	ac
+	pop	ac[0]
+
+	// I/O
+	gets
+
+	// get to array b
+	push	fp[-4]
+	push	0
+
+	// push constant
+	push	2
 	add
 	push	8
 	mul
