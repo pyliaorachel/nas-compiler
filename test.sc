@@ -1,6 +1,7 @@
-array a[4] = 'a';
-a[3] = 0;
-puts_(a);
+array a[1000];
 
-a[1] = 87;
+gets(a[3]);
+puts(a[3]);
+
+gets(a);
 puts(a);

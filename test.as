@@ -1,30 +1,12 @@
 	push	sp
-	push	4
+	push	1000
 	add
 	pop	sp
 
-	// array declaration & assignment a
+	// Input
+	gets
 
-	// push constant
-	push	'a'
-
-	// array size 4
-	push	sb
-	push	0
-	add
-	pop	ac
-	pop	ac[0]
-	push	ac[0]
-	pop	ac[1]
-	push	ac[1]
-	pop	ac[2]
-	push	ac[2]
-	pop	ac[3]
-
-	// array assignment a
-
-	// push constant
-	push	0
+	// get to array a
 	push	sb
 	push	0
 	push	0
@@ -37,44 +19,48 @@
 	pop	ac
 	pop	ac[0]
 
-	// I/O
+	// Output
 
-	// push char array
+	// push normal string
+
+	// push array a
+	push	sb
+	push	0
+	push	0
+
+	// push constant
+	push	3
+	add
+	add
+	add
+	pop	ac
+	push	ac[0]
+	puts
+
+	// Input
+
+	// get to char array
 	push	sb
 	push	0
 	add
 	pop	ac
 L004:
+	getc
+	pop	ac[0]
 	push	ac[0]
-	push	0
-	compLE
+	push	10
+	compEQ
 	j1	L005
-	push	ac[0]
-	putc_
 	push	ac
 	push	1
 	add
 	pop	ac
 	jmp	L004
 L005:
-
-	// array assignment a
-
-	// push constant
-	push	87
-	push	sb
 	push	0
-	push	0
-
-	// push constant
-	push	1
-	add
-	add
-	add
-	pop	ac
 	pop	ac[0]
 
-	// I/O
+	// Output
 
 	// push char array
 	push	sb
