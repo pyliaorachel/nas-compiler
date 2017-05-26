@@ -61,8 +61,7 @@ char text[500];
 "break"     return BREAK;
 "continue"  return CONTINUE;
 "return"    return RETURN;
-"array"     return DECL_ARRAY;
-
+"array"    	return DECL_ARRAY;
 
 [-()<>=+*/;{}.%\[\],&]   {
                             return *yytext;
@@ -90,9 +89,9 @@ char text[500];
                                 return VARIABLE;
                             }
 
-\/\/.*\n	;	/* skip comments */
+\/\/.*(\n)+	; /* skip comments */
 
-[ \t\n]+    ;   /* ignore whitespace */
+[ \t\n]+    ; /* ignore whitespace */
 
 .               yyerror("Unknown character");
 %%

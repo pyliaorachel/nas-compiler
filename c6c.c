@@ -1,10 +1,3 @@
-/*
- * TODO: 
- * 1. arrays
- * 2. error checking 
- * 3. what to do with in/ac
-*/
-
 #include <stdio.h>
 #include <stdarg.h>
 #include <assert.h>
