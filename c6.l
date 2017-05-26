@@ -34,9 +34,9 @@ char text[500];
 '\\n'           { yylval.conValue = (int) '\n'; return CHAR; }
 '\\t'           { yylval.conValue = (int) '\t'; return CHAR; }
 '\\''           { yylval.conValue = (int) '\''; return CHAR; }
+'\\0'           { yylval.conValue = 0; return INTEGER; }
 ''              { yylval.conValue = 0; return CHAR; }
 '[^']'          { yylval.conValue = (int) yytext[1]; return CHAR; }
-
 
 [-()<>=+*/;{}.%\[\],]   {
                             return *yytext;
