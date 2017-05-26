@@ -119,7 +119,9 @@ assignment_list:
 
 array_decl_list:
           DECL_ARRAY array                          { $$ = opr(DECL_ARRAY, 1, $2); }
-        | array_decl_list ',' array           { $$ = opr(',', 2, $1, opr(DECL_ARRAY, 1, $3)); }
+        | DECL_ARRAY array '=' expr                 { $$ = opr('=', 2, opr(DECL_ARRAY, 1, $2), $4); }
+        | array_decl_list ',' array                 { $$ = opr(',', 2, $1, opr(DECL_ARRAY, 1, $3)); }
+        | array_decl_list ',' array '=' expr        { $$ = opr(',', 2, $1, opr('=', 2, opr(DECL_ARRAY, 1, $3), $5)); }
         ;
 
 param_arg_list:   

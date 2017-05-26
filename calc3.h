@@ -28,6 +28,7 @@ typedef struct {
     struct arrayOffsetNodeType *offsetListHead;
     struct arrayOffsetNodeType *offsetListTail;
     int dim;
+    int size;
     char baseName[14];
 } arrayNodeType ;
 

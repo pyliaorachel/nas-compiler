@@ -35,6 +35,7 @@ void makeRoomGlobalVariables();
 void makeRoomLocalVariables(funcNodeType* func);
 int pushArgs(nodeType* argList, int lbl_kept);
 void declareArray(char* regName, arrayNodeType* array, int lbl_kept);
+void assignArray(nodeType* p, int lbl_kept);
 int isArrayPtr(nodeType* p);
 void pushPtr(nodeType* p, int lbl_kept);
 void pushArray(nodeType* p, int lbl_kept);
@@ -217,7 +218,7 @@ void declareArray(char* regName, arrayNodeType* array, int lbl_kept) {
     assert(array->dim >= 1);
     arrayOffsetNodeType *n = array->offsetListHead;
     int offset = n->offset->con.value;
-    sprintf(dimStr, "%d,%d", array->dim, n->offset->con.value); // prepend count -> count,dim1,dim2,...
+    sprintf(dimStr, "%d,%d", array->dim, offset); // prepend count -> count,dim1,dim2,...
     n = n->next;
 
     while (n) {
@@ -235,6 +236,32 @@ void declareArray(char* regName, arrayNodeType* array, int lbl_kept) {
     getRegName(regName, array->baseName, offset);
     assert(!sm_exists(arrayDimTab, array->baseName));
     sm_put(arrayDimTab, array->baseName, dimStr);
+
+    array->size = offset;
+}
+
+void assignArray(nodeType* p, int lbl_kept) {
+    char regName[REG_NAME_L], baseRegName[3] = {0}, baseRegOffset[REG_NAME_L] = {0};
+
+    PRINTF("\n\t// array size %d\n", p->array.size); 
+
+    // push base register address
+    getRegName(regName, p->array.baseName, -1);
+    strncpy(baseRegName, regName, 2);
+    strncpy(baseRegOffset, regName + 3, strlen(regName) - 4);
+
+    PRINTF("\tpush\t%s\n", baseRegName);
+    PRINTF("\tpush\t%s\n", baseRegOffset); 
+    PRINTF("\tadd\n");  
+
+    PRINTF("\tpop\tac\n");
+    PRINTF("\tpop\tac[0]\n");
+
+    // pop to elements
+    for (int i = 1; i < p->array.size; i++) {
+        PRINTF("\tpush\tac[%d]\n", i-1);
+        PRINTF("\tpop\tac[%d]\n", i);
+    }
 }
 
 int isArrayPtr(nodeType* p) {
@@ -324,10 +351,6 @@ void pushPtr(nodeType* p, int lbl_kept) {
         PRINTF("\tpush\t%s\n", baseRegName);
         PRINTF("\tpush\t%s\n", baseRegOffset); 
     }
-
-    // offset *= width
-    PRINTF("\tpush\t%ld\n", sizeof(long)); 
-    PRINTF("\tmul\n"); 
 
     PRINTF("\tadd\n");    
 }
@@ -598,6 +621,20 @@ int ex(nodeType *p, int nops, ...) {
                         pushPtr(p->opr.op[0], lbl_kept);
                         PRINTF("\tpop\tac\n");
                         PRINTF("\tpop\tac[0]\n");
+                    } else if (p->opr.op[0]->type == typeOpr) {
+                        switch (p->opr.op[0]->opr.oper) {
+                            case DECL_ARRAY:
+                                PRINTF("\n\t// array declaration & assignment %s\n", p->opr.op[0]->opr.op[0]->array.baseName);
+                                // declare
+                                ex(p->opr.op[0], 1, lbl_kept);
+                                // calculate expression
+                                ex(p->opr.op[1], 1, lbl_kept);
+
+                                if (!isScan) assignArray(p->opr.op[0]->opr.op[0], lbl_kept);
+                                break;
+                            default:
+                                break;
+                        }
                     }
                     break;
                 case UMINUS:    
