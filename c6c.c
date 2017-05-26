@@ -617,6 +617,10 @@ int ex(nodeType *p, int nops, ...) {
                 case DECL_ARRAY:
                     if (isScan) declareArray(regName, &p->opr.op[0]->array, lbl_kept);
                     break;
+                case ',':
+                    ex(p->opr.op[0], 1, lbl_kept);
+                    ex(p->opr.op[1], 1, lbl_kept);
+                    break;
                 default:
                     ex(p->opr.op[0], 1, lbl_kept);
                     ex(p->opr.op[1], 1, lbl_kept);

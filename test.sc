@@ -1,14 +1,13 @@
-array a[3][3][3];
-puti(a[2][2]);
+  b = 3, c = 4;
+d = 3;
 
-hello(a[2][2]);
+array a[3][3][3], x[4][4][4];
 
-hello(b) {
-	geti(b[0]);
-	getc(b[1]);
-	gets(b[2]);
-}
+puti(b);
+	puti(c);
+puti(d);
 
-puti(a[2][2][0]);
-putc(a[2][2][1]);
-puts(a[2][2][2]);
+a[2][2][2] = 2, x[2][2][2] = 3;
+
+puti(a[2][2][2]);
+puti(x[2][2][2]);

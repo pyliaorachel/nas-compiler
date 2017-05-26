@@ -1,91 +1,50 @@
 	push	sp
-	push	27
+	push	94
 	add
 	pop	sp
 
-	// I/O
-
-	// push pointer a
-	push	sb
-	push	0
-	push	0
+	// variable assignment b
 
 	// push constant
-	push	2
-	add
 	push	3
-	mul
+	pop	sb[0]
+
+	// variable assignment c
 
 	// push constant
-	push	2
-	add
-	push	3
-	mul
-	add
-	push	8
-	mul
-	add
-	puti
+	push	4
+	pop	sb[1]
 
-	// function call hello
-
-	// push pointer a
-	push	sb
-	push	0
-	push	0
+	// variable assignment d
 
 	// push constant
-	push	2
-	add
 	push	3
-	mul
-
-	// push constant
-	push	2
-	add
-	push	3
-	mul
-	add
-	push	8
-	mul
-	add
-	call	L000, 1
+	pop	sb[2]
 
 	// I/O
 
-	// push array a
-	push	sb
-	push	0
-	push	0
-
-	// push constant
-	push	2
-	add
-	push	3
-	mul
-
-	// push constant
-	push	2
-	add
-	push	3
-	mul
-
-	// push constant
-	push	0
-	add
-	add
-	push	8
-	mul
-	add
-	pop	ac
-	push	ac[0]
+	// push variable b
+	push	sb[0]
 	puti
 
 	// I/O
 
-	// push array a
+	// push variable c
+	push	sb[1]
+	puti
+
+	// I/O
+
+	// push variable d
+	push	sb[2]
+	puti
+
+	// array assignment a
+
+	// push constant
+	push	2
 	push	sb
-	push	0
+	push	3
 	push	0
 
 	// push constant
@@ -101,21 +60,50 @@
 	mul
 
 	// push constant
-	push	1
+	push	2
 	add
 	add
 	push	8
 	mul
 	add
 	pop	ac
-	push	ac[0]
-	putc
+	pop	ac[0]
+
+	// array assignment x
+
+	// push constant
+	push	3
+	push	sb
+	push	30
+	push	0
+
+	// push constant
+	push	2
+	add
+	push	4
+	mul
+
+	// push constant
+	push	2
+	add
+	push	4
+	mul
+
+	// push constant
+	push	2
+	add
+	add
+	push	8
+	mul
+	add
+	pop	ac
+	pop	ac[0]
 
 	// I/O
 
 	// push array a
 	push	sb
-	push	0
+	push	3
 	push	0
 
 	// push constant
@@ -139,57 +127,35 @@
 	add
 	pop	ac
 	push	ac[0]
-	puts
+	puti
+
+	// I/O
+
+	// push array x
+	push	sb
+	push	30
+	push	0
+
+	// push constant
+	push	2
+	add
+	push	4
+	mul
+
+	// push constant
+	push	2
+	add
+	push	4
+	mul
+
+	// push constant
+	push	2
+	add
+	add
+	push	8
+	mul
+	add
+	pop	ac
+	push	ac[0]
+	puti
 	end
-L000:
-
-	// declare function
-
-	// I/O
-	geti
-
-	// get to array b
-	push	fp[-4]
-	push	0
-
-	// push constant
-	push	0
-	add
-	push	8
-	mul
-	add
-	pop	ac
-	pop	ac[0]
-
-	// I/O
-	getc
-
-	// get to array b
-	push	fp[-4]
-	push	0
-
-	// push constant
-	push	1
-	add
-	push	8
-	mul
-	add
-	pop	ac
-	pop	ac[0]
-
-	// I/O
-	gets
-
-	// get to array b
-	push	fp[-4]
-	push	0
-
-	// push constant
-	push	2
-	add
-	push	8
-	mul
-	add
-	pop	ac
-	pop	ac[0]
-	ret

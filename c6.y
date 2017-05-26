@@ -55,7 +55,7 @@ nodeListType* stmtList;
 %left '*' '/' '%'
 %nonassoc UMINUS
 
-%type <nPtr> func_decl stmt expr stmt_list lvalue variable array array_list param_arg_list
+%type <nPtr> func_decl stmt expr stmt_list assignment assignment_list array_assignment_list lvalue variable array array_list param_arg_list
 
 %%
 
@@ -90,7 +90,7 @@ stmt:
         | PUTI_ '(' expr ')' ';'                                { $$ = opr(PUTI_, 1, $3); }
         | PUTC_ '(' expr ')' ';'                                { $$ = opr(PUTC_, 1, $3); }
         | PUTS_ '(' expr ')' ';'                                { $$ = opr(PUTS_, 1, $3); }
-        | lvalue '=' expr ';'                                   { $$ = opr('=', 2, $1, $3); }
+        | assignment_list ';'                                   { $$ = $1; }
         | FOR '(' stmt stmt stmt ')' stmt                       { $$ = opr(FOR, 4, $3, $4, $5, $7); }
         | WHILE '(' expr ')' stmt                               { $$ = opr(WHILE, 2, $3, $5); }
         | IF '(' expr ')' stmt %prec IFX                        { $$ = opr(IF, 2, $3, $5); }
@@ -100,12 +100,26 @@ stmt:
         | RETURN expr ';'                                       { $$ = opr(RETURN, 1, $2); }
         | '{' stmt_list '}'                                     { $$ = $2; }
         | DECL_VARIABLE '(' param_arg_list ')' ';'              { $$ = opr(CALL, 2, id($1), $3); }
-        | DECL_ARRAY array ';'                                  { $$ = opr(DECL_ARRAY, 1, $2); }
+        | array_assignment_list ';'                             { $$ = $1; }
         ;
 
 stmt_list:
           stmt                  { $$ = $1; }
         | stmt_list stmt        { $$ = opr(';', 2, $1, $2); }
+        ;
+
+assignment:
+          lvalue '=' expr                           { $$ = opr('=', 2, $1, $3); }
+        ;
+
+assignment_list:
+          assignment                                { $$ = $1; }
+        | assignment_list ',' assignment            { $$ = opr(',', 2, $1, $3); }
+        ;
+
+array_assignment_list:
+          DECL_ARRAY array                          { $$ = opr(DECL_ARRAY, 1, $2); }
+        | array_assignment_list ',' array           { $$ = opr(',', 2, $1, opr(DECL_ARRAY, 1, $3)); }
         ;
 
 param_arg_list:   
