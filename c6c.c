@@ -271,13 +271,16 @@ int isArrayPtr(nodeType* p) {
     if (p->type == typeId && sm_exists(arrayDimTab, p->id.varName)) {
         return 1;
     } else if (p->type == typeArr) {
-        assert(sm_exists(arrayDimTab, p->array.baseName));
+        if (sm_exists(arrayDimTab, p->array.baseName)) {
+            // check dimension count
+            sm_get(arrayDimTab, p->array.baseName, dimStr, DIM_STR_L);
+            arrayDim = atoi(strtok(dimStr, ","));
 
-        // check dimension count
-        sm_get(arrayDimTab, p->array.baseName, dimStr, DIM_STR_L);
-        arrayDim = atoi(strtok(dimStr, ","));
-
-        return p->array.dim < arrayDim;
+            return p->array.dim < arrayDim;
+        } else if (sm_exists(currentFrameSymTab->symTab, p->array.baseName)) {
+            // array pointer in param
+            return 0;
+        }
     }
     
     return 0;
@@ -331,7 +334,6 @@ void pushPtr(nodeType* p, int lbl_kept) {
             PRINTF("\tadd\n"); 
 
             n = n->next;
-            // if array ptr passed by param, not in the array dim table
             if (sm_exists(arrayDimTab, p->array.baseName)) {
                 sm_get(arrayDimTab, p->array.baseName, dimStr, DIM_STR_L);
                 dim = atoi(strtok(dimStr, ",")); // dummy, dim count
