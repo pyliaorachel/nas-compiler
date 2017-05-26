@@ -72,7 +72,12 @@ Prescanning is to scan through all nodes before the real execution prints out th
 
 Global statements & function declarations are stored in nodes and chained in linked lists. The statements are executed first, followed by the function list so that the functions can be aggregated in the same area.
 
-
+1. array dimensions
+	- arraydimtab to keep track of dimension info
+2. arg & param list
+	- combine to avoid conflict
+3. pointer
+4. tester using gcc
 
 
 

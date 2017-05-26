@@ -264,43 +264,60 @@ void pushPtr(nodeType* p, int lbl_kept) {
     char regName[REG_NAME_L], baseRegName[3] = {0}, baseRegOffset[REG_NAME_L] = {0};
 
     if (p->type == typeArr) {
-        getRegName(regName, p->array.baseName, -1);
-        strncpy(baseRegName, regName, 2);
-        strncpy(baseRegOffset, regName + 3, strlen(regName) - 4);
+        if (sm_exists(currentFrameSymTab->symTab, p->array.baseName)) {
+            // param is array pointer
+            getRegName(regName, p->array.baseName, -1);
+            strncpy(baseRegName, regName, 2);
+            strncpy(baseRegOffset, regName + 3, strlen(regName) - 4);
 
-        PRINTF("\tpush\t%s\n", baseRegName);
-        PRINTF("\tpush\t%s\n", baseRegOffset); 
+            PRINTF("\tpush\t%s[%s]\n", baseRegName, baseRegOffset);
 
-        // calculate offset
-        PRINTF("\tpush\t0\n"); 
-        arrayOffsetNodeType *n = p->array.offsetListHead;
-        ex(n->offset, 1, lbl_kept);
-        PRINTF("\tadd\n"); 
+            // calculate offset
+            PRINTF("\tpush\t0\n"); 
+            arrayOffsetNodeType *n = p->array.offsetListHead;
+            ex(n->offset, 1, lbl_kept);
+            PRINTF("\tadd\n");
+        } else {
+            getRegName(regName, p->array.baseName, -1);
+            strncpy(baseRegName, regName, 2);
+            strncpy(baseRegOffset, regName + 3, strlen(regName) - 4);
 
-        n = n->next;
-        sm_get(arrayDimTab, p->array.baseName, dimStr, DIM_STR_L);
-        dim = atoi(strtok(dimStr, ",")); // dummy, dim count
-        dim = atoi(strtok(NULL, ",")); // dummy, first dimension
+            PRINTF("\tpush\t%s\n", baseRegName);
+            PRINTF("\tpush\t%s\n", baseRegOffset); 
 
-        while (n) {
-            dim = atoi(strtok(NULL, ","));
-            PRINTF("\tpush\t%d\n", dim); 
-            PRINTF("\tmul\n"); 
+            // calculate offset
+            PRINTF("\tpush\t0\n"); 
+            arrayOffsetNodeType *n = p->array.offsetListHead;
             ex(n->offset, 1, lbl_kept);
             PRINTF("\tadd\n"); 
 
             n = n->next;
-        }
+            // if array ptr passed by param, not in the array dim table
+            if (sm_exists(arrayDimTab, p->array.baseName)) {
+                sm_get(arrayDimTab, p->array.baseName, dimStr, DIM_STR_L);
+                dim = atoi(strtok(dimStr, ",")); // dummy, dim count
+                dim = atoi(strtok(NULL, ",")); // dummy, first dimension
 
-        tempDim = strtok(NULL, ",");
-        while (tempDim) {
-            dim = atoi(tempDim);
-            PRINTF("\tpush\t%d\n", dim); 
-            PRINTF("\tmul\n"); 
-            tempDim = strtok(NULL, ",");
-        }
+                while (n) {
+                    dim = atoi(strtok(NULL, ","));
+                    PRINTF("\tpush\t%d\n", dim); 
+                    PRINTF("\tmul\n"); 
+                    ex(n->offset, 1, lbl_kept);
+                    PRINTF("\tadd\n"); 
 
-        PRINTF("\tadd\n"); 
+                    n = n->next;
+                }
+
+                tempDim = strtok(NULL, ",");
+                while (tempDim) {
+                    dim = atoi(tempDim);
+                    PRINTF("\tpush\t%d\n", dim); 
+                    PRINTF("\tmul\n"); 
+                    tempDim = strtok(NULL, ",");
+                }
+            }
+            PRINTF("\tadd\n");
+        }
     } else if (p->type == typeId) {
         getRegName(regName, p->id.varName, 1);
         strncpy(baseRegName, regName, 2);
@@ -309,6 +326,10 @@ void pushPtr(nodeType* p, int lbl_kept) {
         PRINTF("\tpush\t%s\n", baseRegName);
         PRINTF("\tpush\t%s\n", baseRegOffset); 
     }
+
+    // offset *= width
+    PRINTF("\tpush\t%ld\n", sizeof(long)); 
+    PRINTF("\tmul\n"); 
 
     PRINTF("\tadd\n");    
 }
