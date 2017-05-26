@@ -13,6 +13,7 @@ nodeType *array(nodeType* idNode, nodeType *offset);
 nodeType *extendArray(nodeType *p, nodeType *offset);
 nodeType *con(long value, conTypeEnum type);
 nodeType *func(char* funcName, nodeType *paramList, nodeType *stmt);
+nodeType *strConcat(nodeType* s1, nodeType* s2);
 void appendToList(nodeListType* nodeList, nodeType* node);
 void freeNode(nodeType *p);
 void freeNodeList(nodeListType* nodeList);
@@ -156,7 +157,14 @@ expr:
         | array                 { $$ = $1; }
         | variable              { $$ = $1; }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
-        | expr '+' expr         { $$ = opr('+', 2, $1, $3); }
+        | expr '+' expr         { 
+                                    if ($1->type == typeCon && $1->con.type == conTypeStr &&
+                                        $3->type == typeCon && $3->con.type == conTypeStr) {
+                                        $$ = strConcat($1, $3);
+                                    } else {
+                                        $$ = opr('+', 2, $1, $3); 
+                                    }
+                                }
         | expr '-' expr         { $$ = opr('-', 2, $1, $3); }
         | expr '*' expr         { $$ = opr('*', 2, $1, $3); }
         | expr '%' expr         { $$ = opr('%', 2, $1, $3); }
@@ -292,6 +300,27 @@ nodeType *opr(int oper, int nops, ...) {
     for (i = 0; i < nops; i++)
         p->opr.op[i] = va_arg(ap, nodeType*);
     va_end(ap);
+    return p;
+}
+
+nodeType* strConcat(nodeType* s1, nodeType* s2) {
+    nodeType *p;
+    size_t nodeSize;
+
+    /* allocate node */
+    nodeSize = SIZEOF_NODETYPE + sizeof(conNodeType);
+    if ((p = malloc(nodeSize)) == NULL)
+        yyerror("out of memory");
+
+    /* copy information */
+    p->type = typeCon;
+    p->con.type = conTypeStr;
+    strcpy(p->con.strValue, strcat(s1->con.strValue, s2->con.strValue));
+
+    /* free 2 nodes */
+    freeNode(s1);
+    freeNode(s2);
+
     return p;
 }
 

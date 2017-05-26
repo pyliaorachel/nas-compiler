@@ -152,6 +152,7 @@ nodeType *array(nodeType* idNode, nodeType *offset);
 nodeType *extendArray(nodeType *p, nodeType *offset);
 nodeType *con(long value, conTypeEnum type);
 nodeType *func(char* funcName, nodeType *paramList, nodeType *stmt);
+nodeType *strConcat(nodeType* s1, nodeType* s2);
 void appendToList(nodeListType* nodeList, nodeType* node);
 void freeNode(nodeType *p);
 void freeNodeList(nodeListType* nodeList);
@@ -192,7 +193,7 @@ nodeListType* stmtList;
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 36 "c6.y"
+#line 37 "c6.y"
 {
     int conValue;               /* const value for int and char */
     char conStrValue[500];      /* const value for string */
@@ -200,7 +201,7 @@ typedef union YYSTYPE
     nodeType *nPtr;             /* node pointer */
 }
 /* Line 193 of yacc.c.  */
-#line 204 "y.tab.c"
+#line 205 "y.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -213,7 +214,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 217 "y.tab.c"
+#line 218 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -529,13 +530,13 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    63,    63,    72,    73,    74,    78,    82,    83,    84,
-      85,    86,    87,    88,    89,    90,    91,    92,    93,    94,
-      95,    96,    97,    98,    99,   100,   101,   102,   103,   107,
-     108,   112,   116,   117,   121,   122,   123,   124,   128,   129,
-     130,   134,   135,   139,   140,   144,   148,   149,   153,   154,
-     155,   156,   157,   158,   159,   160,   161,   162,   163,   164,
-     165,   166,   167,   168,   169,   170,   171,   172,   173
+       0,    64,    64,    73,    74,    75,    79,    83,    84,    85,
+      86,    87,    88,    89,    90,    91,    92,    93,    94,    95,
+      96,    97,    98,    99,   100,   101,   102,   103,   104,   108,
+     109,   113,   117,   118,   122,   123,   124,   125,   129,   130,
+     131,   135,   136,   140,   141,   145,   149,   150,   154,   155,
+     156,   157,   158,   159,   160,   168,   169,   170,   171,   172,
+     173,   174,   175,   176,   177,   178,   179,   180,   181
 };
 #endif
 
@@ -1616,7 +1617,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 63 "c6.y"
+#line 64 "c6.y"
     { 
                                 preProcess();
                                 exStmtList(); 
@@ -1626,333 +1627,340 @@ yyreduce:
     break;
 
   case 3:
-#line 72 "c6.y"
+#line 73 "c6.y"
     { appendToList(stmtList, (yyvsp[(2) - (2)].nPtr)); }
     break;
 
   case 4:
-#line 73 "c6.y"
+#line 74 "c6.y"
     { appendToList(funcList, (yyvsp[(2) - (2)].nPtr)); }
     break;
 
   case 6:
-#line 78 "c6.y"
+#line 79 "c6.y"
     { (yyval.nPtr) = func((yyvsp[(1) - (7)].sKey), (yyvsp[(3) - (7)].nPtr), (yyvsp[(6) - (7)].nPtr)); }
     break;
 
   case 7:
-#line 82 "c6.y"
+#line 83 "c6.y"
     { (yyval.nPtr) = opr(';', 2, NULL, NULL); }
     break;
 
   case 8:
-#line 83 "c6.y"
+#line 84 "c6.y"
     { (yyval.nPtr) = (yyvsp[(1) - (2)].nPtr); }
     break;
 
   case 9:
-#line 84 "c6.y"
+#line 85 "c6.y"
     { (yyval.nPtr) = opr(GETI, 1, (yyvsp[(3) - (5)].nPtr)); }
     break;
 
   case 10:
-#line 85 "c6.y"
+#line 86 "c6.y"
     { (yyval.nPtr) = opr(GETC, 1, (yyvsp[(3) - (5)].nPtr)); }
     break;
 
   case 11:
-#line 86 "c6.y"
+#line 87 "c6.y"
     { (yyval.nPtr) = opr(GETS, 1, (yyvsp[(3) - (5)].nPtr)); }
     break;
 
   case 12:
-#line 87 "c6.y"
+#line 88 "c6.y"
     { (yyval.nPtr) = opr(PUTI, 1, (yyvsp[(3) - (5)].nPtr)); }
     break;
 
   case 13:
-#line 88 "c6.y"
+#line 89 "c6.y"
     { (yyval.nPtr) = opr(PUTC, 1, (yyvsp[(3) - (5)].nPtr)); }
     break;
 
   case 14:
-#line 89 "c6.y"
+#line 90 "c6.y"
     { (yyval.nPtr) = opr(PUTS, 1, (yyvsp[(3) - (5)].nPtr)); }
     break;
 
   case 15:
-#line 90 "c6.y"
+#line 91 "c6.y"
     { (yyval.nPtr) = opr(PUTI_, 1, (yyvsp[(3) - (5)].nPtr)); }
     break;
 
   case 16:
-#line 91 "c6.y"
+#line 92 "c6.y"
     { (yyval.nPtr) = opr(PUTC_, 1, (yyvsp[(3) - (5)].nPtr)); }
     break;
 
   case 17:
-#line 92 "c6.y"
+#line 93 "c6.y"
     { (yyval.nPtr) = opr(PUTS_, 1, (yyvsp[(3) - (5)].nPtr)); }
     break;
 
   case 18:
-#line 93 "c6.y"
+#line 94 "c6.y"
     { (yyval.nPtr) = (yyvsp[(1) - (2)].nPtr); }
     break;
 
   case 19:
-#line 94 "c6.y"
+#line 95 "c6.y"
     { (yyval.nPtr) = opr(FOR, 4, (yyvsp[(3) - (7)].nPtr), (yyvsp[(4) - (7)].nPtr), (yyvsp[(5) - (7)].nPtr), (yyvsp[(7) - (7)].nPtr)); }
     break;
 
   case 20:
-#line 95 "c6.y"
+#line 96 "c6.y"
     { (yyval.nPtr) = opr(WHILE, 2, (yyvsp[(3) - (5)].nPtr), (yyvsp[(5) - (5)].nPtr)); }
     break;
 
   case 21:
-#line 96 "c6.y"
+#line 97 "c6.y"
     { (yyval.nPtr) = opr(IF, 2, (yyvsp[(3) - (5)].nPtr), (yyvsp[(5) - (5)].nPtr)); }
     break;
 
   case 22:
-#line 97 "c6.y"
+#line 98 "c6.y"
     { (yyval.nPtr) = opr(IF, 3, (yyvsp[(3) - (7)].nPtr), (yyvsp[(5) - (7)].nPtr), (yyvsp[(7) - (7)].nPtr)); }
     break;
 
   case 23:
-#line 98 "c6.y"
+#line 99 "c6.y"
     { (yyval.nPtr) = opr(BREAK, 2, NULL, NULL); }
     break;
 
   case 24:
-#line 99 "c6.y"
+#line 100 "c6.y"
     { (yyval.nPtr) = opr(CONTINUE, 2, NULL, NULL); }
     break;
 
   case 25:
-#line 100 "c6.y"
+#line 101 "c6.y"
     { (yyval.nPtr) = opr(RETURN, 1, (yyvsp[(2) - (3)].nPtr)); }
     break;
 
   case 26:
-#line 101 "c6.y"
+#line 102 "c6.y"
     { (yyval.nPtr) = (yyvsp[(2) - (3)].nPtr); }
     break;
 
   case 27:
-#line 102 "c6.y"
+#line 103 "c6.y"
     { (yyval.nPtr) = opr(CALL, 2, id((yyvsp[(1) - (5)].sKey)), (yyvsp[(3) - (5)].nPtr)); }
     break;
 
   case 28:
-#line 103 "c6.y"
+#line 104 "c6.y"
     { (yyval.nPtr) = (yyvsp[(1) - (2)].nPtr); }
     break;
 
   case 29:
-#line 107 "c6.y"
+#line 108 "c6.y"
     { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); }
     break;
 
   case 30:
-#line 108 "c6.y"
+#line 109 "c6.y"
     { (yyval.nPtr) = opr(';', 2, (yyvsp[(1) - (2)].nPtr), (yyvsp[(2) - (2)].nPtr)); }
     break;
 
   case 31:
-#line 112 "c6.y"
+#line 113 "c6.y"
     { (yyval.nPtr) = opr('=', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 32:
-#line 116 "c6.y"
+#line 117 "c6.y"
     { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); }
     break;
 
   case 33:
-#line 117 "c6.y"
+#line 118 "c6.y"
     { (yyval.nPtr) = opr(',', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 34:
-#line 121 "c6.y"
+#line 122 "c6.y"
     { (yyval.nPtr) = opr(DECL_ARRAY, 1, (yyvsp[(2) - (2)].nPtr)); }
     break;
 
   case 35:
-#line 122 "c6.y"
+#line 123 "c6.y"
     { (yyval.nPtr) = opr('=', 2, opr(DECL_ARRAY, 1, (yyvsp[(2) - (4)].nPtr)), (yyvsp[(4) - (4)].nPtr)); }
     break;
 
   case 36:
-#line 123 "c6.y"
+#line 124 "c6.y"
     { (yyval.nPtr) = opr(',', 2, (yyvsp[(1) - (3)].nPtr), opr(DECL_ARRAY, 1, (yyvsp[(3) - (3)].nPtr))); }
     break;
 
   case 37:
-#line 124 "c6.y"
+#line 125 "c6.y"
     { (yyval.nPtr) = opr(',', 2, (yyvsp[(1) - (5)].nPtr), opr('=', 2, opr(DECL_ARRAY, 1, (yyvsp[(3) - (5)].nPtr)), (yyvsp[(5) - (5)].nPtr))); }
     break;
 
   case 38:
-#line 128 "c6.y"
+#line 129 "c6.y"
     { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); }
     break;
 
   case 39:
-#line 129 "c6.y"
+#line 130 "c6.y"
     { (yyval.nPtr) = opr(',', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 40:
-#line 130 "c6.y"
+#line 131 "c6.y"
     { (yyval.nPtr) = NULL; }
     break;
 
   case 41:
-#line 134 "c6.y"
-    { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); }
-    break;
-
-  case 42:
 #line 135 "c6.y"
     { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); }
     break;
 
-  case 43:
-#line 139 "c6.y"
-    { (yyval.nPtr) = id((yyvsp[(1) - (1)].sKey)); }
+  case 42:
+#line 136 "c6.y"
+    { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); }
     break;
 
-  case 44:
+  case 43:
 #line 140 "c6.y"
     { (yyval.nPtr) = id((yyvsp[(1) - (1)].sKey)); }
     break;
 
+  case 44:
+#line 141 "c6.y"
+    { (yyval.nPtr) = id((yyvsp[(1) - (1)].sKey)); }
+    break;
+
   case 45:
-#line 144 "c6.y"
+#line 145 "c6.y"
     { (yyval.nPtr) = (yyvsp[(1) - (2)].nPtr); }
     break;
 
   case 46:
-#line 148 "c6.y"
+#line 149 "c6.y"
     { (yyval.nPtr) = array((yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 47:
-#line 149 "c6.y"
+#line 150 "c6.y"
     { (yyval.nPtr) = extendArray((yyvsp[(1) - (4)].nPtr), (yyvsp[(4) - (4)].nPtr)); }
     break;
 
   case 48:
-#line 153 "c6.y"
+#line 154 "c6.y"
     { (yyval.nPtr) = con((yyvsp[(1) - (1)].conValue), conTypeInt); }
     break;
 
   case 49:
-#line 154 "c6.y"
+#line 155 "c6.y"
     { (yyval.nPtr) = con((yyvsp[(1) - (1)].conValue), conTypeChar); }
     break;
 
   case 50:
-#line 155 "c6.y"
+#line 156 "c6.y"
     { (yyval.nPtr) = con((long) (yyvsp[(1) - (1)].conStrValue), conTypeStr); }
     break;
 
   case 51:
-#line 156 "c6.y"
-    { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); }
-    break;
-
-  case 52:
 #line 157 "c6.y"
     { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); }
     break;
 
-  case 53:
+  case 52:
 #line 158 "c6.y"
+    { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); }
+    break;
+
+  case 53:
+#line 159 "c6.y"
     { (yyval.nPtr) = opr(UMINUS, 1, (yyvsp[(2) - (2)].nPtr)); }
     break;
 
   case 54:
-#line 159 "c6.y"
-    { (yyval.nPtr) = opr('+', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
+#line 160 "c6.y"
+    { 
+                                    if ((yyvsp[(1) - (3)].nPtr)->type == typeCon && (yyvsp[(1) - (3)].nPtr)->con.type == conTypeStr &&
+                                        (yyvsp[(3) - (3)].nPtr)->type == typeCon && (yyvsp[(3) - (3)].nPtr)->con.type == conTypeStr) {
+                                        (yyval.nPtr) = strConcat((yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr));
+                                    } else {
+                                        (yyval.nPtr) = opr('+', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); 
+                                    }
+                                }
     break;
 
   case 55:
-#line 160 "c6.y"
+#line 168 "c6.y"
     { (yyval.nPtr) = opr('-', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 56:
-#line 161 "c6.y"
+#line 169 "c6.y"
     { (yyval.nPtr) = opr('*', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 57:
-#line 162 "c6.y"
+#line 170 "c6.y"
     { (yyval.nPtr) = opr('%', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 58:
-#line 163 "c6.y"
+#line 171 "c6.y"
     { (yyval.nPtr) = opr('/', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 59:
-#line 164 "c6.y"
+#line 172 "c6.y"
     { (yyval.nPtr) = opr('<', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 60:
-#line 165 "c6.y"
+#line 173 "c6.y"
     { (yyval.nPtr) = opr('>', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 61:
-#line 166 "c6.y"
+#line 174 "c6.y"
     { (yyval.nPtr) = opr(GE, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 62:
-#line 167 "c6.y"
+#line 175 "c6.y"
     { (yyval.nPtr) = opr(LE, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 63:
-#line 168 "c6.y"
+#line 176 "c6.y"
     { (yyval.nPtr) = opr(NE, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 64:
-#line 169 "c6.y"
+#line 177 "c6.y"
     { (yyval.nPtr) = opr(EQ, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 65:
-#line 170 "c6.y"
+#line 178 "c6.y"
     { (yyval.nPtr) = opr(AND, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 66:
-#line 171 "c6.y"
+#line 179 "c6.y"
     { (yyval.nPtr) = opr(OR, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 67:
-#line 172 "c6.y"
+#line 180 "c6.y"
     { (yyval.nPtr) = (yyvsp[(2) - (3)].nPtr); }
     break;
 
   case 68:
-#line 173 "c6.y"
+#line 181 "c6.y"
     { (yyval.nPtr) = opr(CALL, 2, id((yyvsp[(1) - (4)].sKey)), (yyvsp[(3) - (4)].nPtr)); }
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1956 "y.tab.c"
+#line 1964 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2166,7 +2174,7 @@ yyreturn:
 }
 
 
-#line 176 "c6.y"
+#line 184 "c6.y"
 
 
 #define SIZEOF_NODETYPE ((char *)&p->con - (char *)p)
@@ -2286,6 +2294,27 @@ nodeType *opr(int oper, int nops, ...) {
     for (i = 0; i < nops; i++)
         p->opr.op[i] = va_arg(ap, nodeType*);
     va_end(ap);
+    return p;
+}
+
+nodeType* strConcat(nodeType* s1, nodeType* s2) {
+    nodeType *p;
+    size_t nodeSize;
+
+    /* allocate node */
+    nodeSize = SIZEOF_NODETYPE + sizeof(conNodeType);
+    if ((p = malloc(nodeSize)) == NULL)
+        yyerror("out of memory");
+
+    /* copy information */
+    p->type = typeCon;
+    p->con.type = conTypeStr;
+    strcpy(p->con.strValue, strcat(s1->con.strValue, s2->con.strValue));
+
+    /* free 2 nodes */
+    freeNode(s1);
+    freeNode(s2);
+
     return p;
 }
 

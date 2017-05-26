@@ -18,24 +18,28 @@
 	pop	ac[3]
 	push	'5'
 	pop	ac[4]
-	push	0
-	pop	ac[5]
-
-	// array assignment a
-
-	// push constant
 	push	'4'
-	push	sb
+	pop	ac[5]
+	push	'5'
+	pop	ac[6]
+	push	'5'
+	pop	ac[7]
+	push	'6'
+	pop	ac[8]
+	push	'6'
+	pop	ac[9]
+	push	'y'
+	pop	ac[10]
 	push	0
-	push	0
+	pop	ac[11]
+
+	// Output
+
+	// push normal string
 
 	// push constant
-	push	1
-	add
-	add
-	add
-	pop	ac
-	pop	ac[0]
+	push	"123321111"
+	puts
 
 	// Output
 
