@@ -23,6 +23,9 @@ Usage
 Testing
 =======
 
+** specify F=<folder> for folder
+** specify O=1 for output
+
 All the test files are placed under the `test/` directory.
 
 - Individual test file
@@ -83,6 +86,9 @@ Global statements & function declarations are stored in nodes and chained in lin
 6. char array assignment, put, get, static string concat
 
 
+// error checking
+// test
+// struct 
 
 
 

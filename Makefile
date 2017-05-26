@@ -1,28 +1,34 @@
 RUN := ./nas/nas
 COMPILE := ./c6c
 
-TEST_FILES := $(basename $(wildcard ./test/*.sc))
-
 run: 
 	$(RUN) $(P).as
 
 run-test:
-	$(RUN) ./test/$(P).as
+ifeq ($(O), 1)
+	$(RUN) ./test-$(F)/$(P).as > ./test-$(F)/$(P).out
+else
+	$(RUN) ./test-$(F)/$(P).as
+endif
 
 run-all-tests: 
-	for file in $(TEST_FILES); do 			\
+	for file in $(basename $(wildcard ./test-$(F)/*.as)); do \
 		echo "==========$$file=========="; 	\
-		$(RUN) $$file.as; 					\
+			if [ "$(O)" = "1" ]; then \
+					$(RUN) $$file.as > $$file.out; \
+			else \
+					$(RUN) $$file.as; \
+			fi \
 	done
 
 compile:
 	$(COMPILE) $(P).sc > $(P).as
 
 compile-test:
-	$(COMPILE) ./test/$(P).sc > ./test/$(P).as
+	$(COMPILE) ./test-$(F)/$(P).sc > ./test-$(F)/$(P).as
 
 compile-all-tests:
-	for file in $(TEST_FILES); do 			\
+	for file in $(basename $(wildcard ./test-$(F)/*.sc)); do \
 		$(COMPILE) $$file.sc > $$file.as; 	\
 	done
 
