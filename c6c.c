@@ -40,6 +40,7 @@ int isArrayPtr(nodeType* p);
 void pushBasePtr(nodeType* p);
 void pushPtr(nodeType* p, int lbl_kept);
 void pushArray(nodeType* p, int lbl_kept);
+void pushCharArray(nodeType* p, int hasNewLine, int lbl_kept);
 int getGlobalRegName(char* regName, char* name, int size);
 int getLocalRegName(char* regName, char* name, int size);
 int getRegName(char* regName, char* name, int size);
@@ -367,6 +368,42 @@ void pushArray(nodeType* p, int lbl_kept) {
     PRINTF("\tpush\tac[0]\n");  
 }
 
+void pushCharArray(nodeType* p, int hasNewLine, int lbl_kept) {
+    int lbl1, lbl2;
+
+    pushPtr(p, lbl_kept);
+    PRINTF("\tpop\tac\n"); 
+
+    // start push char with loop
+    lbl1 = lbl++;
+    lbl2 = lbl++;
+    PRINTF("L%03d:\n", lbl1);
+        // jump on value <= 0
+    PRINTF("\tpush\tac[0]\n");  
+    PRINTF("\tpush\t0\n");  
+    PRINTF("\tcompLE\n");
+
+    PRINTF("\tj1\tL%03d\n", lbl2);
+
+        // put char
+    PRINTF("\tpush\tac[0]\n");
+    PRINTF("\tputc_\n");
+
+        // increment index
+    PRINTF("\tpush\tac\n");
+    PRINTF("\tpush\t1\n");
+    PRINTF("\tadd\n");
+    PRINTF("\tpop\tac\n"); 
+
+    PRINTF("\tjmp\tL%03d\n", lbl1);
+    PRINTF("L%03d:\n", lbl2);
+
+    if (hasNewLine) {
+        PRINTF("\tpush\t0\n");
+        PRINTF("\tputc\n");
+    }
+}
+
 /*****************************************************************************
                         Naming Related Utility Functions
  *****************************************************************************/
@@ -607,13 +644,25 @@ int ex(nodeType *p, int nops, ...) {
                     break;
                 case PUTS: 
                     PRINTF("\n\t// I/O\n"); 
-                    ex(p->opr.op[0], 1, lbl_kept);
-                    PRINTF("\tputs\n"); 
+                    if (!isArrayPtr(p->opr.op[0])) {
+                        PRINTF("\n\t// push normal string\n");
+                        ex(p->opr.op[0], 1, lbl_kept);
+                        PRINTF("\tputs\n"); 
+                    } else {
+                        PRINTF("\n\t// push char array\n");
+                        pushCharArray(p->opr.op[0], 1, lbl_kept);
+                    }
                     break;
                 case PUTS_:
                     PRINTF("\n\t// I/O\n"); 
-                    ex(p->opr.op[0], 1, lbl_kept);
-                    PRINTF("\tputs_\n");
+                    if (!isArrayPtr(p->opr.op[0])) {
+                        PRINTF("\n\t// push normal string\n");
+                        ex(p->opr.op[0], 1, lbl_kept);
+                        PRINTF("\tputs_\n"); 
+                    } else {
+                        PRINTF("\n\t// push char array\n");
+                        pushCharArray(p->opr.op[0], 0, lbl_kept);
+                    }
                     break;
                 case '=':  
                     if (p->opr.op[0]->type == typeId) {
