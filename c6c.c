@@ -37,6 +37,7 @@ int pushArgs(nodeType* argList, int lbl_kept);
 void declareArray(char* regName, arrayNodeType* array, int lbl_kept);
 void assignArray(nodeType* p, int lbl_kept);
 int isArrayPtr(nodeType* p);
+void pushBasePtr(nodeType* p);
 void pushPtr(nodeType* p, int lbl_kept);
 void pushArray(nodeType* p, int lbl_kept);
 int getGlobalRegName(char* regName, char* name, int size);
@@ -246,12 +247,7 @@ void assignArray(nodeType* p, int lbl_kept) {
     PRINTF("\n\t// array size %d\n", p->array.size); 
 
     // push base register address
-    getRegName(regName, p->array.baseName, -1);
-    strncpy(baseRegName, regName, 2);
-    strncpy(baseRegOffset, regName + 3, strlen(regName) - 4);
-
-    PRINTF("\tpush\t%s\n", baseRegName);
-    PRINTF("\tpush\t%s\n", baseRegOffset); 
+    pushBasePtr(p);
     PRINTF("\tadd\n");  
 
     PRINTF("\tpop\tac\n");
@@ -284,11 +280,31 @@ int isArrayPtr(nodeType* p) {
     return 0;
 }
 
+void pushBasePtr(nodeType* p) {
+    char regName[REG_NAME_L], baseRegName[3] = {0}, baseRegOffset[REG_NAME_L] = {0};
+
+    switch(p->type) {
+        case typeArr:
+            getRegName(regName, p->array.baseName, -1);
+            break;
+        case typeId:
+            getRegName(regName, p->id.varName, -1);
+            break;
+        default:
+            return;
+    }
+    strncpy(baseRegName, regName, 2);
+    strncpy(baseRegOffset, regName + 3, strlen(regName) - 4);
+
+    PRINTF("\tpush\t%s\n", baseRegName);
+    PRINTF("\tpush\t%s\n", baseRegOffset);
+}
+
 void pushPtr(nodeType* p, int lbl_kept) {
     StrMap* arrayDimTab = getArrayDimSymTab();
     char dimStr[DIM_STR_L];
     int dim; char* tempDim;
-    char regName[REG_NAME_L], baseRegName[3] = {0}, baseRegOffset[REG_NAME_L] = {0};
+    char regName[REG_NAME_L];
 
     if (p->type == typeArr) {
         if (sm_exists(currentFrameSymTab->symTab, p->array.baseName)) {
@@ -303,12 +319,7 @@ void pushPtr(nodeType* p, int lbl_kept) {
             ex(n->offset, 1, lbl_kept);
             PRINTF("\tadd\n");
         } else {
-            getRegName(regName, p->array.baseName, -1);
-            strncpy(baseRegName, regName, 2);
-            strncpy(baseRegOffset, regName + 3, strlen(regName) - 4);
-
-            PRINTF("\tpush\t%s\n", baseRegName);
-            PRINTF("\tpush\t%s\n", baseRegOffset); 
+            pushBasePtr(p);
 
             // calculate offset
             PRINTF("\tpush\t0\n"); 
@@ -344,12 +355,7 @@ void pushPtr(nodeType* p, int lbl_kept) {
             PRINTF("\tadd\n");
         }
     } else if (p->type == typeId) {
-        getRegName(regName, p->id.varName, 1);
-        strncpy(baseRegName, regName, 2);
-        strncpy(baseRegOffset, regName + 3, strlen(regName) - 4);
-
-        PRINTF("\tpush\t%s\n", baseRegName);
-        PRINTF("\tpush\t%s\n", baseRegOffset); 
+        pushBasePtr(p);
     }
 
     PRINTF("\tadd\n");    
