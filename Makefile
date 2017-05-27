@@ -5,19 +5,27 @@ run:
 	$(RUN) $(P).as
 
 run-test:
-ifeq ($(O), 1)
-	$(RUN) ./test-$(F)/$(P).as > ./test-$(F)/$(P).out
-else
-	$(RUN) ./test-$(F)/$(P).as
-endif
+	if [ "$(O)" = "1" ]; then \
+		if [ -a ./test-$(F)/$(P).in ]; then \
+			$(RUN) ./test-$(F)/$(P).as < ./test-$(F)/$(P).in > ./test-$(F)/$(P).out; \
+		else \
+			$(RUN) ./test-$(F)/$(P).as > ./test-$(F)/$(P).out; \
+		fi \
+	else \
+		$(RUN) ./test-$(F)/$(P).as; \
+	fi
 
 run-all-tests: 
 	for file in $(basename $(wildcard ./test-$(F)/*.as)); do \
 		echo "==========$$file=========="; 	\
 			if [ "$(O)" = "1" ]; then \
+				if [ -a $$file.in ]; then \
+					$(RUN) $$file.as < $$file.in > $$file.out; \
+				else \
 					$(RUN) $$file.as > $$file.out; \
+				fi \
 			else \
-					$(RUN) $$file.as; \
+				$(RUN) $$file.as; \
 			fi \
 	done
 
@@ -51,6 +59,7 @@ cleannas:
 	$(MAKE) -C nas clean
 
 cleantest:
-	rm ./test/*.as
+	rm ./test-$(F)/*.as
+	rm ./test-$(F)/*.out
 
 .PHONY: run run-test run-all-tests compile compile-test compile-all-tests $(TEST_FILES) nas clean cleannas cleantest

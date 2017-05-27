@@ -25,6 +25,7 @@ Testing
 
 ** specify F=<folder> for folder
 ** specify O=1 for output
+** *.out may have to use `cat` to display
 
 All the test files are placed under the `test/` directory.
 
