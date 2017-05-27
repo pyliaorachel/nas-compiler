@@ -92,9 +92,9 @@ char text[CONST_STRING_L];
                                 return VARIABLE;
                             }
 
-\/\/.*(\n)+	; /* skip comments */
+\/\/.*[ \t\n]+	; /* skip comments */
 
-[ \t\n]+    ; /* ignore whitespace */
+[ \t\n]+		; /* ignore whitespace */
 
 .               yyerror("Unknown character");
 %%
