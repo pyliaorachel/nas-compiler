@@ -86,7 +86,9 @@ init() {
 putBoard() {
 	for (i = 0; i < @boardSize; i = i + 1;) {
 		for (j = 0; j < @boardSize; j = j + 1;) {
-			if (@board[i][j].status == 2) {
+			if (@c.x == j && @c.y == i) {
+				putc_('*');
+			} else if (@board[i][j].status == 2) {
 				putc_('B');
 			} else if (@board[i][j].status == 1) {
 				puti_(@board[i][j].neighborBombs);
@@ -104,6 +106,10 @@ putCmdInst() {
 
 putCursor() {
 	putc_('('); puti_(@c.x); putc_(','); puti_(@c.y); putc(')');
+}
+
+checkEndGame() {
+	return (@numOfRevealed + @numOfMatched == @boardSize * @boardSize);
 }
 
 playerLose() {
@@ -155,12 +161,18 @@ reveal() {
 markBomb() {
 	if (@board[@c.y][@c.x].status == 0) {
 		@board[@c.y][@c.x].status = 2;
+		if (@board[@c.y][@c.x].isBomb == 1) {
+			@numOfMatched = @numOfMatched + 1;
+		}
 	}
 }
 
 unmarkBomb() {
 	if (@board[@c.y][@c.x].status == 2) {
 		@board[@c.y][@c.x].status = 0;
+		if (@board[@c.y][@c.x].isBomb == 1) {
+			@numOfMatched = @numOfMatched - 1;
+		}
 	}
 }
 
@@ -173,7 +185,7 @@ start() {
 	while (1) {
 		getc(command); 
 
-		while (command == '\n') {
+		while (command == '\n' || command == ' ' || command == '\t') {
 			getc(command); 
 		}
 		getc(nl);
@@ -191,8 +203,16 @@ start() {
 		}
 
 		if (@isEnd == 0) {
-			putBoard();
-			putCursor();
+			@isEnd = checkEndGame();
+			if (@isEnd == 0) {
+				putBoard();
+				putCursor();
+				puts_("Revealed: "); puti(@numOfRevealed);
+				puts_("Matched: "); puti(@numOfMatched);
+			} else {
+				playerWin();
+				break;
+			}
 		} else {
 			playerLose();
 			break;
@@ -214,6 +234,27 @@ main() {
 	init();
 	genRandomBoard(getSeed());	
 	start();
+
+	puts("New game? <y/n>");
+	getc(newGame);
+	while (newGame == '\n') {
+		getc(newGame);
+	}
+
+	while (newGame == 'y') {
+		init();
+		genRandomBoard(getSeed());	
+		start();
+
+		puts("New game? <y/n>");
+		getc(newGame);
+		while (newGame != 'y' && newGame != 'n') {
+			getc(newGame); 
+		}
+		getc(nl);
+	}
+
+	puts("Have a nice day!");
 }
 
 main();

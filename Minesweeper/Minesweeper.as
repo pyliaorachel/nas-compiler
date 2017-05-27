@@ -195,7 +195,7 @@ L007:
 	add
 	ret
 	ret
-L084:
+L092:
 
 	// declare function
 	push	sp
@@ -246,7 +246,7 @@ L084:
 	pop	fp[0]
 
 	// while loop
-L087:
+L101:
 
 	// function call seedisvalid
 
@@ -257,7 +257,7 @@ L087:
 	// push constant
 	push	0
 	compEQ
-	j0	L088
+	j0	L102
 
 	// Output
 
@@ -308,14 +308,14 @@ L087:
 
 	// get to variable num
 	pop	fp[0]
-	jmp	L087
-L088:
+	jmp	L101
+L102:
 
 	// push variable num
 	push	fp[0]
 	ret
 	ret
-L085:
+L093:
 
 	// declare function
 	push	sp
@@ -346,7 +346,7 @@ L085:
 	push	0
 
 	pop	fp[1]
-L091:
+L105:
 
 	// push variable i
 	push	fp[1]
@@ -354,7 +354,7 @@ L091:
 	// push variable @boardsize
 	push	sb[2]
 	compLT
-	j0	L090
+	j0	L104
 
 	// variable assignment num
 
@@ -425,7 +425,7 @@ L091:
 	// push constant
 	push	1
 	compEQ
-	j0	L092
+	j0	L106
 
 	// variable assignment i
 
@@ -448,8 +448,8 @@ L091:
 	mul
 
 	pop	fp[2]
-	jmp	L093
-L092:
+	jmp	L107
+L106:
 
 	// struct member assignment
 
@@ -478,8 +478,8 @@ L092:
 
 	pop	ac
 	pop	ac[0]
-L093:
-L089:
+L107:
+L103:
 
 	// variable assignment i
 
@@ -491,8 +491,8 @@ L089:
 	add
 
 	pop	fp[1]
-	jmp	L091
-L090:
+	jmp	L105
+L104:
 
 	// for loop
 
@@ -502,7 +502,7 @@ L090:
 	push	0
 
 	pop	fp[1]
-L096:
+L110:
 
 	// push variable i
 	push	fp[1]
@@ -510,7 +510,7 @@ L096:
 	// push variable @boardsize
 	push	sb[2]
 	compLT
-	j0	L095
+	j0	L109
 
 	// for loop
 
@@ -520,7 +520,7 @@ L096:
 	push	0
 
 	pop	fp[5]
-L099:
+L113:
 
 	// push variable j
 	push	fp[5]
@@ -528,7 +528,7 @@ L099:
 	// push variable @boardsize
 	push	sb[2]
 	compLT
-	j0	L098
+	j0	L112
 
 	// if statement
 
@@ -559,7 +559,7 @@ L099:
 	// push constant
 	push	1
 	compEQ
-	j0	L100
+	j0	L114
 
 	// for loop
 
@@ -570,7 +570,7 @@ L099:
 	neg
 
 	pop	fp[6]
-L103:
+L117:
 
 	// push variable k
 	push	fp[6]
@@ -578,7 +578,7 @@ L103:
 	// push constant
 	push	1
 	compLE
-	j0	L102
+	j0	L116
 
 	// for loop
 
@@ -589,7 +589,7 @@ L103:
 	neg
 
 	pop	fp[7]
-L106:
+L120:
 
 	// push variable l
 	push	fp[7]
@@ -597,7 +597,7 @@ L106:
 	// push constant
 	push	1
 	compLE
-	j0	L105
+	j0	L119
 
 	// if statement
 
@@ -647,7 +647,7 @@ L106:
 	push	sb[2]
 	compLT
 	and
-	j0	L107
+	j0	L121
 
 	// struct member assignment
 
@@ -717,8 +717,8 @@ L106:
 
 	pop	ac
 	pop	ac[0]
-L107:
-L104:
+L121:
+L118:
 
 	// variable assignment l
 
@@ -730,9 +730,9 @@ L104:
 	add
 
 	pop	fp[7]
-	jmp	L106
-L105:
-L101:
+	jmp	L120
+L119:
+L115:
 
 	// variable assignment k
 
@@ -744,8 +744,8 @@ L101:
 	add
 
 	pop	fp[6]
-	jmp	L103
-L102:
+	jmp	L117
+L116:
 
 	// struct member assignment
 
@@ -799,8 +799,8 @@ L102:
 
 	pop	ac
 	pop	ac[0]
-L100:
-L097:
+L114:
+L111:
 
 	// variable assignment j
 
@@ -812,9 +812,9 @@ L097:
 	add
 
 	pop	fp[5]
-	jmp	L099
-L098:
-L094:
+	jmp	L113
+L112:
+L108:
 
 	// variable assignment i
 
@@ -826,10 +826,10 @@ L094:
 	add
 
 	pop	fp[1]
-	jmp	L096
-L095:
+	jmp	L110
+L109:
 	ret
-L083:
+L091:
 
 	// declare function
 	push	sp
@@ -845,7 +845,7 @@ L083:
 	push	0
 
 	pop	fp[0]
-L110:
+L124:
 
 	// push variable i
 	push	fp[0]
@@ -853,7 +853,7 @@ L110:
 	// push variable @boardsize
 	push	sb[2]
 	compLT
-	j0	L109
+	j0	L123
 
 	// for loop
 
@@ -863,7 +863,7 @@ L110:
 	push	0
 
 	pop	fp[1]
-L113:
+L127:
 
 	// push variable j
 	push	fp[1]
@@ -871,7 +871,7 @@ L113:
 	// push variable @boardsize
 	push	sb[2]
 	compLT
-	j0	L112
+	j0	L126
 
 	// struct member assignment
 
@@ -956,7 +956,7 @@ L113:
 
 	pop	ac
 	pop	ac[0]
-L111:
+L125:
 
 	// variable assignment j
 
@@ -968,9 +968,9 @@ L111:
 	add
 
 	pop	fp[1]
-	jmp	L113
-L112:
-L108:
+	jmp	L127
+L126:
+L122:
 
 	// variable assignment i
 
@@ -982,8 +982,8 @@ L108:
 	add
 
 	pop	fp[0]
-	jmp	L110
-L109:
+	jmp	L124
+L123:
 
 	// struct member assignment
 
@@ -1034,7 +1034,7 @@ L109:
 
 	pop	sb[5]
 	ret
-L060:
+L064:
 
 	// declare function
 	push	sp
@@ -1050,7 +1050,7 @@ L060:
 	push	0
 
 	pop	fp[0]
-L116:
+L130:
 
 	// push variable i
 	push	fp[0]
@@ -1058,7 +1058,7 @@ L116:
 	// push variable @boardsize
 	push	sb[2]
 	compLT
-	j0	L115
+	j0	L129
 
 	// for loop
 
@@ -1068,7 +1068,7 @@ L116:
 	push	0
 
 	pop	fp[1]
-L119:
+L133:
 
 	// push variable j
 	push	fp[1]
@@ -1076,7 +1076,47 @@ L119:
 	// push variable @boardsize
 	push	sb[2]
 	compLT
-	j0	L118
+	j0	L132
+
+	// if statement
+
+	// access struct member .x
+	push	sb
+	push	198
+	add
+	push	0
+	add
+
+	pop	ac
+	push	ac[0]
+
+	// push variable j
+	push	fp[1]
+	compEQ
+
+	// access struct member .y
+	push	sb
+	push	198
+	add
+	push	1
+	add
+
+	pop	ac
+	push	ac[0]
+
+	// push variable i
+	push	fp[0]
+	compEQ
+	and
+	j0	L134
+
+	// Output
+
+	// push constant
+	push	'*'
+	putc_
+	jmp	L135
+L134:
 
 	// if statement
 
@@ -1107,15 +1147,15 @@ L119:
 	// push constant
 	push	2
 	compEQ
-	j0	L120
+	j0	L136
 
 	// Output
 
 	// push constant
 	push	'B'
 	putc_
-	jmp	L121
-L120:
+	jmp	L137
+L136:
 
 	// if statement
 
@@ -1146,7 +1186,7 @@ L120:
 	// push constant
 	push	1
 	compEQ
-	j0	L122
+	j0	L138
 
 	// Output
 
@@ -1174,17 +1214,18 @@ L120:
 	pop	ac
 	push	ac[0]
 	puti_
-	jmp	L123
-L122:
+	jmp	L139
+L138:
 
 	// Output
 
 	// push constant
 	push	'.'
 	putc_
-L123:
-L121:
-L117:
+L139:
+L137:
+L135:
+L131:
 
 	// variable assignment j
 
@@ -1196,15 +1237,15 @@ L117:
 	add
 
 	pop	fp[1]
-	jmp	L119
-L118:
+	jmp	L133
+L132:
 
 	// Output
 
 	// push constant
 	push	' '
 	putc
-L114:
+L128:
 
 	// variable assignment i
 
@@ -1216,10 +1257,10 @@ L114:
 	add
 
 	pop	fp[0]
-	jmp	L116
-L115:
+	jmp	L130
+L129:
 	ret
-L061:
+L065:
 
 	// declare function
 
@@ -1235,7 +1276,7 @@ L061:
 	<q> to quit"
 	puts
 	ret
-L062:
+L066:
 
 	// declare function
 
@@ -1283,7 +1324,27 @@ L062:
 	push	')'
 	putc
 	ret
-L082:
+L086:
+
+	// declare function
+
+	// push variable @numofrevealed
+	push	sb[4]
+
+	// push variable @numofmatched
+	push	sb[5]
+	add
+
+	// push variable @boardsize
+	push	sb[2]
+
+	// push variable @boardsize
+	push	sb[2]
+	mul
+	compEQ
+	ret
+	ret
+L090:
 
 	// declare function
 
@@ -1296,7 +1357,7 @@ L082:
 "
 	puts
 	ret
-L124:
+L089:
 
 	// declare function
 
@@ -1309,7 +1370,7 @@ L124:
 "
 	puts
 	ret
-L069:
+L073:
 
 	// declare function
 
@@ -1321,7 +1382,7 @@ L069:
 	// push constant
 	push	'i'
 	compEQ
-	j0	L125
+	j0	L140
 
 	// struct member assignment
 
@@ -1355,8 +1416,8 @@ L069:
 
 	pop	ac
 	pop	ac[0]
-	jmp	L126
-L125:
+	jmp	L141
+L140:
 
 	// if statement
 
@@ -1366,7 +1427,7 @@ L125:
 	// push constant
 	push	'j'
 	compEQ
-	j0	L127
+	j0	L142
 
 	// struct member assignment
 
@@ -1400,8 +1461,8 @@ L125:
 
 	pop	ac
 	pop	ac[0]
-	jmp	L128
-L127:
+	jmp	L143
+L142:
 
 	// if statement
 
@@ -1411,7 +1472,7 @@ L127:
 	// push constant
 	push	'k'
 	compEQ
-	j0	L129
+	j0	L144
 
 	// struct member assignment
 
@@ -1441,8 +1502,8 @@ L127:
 
 	pop	ac
 	pop	ac[0]
-	jmp	L130
-L129:
+	jmp	L145
+L144:
 
 	// struct member assignment
 
@@ -1472,11 +1533,11 @@ L129:
 
 	pop	ac
 	pop	ac[0]
-L130:
-L128:
-L126:
+L145:
+L143:
+L141:
 	ret
-L054:
+L056:
 
 	// declare function
 	push	sp
@@ -1493,7 +1554,7 @@ L054:
 	neg
 
 	pop	fp[0]
-L133:
+L148:
 
 	// push variable k
 	push	fp[0]
@@ -1501,7 +1562,7 @@ L133:
 	// push constant
 	push	1
 	compLE
-	j0	L132
+	j0	L147
 
 	// for loop
 
@@ -1512,7 +1573,7 @@ L133:
 	neg
 
 	pop	fp[1]
-L136:
+L151:
 
 	// push variable l
 	push	fp[1]
@@ -1520,7 +1581,7 @@ L136:
 	// push constant
 	push	1
 	compLE
-	j0	L135
+	j0	L150
 
 	// if statement
 
@@ -1607,7 +1668,7 @@ L136:
 	push	1
 	compNE
 	and
-	j0	L137
+	j0	L152
 
 	// struct member assignment
 
@@ -1682,7 +1743,7 @@ L136:
 	// push constant
 	push	0
 	compEQ
-	j0	L138
+	j0	L153
 
 	// function call revealneighbors
 
@@ -1699,8 +1760,8 @@ L136:
 	// push variable l
 	push	fp[1]
 	add
-	call	L054, 2
-L138:
+	call	L056, 2
+L153:
 
 	// variable assignment @numofrevealed
 
@@ -1712,8 +1773,8 @@ L138:
 	add
 
 	pop	sb[4]
-L137:
-L134:
+L152:
+L149:
 
 	// variable assignment l
 
@@ -1725,9 +1786,9 @@ L134:
 	add
 
 	pop	fp[1]
-	jmp	L136
-L135:
-L131:
+	jmp	L151
+L150:
+L146:
 
 	// variable assignment k
 
@@ -1739,10 +1800,10 @@ L131:
 	add
 
 	pop	fp[0]
-	jmp	L133
-L132:
+	jmp	L148
+L147:
 	ret
-L072:
+L076:
 
 	// declare function
 
@@ -1789,7 +1850,7 @@ L072:
 	// push constant
 	push	1
 	compEQ
-	j0	L139
+	j0	L154
 
 	// variable assignment @isend
 
@@ -1797,8 +1858,8 @@ L072:
 	push	1
 
 	pop	sb[3]
-	jmp	L140
-L139:
+	jmp	L155
+L154:
 
 	// struct member assignment
 
@@ -1885,7 +1946,7 @@ L139:
 	// push constant
 	push	0
 	compEQ
-	j0	L141
+	j0	L156
 
 	// function call revealneighbors
 
@@ -1908,8 +1969,8 @@ L139:
 
 	pop	ac
 	push	ac[0]
-	call	L054, 2
-L141:
+	call	L056, 2
+L156:
 
 	// variable assignment @numofrevealed
 
@@ -1921,9 +1982,9 @@ L141:
 	add
 
 	pop	sb[4]
-L140:
+L155:
 	ret
-L075:
+L079:
 
 	// declare function
 
@@ -1970,7 +2031,7 @@ L075:
 	// push constant
 	push	0
 	compEQ
-	j0	L142
+	j0	L157
 
 	// struct member assignment
 
@@ -2013,9 +2074,66 @@ L075:
 
 	pop	ac
 	pop	ac[0]
-L142:
+
+	// if statement
+
+	// access struct member .isbomb
+	push	sb
+	push	6
+	push	0
+
+	// access struct member .y
+	push	sb
+	push	198
+	add
+	push	1
+	add
+
+	pop	ac
+	push	ac[0]
+	add
+	push	8
+	mul
+
+	// access struct member .x
+	push	sb
+	push	198
+	add
+	push	0
+	add
+
+	pop	ac
+	push	ac[0]
+	add
+	push	3
+	mul
+	add
+	add
+	push	0
+	add
+
+	pop	ac
+	push	ac[0]
+
+	// push constant
+	push	1
+	compEQ
+	j0	L158
+
+	// variable assignment @numofmatched
+
+	// push variable @numofmatched
+	push	sb[5]
+
+	// push constant
+	push	1
+	add
+
+	pop	sb[5]
+L158:
+L157:
 	ret
-L078:
+L082:
 
 	// declare function
 
@@ -2062,7 +2180,7 @@ L078:
 	// push constant
 	push	2
 	compEQ
-	j0	L143
+	j0	L159
 
 	// struct member assignment
 
@@ -2105,9 +2223,66 @@ L078:
 
 	pop	ac
 	pop	ac[0]
-L143:
+
+	// if statement
+
+	// access struct member .isbomb
+	push	sb
+	push	6
+	push	0
+
+	// access struct member .y
+	push	sb
+	push	198
+	add
+	push	1
+	add
+
+	pop	ac
+	push	ac[0]
+	add
+	push	8
+	mul
+
+	// access struct member .x
+	push	sb
+	push	198
+	add
+	push	0
+	add
+
+	pop	ac
+	push	ac[0]
+	add
+	push	3
+	mul
+	add
+	add
+	push	0
+	add
+
+	pop	ac
+	push	ac[0]
+
+	// push constant
+	push	1
+	compEQ
+	j0	L160
+
+	// variable assignment @numofmatched
+
+	// push variable @numofmatched
+	push	sb[5]
+
+	// push constant
+	push	1
+	sub
+
+	pop	sb[5]
+L160:
+L159:
 	ret
-L086:
+L094:
 
 	// declare function
 	push	sp
@@ -2124,20 +2299,20 @@ L086:
 	puts
 
 	// function call putboard
-	call	L060, 0
+	call	L064, 0
 
 	// function call putcmdinst
-	call	L061, 0
+	call	L065, 0
 
 	// function call putcursor
-	call	L062, 0
+	call	L066, 0
 
 	// while loop
-L144:
+L161:
 
 	// push constant
 	push	1
-	j0	L145
+	j0	L162
 
 	// Input
 	getc
@@ -2146,7 +2321,7 @@ L144:
 	pop	fp[0]
 
 	// while loop
-L146:
+L163:
 
 	// push variable command
 	push	fp[0]
@@ -2155,15 +2330,31 @@ L146:
 	push	'
 '
 	compEQ
-	j0	L147
+
+	// push variable command
+	push	fp[0]
+
+	// push constant
+	push	' '
+	compEQ
+	or
+
+	// push variable command
+	push	fp[0]
+
+	// push constant
+	push	'	'
+	compEQ
+	or
+	j0	L164
 
 	// Input
 	getc
 
 	// get to variable command
 	pop	fp[0]
-	jmp	L146
-L147:
+	jmp	L163
+L164:
 
 	// Input
 	getc
@@ -2203,15 +2394,15 @@ L147:
 	push	'l'
 	compEQ
 	or
-	j0	L148
+	j0	L165
 
 	// function call movecursor
 
 	// push variable command
 	push	fp[0]
-	call	L069, 1
-	jmp	L149
-L148:
+	call	L073, 1
+	jmp	L166
+L165:
 
 	// if statement
 
@@ -2221,12 +2412,12 @@ L148:
 	// push constant
 	push	'r'
 	compEQ
-	j0	L150
+	j0	L167
 
 	// function call reveal
-	call	L072, 0
-	jmp	L151
-L150:
+	call	L076, 0
+	jmp	L168
+L167:
 
 	// if statement
 
@@ -2236,12 +2427,12 @@ L150:
 	// push constant
 	push	'b'
 	compEQ
-	j0	L152
+	j0	L169
 
 	// function call markbomb
-	call	L075, 0
-	jmp	L153
-L152:
+	call	L079, 0
+	jmp	L170
+L169:
 
 	// if statement
 
@@ -2251,12 +2442,12 @@ L152:
 	// push constant
 	push	'u'
 	compEQ
-	j0	L154
+	j0	L171
 
 	// function call unmarkbomb
-	call	L078, 0
-	jmp	L155
-L154:
+	call	L082, 0
+	jmp	L172
+L171:
 
 	// if statement
 
@@ -2266,13 +2457,13 @@ L154:
 	// push constant
 	push	'q'
 	compEQ
-	j0	L156
-	jmp	L145
-L156:
-L155:
-L153:
-L151:
-L149:
+	j0	L173
+	jmp	L162
+L173:
+L172:
+L170:
+L168:
+L166:
 
 	// if statement
 
@@ -2282,36 +2473,206 @@ L149:
 	// push constant
 	push	0
 	compEQ
-	j0	L157
+	j0	L174
+
+	// variable assignment @isend
+
+	// function call checkendgame
+	call	L086, 0
+
+	pop	sb[3]
+
+	// if statement
+
+	// push variable @isend
+	push	sb[3]
+
+	// push constant
+	push	0
+	compEQ
+	j0	L176
 
 	// function call putboard
-	call	L060, 0
+	call	L064, 0
 
 	// function call putcursor
-	call	L062, 0
-	jmp	L158
-L157:
+	call	L066, 0
+
+	// Output
+
+	// push normal string
+
+	// push constant
+	push	"Revealed: "
+	puts_
+
+	// Output
+
+	// push variable @numofrevealed
+	push	sb[4]
+	puti
+
+	// Output
+
+	// push normal string
+
+	// push constant
+	push	"Matched: "
+	puts_
+
+	// Output
+
+	// push variable @numofmatched
+	push	sb[5]
+	puti
+	jmp	L177
+L176:
+
+	// function call playerwin
+	call	L089, 0
+	jmp	L162
+L177:
+	jmp	L175
+L174:
 
 	// function call playerlose
-	call	L082, 0
-	jmp	L145
-L158:
-	jmp	L144
-L145:
+	call	L090, 0
+	jmp	L162
+L175:
+	jmp	L161
+L162:
 	ret
 L000:
 
 	// declare function
+	push	sp
+	push	2
+	add
+	pop	sp
 
 	// function call init
-	call	L083, 0
+	call	L091, 0
 
 	// function call genrandomboard
 
 	// function call getseed
-	call	L084, 0
-	call	L085, 1
+	call	L092, 0
+	call	L093, 1
 
 	// function call start
-	call	L086, 0
+	call	L094, 0
+
+	// Output
+
+	// push normal string
+
+	// push constant
+	push	"New game? <y/n>"
+	puts
+
+	// Input
+	getc
+
+	// get to variable newgame
+	pop	fp[0]
+
+	// while loop
+L178:
+
+	// push variable newgame
+	push	fp[0]
+
+	// push constant
+	push	'
+'
+	compEQ
+	j0	L179
+
+	// Input
+	getc
+
+	// get to variable newgame
+	pop	fp[0]
+	jmp	L178
+L179:
+
+	// while loop
+L180:
+
+	// push variable newgame
+	push	fp[0]
+
+	// push constant
+	push	'y'
+	compEQ
+	j0	L181
+
+	// function call init
+	call	L091, 0
+
+	// function call genrandomboard
+
+	// function call getseed
+	call	L092, 0
+	call	L093, 1
+
+	// function call start
+	call	L094, 0
+
+	// Output
+
+	// push normal string
+
+	// push constant
+	push	"New game? <y/n>"
+	puts
+
+	// Input
+	getc
+
+	// get to variable newgame
+	pop	fp[0]
+
+	// while loop
+L182:
+
+	// push variable newgame
+	push	fp[0]
+
+	// push constant
+	push	'y'
+	compNE
+
+	// push variable newgame
+	push	fp[0]
+
+	// push constant
+	push	'n'
+	compNE
+	or
+	j0	L183
+
+	// Input
+	getc
+
+	// get to variable newgame
+	pop	fp[0]
+	jmp	L182
+L183:
+
+	// Input
+	getc
+
+	// get to variable nl
+	pop	fp[1]
+	jmp	L180
+L181:
+
+	// Output
+
+	// push normal string
+
+	// push constant
+	push	"Have a nice day!"
+	puts
 	ret
