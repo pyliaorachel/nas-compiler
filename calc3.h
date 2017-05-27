@@ -107,6 +107,7 @@ typedef struct localSymTab {
 
 #define LABEL_NAME_L 6
 #define REG_NAME_L 100
+#define VAR_NAME_L 500
 #define DIM_STR_L 100
 #define LOG_NUM_OF_MEMBERS 3 // max 999 members in struct
 

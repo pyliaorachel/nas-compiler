@@ -85,7 +85,12 @@ Global statements & function declarations are stored in nodes and chained in lin
 5. func call pass array
 	- only 1 dim allowed
 6. char array assignment, put, get, static string concat
-
+7. struct
+	- structSymTab: 
+		- <structType.memberName>: <offset>
+		- <structType>: <numOfMembers>
+		- <varName>: <structType>
+	- name cannot be reused anywhere
 
 // error checking
 // test

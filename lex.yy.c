@@ -687,7 +687,7 @@ char *yytext;
 #include "calc3.h"
 #include "y.tab.h"
 void yyerror(char *);
-char text[500];
+char text[VAR_NAME_L];
 
 #line 693 "lex.yy.c"
 

@@ -21,3 +21,9 @@ for (i = 0; i < 10; i = i + 1;) {
 		puti(a[i][j].num);
 	}
 }
+
+pr(a[0][0].id);
+
+pr(b) {
+	puti(b);
+}

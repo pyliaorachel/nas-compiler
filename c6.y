@@ -144,6 +144,7 @@ lvalue:
           variable                          { $$ = $1; }
         | array                             { $$ = $1; }
         | '*' expr %prec DEREF              { $$ = opr(DEREF, 1, $2); }
+        | struct                            { $$ = $1; }
         ;
 
 variable:
@@ -162,7 +163,16 @@ array_list:
 
 struct_decl_list:
           '<' variable '>' variable         { $$ = opr(DECL_STRUCT, 2, $2, $4); }
+        | '<' variable '>' array            { $$ = opr(DECL_STRUCT, 2, $2, $4); }
         | struct_decl_list ',' variable     { 
+                                                if ($1->opr.op[0]->type == typeId) {
+                                                    // the second element
+                                                    $$ = opr(',', 2, $1, opr(DECL_STRUCT, 2, id($1->opr.op[0]->id.varName), $3)); 
+                                                } else {
+                                                    $$ = opr(',', 2, $1, opr(DECL_STRUCT, 2, id($1->opr.op[1]->opr.op[0]->id.varName), $3)); 
+                                                }
+                                            }
+        | struct_decl_list ',' array        { 
                                                 if ($1->opr.op[0]->type == typeId) {
                                                     // the second element
                                                     $$ = opr(',', 2, $1, opr(DECL_STRUCT, 2, id($1->opr.op[0]->id.varName), $3)); 
@@ -174,6 +184,7 @@ struct_decl_list:
 
 struct:
           variable '.' variable             { $$ = opr(DOT, 2, $1, $3); }
+        | array '.' variable                { $$ = opr(DOT, 2, $1, $3); }
         ;
 
 expr:
@@ -182,6 +193,7 @@ expr:
         | STRING                { $$ = con((long) $1, conTypeStr); }
         | array                 { $$ = $1; }
         | variable              { $$ = $1; }
+        | struct                { $$ = $1; }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
         | '&' expr %prec REF    { $$ = opr(REF, 1, $2); }
         | '*' expr %prec DEREF  { $$ = opr(DEREF, 1, $2); }
