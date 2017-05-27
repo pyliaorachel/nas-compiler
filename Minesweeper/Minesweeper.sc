@@ -1,3 +1,5 @@
+// struct def
+
 struct cell {
 	isBomb, neighborBombs, status // status - 0: closed, 1: revealed, 2: marked bomb
 };
@@ -5,6 +7,9 @@ struct cell {
 struct cursor {
 	x, y
 };
+
+
+// helper func
 
 seedIsValid(num) {
 	return ((num <= @numMax) && (num >= @numMin) && (num % 2 == 1));
@@ -30,58 +35,8 @@ getSeed() {
 	return num;
 }
 
-genRandomBoard(seed) {
-	// generate random bombs
-	max = @boardSize * @boardSize - 1;
-	for (i = 0; i < @boardSize; i = i + 1;) {
-		num = getNextRandom(0, max, &seed);
-		
-		x = num % @boardSize;
-		y = num / @boardSize;
-		
-		if (@board[y][x].isBomb == 1) {
-			i = i - 1; // repeated bomb, modify num & generate again
-			num = num * 71;
-		} else {
-			@board[y][x].isBomb = 1;
-		}
-	}
 
-	// get neighbor bomb info
-	for (i = 0; i < @boardSize; i = i + 1;) {
-		for (j = 0; j < @boardSize; j = j + 1;) {
-			if (@board[i][j].isBomb == 1) {
-				for (k = -1; k <= 1; k = k + 1;) {
-					for (l = -1; l <= 1; l = l + 1;) {
-						if (i+k >= 0 && i+k < @boardSize && j+l >= 0 && j+l < @boardSize) {
-							@board[i+k][j+l].neighborBombs = @board[i+k][j+l].neighborBombs + 1;
-						}
-					}
-				}
-				@board[i][j].neighborBombs = @board[i][j].neighborBombs - 1;
-			}
-		}
-	}
-}
-
-init() {
-	// init board
-	for (i = 0; i < @boardSize; i = i + 1;) {
-		for (j = 0; j < @boardSize; j = j + 1;) {
-			@board[i][j].isBomb = 0;
-			@board[i][j].neighborBombs = 0;
-			@board[i][j].status = 0;
-		}
-	}
-
-	// init cursor to middle of board
-	@c.x = 3; @c.y = 3;
-
-	// init other info
-	@isEnd = 0;
-	@numOfRevealed = 0;
-	@numOfMatched = 0;
-}
+// I/O helper func
 
 putBoard() {
 	for (i = 0; i < @boardSize; i = i + 1;) {
@@ -108,17 +63,8 @@ putCursor() {
 	putc_('('); puti_(@c.x); putc_(','); puti_(@c.y); putc(')');
 }
 
-checkEndGame() {
-	return (@numOfRevealed + @numOfMatched == @boardSize * @boardSize);
-}
 
-playerLose() {
-	puts("Bomb! You lose.\n");
-}
-
-playerWin() {
-	puts("Congratulations! You have sweeped all the mines. You are a hero!\n");
-}
+// game actions
 
 moveCursor(command) {
 	if (command == 'i') {
@@ -176,6 +122,74 @@ unmarkBomb() {
 	}
 }
 
+
+// game logic
+
+init() {
+	// init board
+	for (i = 0; i < @boardSize; i = i + 1;) {
+		for (j = 0; j < @boardSize; j = j + 1;) {
+			@board[i][j].isBomb = 0;
+			@board[i][j].neighborBombs = 0;
+			@board[i][j].status = 0;
+		}
+	}
+
+	// init cursor to middle of board
+	@c.x = 3; @c.y = 3;
+
+	// init other info
+	@isEnd = 0;
+	@numOfRevealed = 0;
+	@numOfMatched = 0;
+}
+
+genRandomBoard(seed) {
+	// generate random bombs
+	max = @boardSize * @boardSize - 1;
+	for (i = 0; i < @boardSize; i = i + 1;) {
+		num = getNextRandom(0, max, &seed);
+		
+		x = num % @boardSize;
+		y = num / @boardSize;
+		
+		if (@board[y][x].isBomb == 1) {
+			i = i - 1; // repeated bomb, modify num & generate again
+			num = num * 71;
+		} else {
+			@board[y][x].isBomb = 1;
+		}
+	}
+
+	// get neighbor bomb info
+	for (i = 0; i < @boardSize; i = i + 1;) {
+		for (j = 0; j < @boardSize; j = j + 1;) {
+			if (@board[i][j].isBomb == 1) {
+				for (k = -1; k <= 1; k = k + 1;) {
+					for (l = -1; l <= 1; l = l + 1;) {
+						if (i+k >= 0 && i+k < @boardSize && j+l >= 0 && j+l < @boardSize) {
+							@board[i+k][j+l].neighborBombs = @board[i+k][j+l].neighborBombs + 1;
+						}
+					}
+				}
+				@board[i][j].neighborBombs = @board[i][j].neighborBombs - 1;
+			}
+		}
+	}
+}
+
+checkEndGame() {
+	return (@numOfRevealed + @numOfMatched == @boardSize * @boardSize);
+}
+
+playerLose() {
+	puts("Bomb! You lose.\n");
+}
+
+playerWin() {
+	puts("Congratulations! You have sweeped all the mines. You are a hero!\n");
+}
+
 start() {
 	puts("Start game!");
 	putBoard();
@@ -207,8 +221,8 @@ start() {
 			if (@isEnd == 0) {
 				putBoard();
 				putCursor();
-				puts_("Revealed: "); puti(@numOfRevealed);
-				puts_("Matched: "); puti(@numOfMatched);
+				// puts_("Revealed: "); puti(@numOfRevealed);
+				// puts_("Matched: "); puti(@numOfMatched);
 			} else {
 				playerWin();
 				break;
@@ -219,6 +233,9 @@ start() {
 		}
 	}
 }
+
+
+// main
 
 numMax = 99;
 numMin = 1;
