@@ -1,25 +1,14 @@
-struct s1 {
-	id, num, hello
-};
+// reference & dereference: reference &, dereference *, arithmetic, assignment, with array
 
-struct s2 {
-	id, num, hello, nihao, lalala
-};
+array a[100] = 87;
 
-<s1> a[10][10];
+b = &a[0];
+c = a;
+puti_(b); puts_(" should be equal to "); puti(c);
+puti_(*b); puts_(" should be equal to "); puti(a[0]);
 
-for (i = 0; i < 10; i = i + 1;) {
-	for (j = 0; j < 10; j = j + 1;) {
-		a[i][j].id = i * 10 + j;
-		a[i][j].num = i + j;
-		puts_("id: "); puti(a[i][j].id);
-		puts_("num: "); puti(a[i][j].num);
-	}
-}
+*b = 78;
+puti_(*b); puts_(" should be equal to "); puti(a[0]);
 
-for (i = 0; i < 10; i = i + 1;) {
-	for (j = 0; j < 10; j = j + 1;) {
-		puts_("id: "); puti(a[i][j].id);
-		puts_("num: "); puti(a[i][j].num);
-	}
-}
+*(b+87) = 877;
+puti_(*(b+87)); puts_(" should be equal to "); puti(a[87]);
