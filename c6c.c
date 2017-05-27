@@ -46,7 +46,9 @@ void assignCharArray(nodeType* p, char* str, int lbl_kept);
 int getGlobalRegName(char* regName, char* name, int size);
 int getLocalRegName(char* regName, char* name, int size);
 int getRegName(char* regName, char* name, int size);
-StrMap* getArrayDimSymTab();
+char* getSimpleVarName(nodeType* p);
+char* getFullVarName(nodeType* p);
+StrMap* getArrayDimSymTab(char* varName);
 int getFuncLabel(char* labelName, char* name);
 int ex(nodeType *p, int nops, ...);
 void preScan(nodeListType *list);
@@ -226,7 +228,7 @@ int pushArgs(nodeType* argList, int lbl_kept) {
 }
 
 void declareArray(char* regName, arrayNodeType* array, int unitSize, int lbl_kept) {
-    StrMap* arrayDimTab = getArrayDimSymTab();
+    StrMap* arrayDimTab = getArrayDimSymTab(array->baseName);
     char dimStr[DIM_STR_L], buffer[DIM_STR_L];
 
     // calculate offset
@@ -350,7 +352,9 @@ void assignToStruct(nodeType* p, int lbl_kept) {
 }
 
 int isArrayPtr(nodeType* p) {
-    StrMap* arrayDimTab = getArrayDimSymTab();
+    if (p->type != typeId || p->type != typeArr) return 0;
+
+    StrMap* arrayDimTab = getArrayDimSymTab(getFullVarName(p));
     char dimStr[DIM_STR_L];
     int arrayDim;
 
@@ -410,13 +414,14 @@ void pushBasePtr(nodeType* p) {
 }
 
 void pushPtr(nodeType* p, int lbl_kept) {
-    StrMap* arrayDimTab = getArrayDimSymTab();
+    StrMap* arrayDimTab = getArrayDimSymTab(getFullVarName(p));
     char dimStr[DIM_STR_L];
     int dim, unitSize; char* tempDim;
     char regName[REG_NAME_L];
+    char* varName = getSimpleVarName(p);
 
     if (p->type == typeArr) {
-        if (sm_exists(currentFrameSymTab->symTab, p->array.baseName)) {
+        if (sm_exists(currentFrameSymTab->symTab, varName)) {
             // param is array pointer
             getRegName(regName, p->array.baseName, -1);
 
@@ -437,8 +442,8 @@ void pushPtr(nodeType* p, int lbl_kept) {
             PRINTF("\tadd\n"); 
 
             n = n->next;
-            if (sm_exists(arrayDimTab, p->array.baseName)) {
-                sm_get(arrayDimTab, p->array.baseName, dimStr, DIM_STR_L);
+            if (sm_exists(arrayDimTab, varName)) {
+                sm_get(arrayDimTab, varName, dimStr, DIM_STR_L);
                 unitSize = atoi(strtok(dimStr, "|")); // unitsize
                 dim = atoi(strtok(NULL, "|")); // dummy, dim count
                 dim = atoi(strtok(NULL, ",")); // dummy, first dimension
@@ -460,11 +465,11 @@ void pushPtr(nodeType* p, int lbl_kept) {
                     PRINTF("\tmul\n"); 
                     tempDim = strtok(NULL, ",");
                 }
-
-                PRINTF("\tadd\n");
-
+                
                 PRINTF("\tpush\t%d\n", unitSize); 
                 PRINTF("\tmul\n"); 
+
+                PRINTF("\tadd\n");
             }
         }
     } else if (p->type == typeId) {
@@ -482,16 +487,8 @@ void pushPtrValue(nodeType* p, int lbl_kept) {
 
 void pushStructOffset(nodeType* p, char* memberName) {
     char structType[VAR_NAME_L], structMemberRep[2 * VAR_NAME_L], memberOffset[LOG_NUM_OF_MEMBERS];
-    char* varName;
+    char* varName = getSimpleVarName(p);
 
-    // get member offset from symbol table
-    if (p->type == typeId) {
-        if (p->id.varName[0] == '@') varName = p->id.varName + 1;
-        else varName = p->id.varName;
-    } else if (p->type == typeArr)  {
-        if (p->array.baseName[0] == '@') varName = p->array.baseName + 1;
-        else varName = p->array.baseName;
-    }
     sm_get(structSymTab->symTab, varName, structType, VAR_NAME_L);
     sprintf(structMemberRep, "%s.%s", structType, memberName);
     sm_get(structSymTab->symTab, structMemberRep, memberOffset, LOG_NUM_OF_MEMBERS);
@@ -656,12 +653,34 @@ int getRegName(char* regName, char* name, int size) {
     }
 }
 
-StrMap* getArrayDimSymTab() {
+char* getSimpleVarName(nodeType* p) {
+    if (p->type == typeId) {
+        if (p->id.varName[0] == '@') return p->id.varName + 1;
+        else return p->id.varName;
+    } else if (p->type == typeArr)  {
+        if (p->array.baseName[0] == '@') return p->array.baseName + 1;
+        else return p->array.baseName;
+    }
+    return NULL;
+}
+
+char* getFullVarName(nodeType* p) {
+    if (p->type == typeId) {
+        return p->id.varName;
+    } else if (p->type == typeArr)  {
+        return p->array.baseName;
+    }
+    return NULL;
+}
+
+StrMap* getArrayDimSymTab(char* varName) {
     if (funcCallLevel == 0) {
+        return globalSymTab->arrayDimTab;
+    } else if (varName[0] == '@') {
         return globalSymTab->arrayDimTab;
     } else {
         return currentFrameSymTab->arrayDimTab;
-    }    
+    }
 }
 
 int getFuncLabel(char* labelName, char* name) {
