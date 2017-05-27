@@ -100,14 +100,15 @@ typedef struct localSymTab {
     struct localSymTab* prev;
 } localSymTab;
 
-#define GLOBAL_SIZE 100
-#define LOCAL_SIZE 100
-#define FUNC_SIZE 100
-#define STRUCT_SIZE 100
+#define GLOBAL_SIZE 500
+#define LOCAL_SIZE 200
+#define FUNC_SIZE 200
+#define STRUCT_SIZE 200
 
 #define LABEL_NAME_L 6
 #define REG_NAME_L 100
-#define VAR_NAME_L 500
+#define VAR_NAME_L 20
+#define CONST_STRING_L 500
 #define DIM_STR_L 100
 #define LOG_NUM_OF_MEMBERS 3 // max 999 members in struct
 

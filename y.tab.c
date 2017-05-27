@@ -208,10 +208,10 @@ nodeListType* structList;
 typedef union YYSTYPE
 #line 40 "c6.y"
 {
-    int conValue;               /* const value for int and char */
-    char conStrValue[500];      /* const value for string */
-    char sKey[14];              /* symbol table key (var name) */
-    nodeType *nPtr;             /* node pointer */
+    int conValue;                           /* const value for int and char */
+    char conStrValue[CONST_STRING_L];       /* const value for string */
+    char sKey[VAR_NAME_L];                  /* symbol table key (var name) */
+    nodeType *nPtr;                         /* node pointer */
 }
 /* Line 193 of yacc.c.  */
 #line 218 "y.tab.c"

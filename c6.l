@@ -6,7 +6,7 @@
 #include "calc3.h"
 #include "y.tab.h"
 void yyerror(char *);
-char text[VAR_NAME_L];
+char text[CONST_STRING_L];
 %}
 
 %x S
