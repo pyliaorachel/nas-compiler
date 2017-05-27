@@ -233,7 +233,7 @@ void declareArray(char* regName, arrayNodeType* array, int unitSize, int lbl_kep
     assert(array->dim >= 1);
     arrayOffsetNodeType *n = array->offsetListHead;
     int offset = n->offset->con.value;
-    sprintf(dimStr, "%d|%d|%d", array->dim, unitSize, offset); // prepend count -> count|unitSize|dim1,dim2,...|unitsize
+    sprintf(dimStr, "%d|%d|%d", unitSize, array->dim, offset); // prepend count -> count|unitSize|dim1,dim2,...|unitsize
     n = n->next;
 
     while (n) {
@@ -374,8 +374,6 @@ int isArrayPtr(nodeType* p) {
 }
 
 int isStructType(nodeType* p) {
-    printf("is struct type?\n");
-
     if (p->type == typeId) {
         if (sm_exists(currentFrameSymTab->symTab, p->id.varName) && sm_exists(structSymTab->symTab, p->id.varName)) {
             return 1;
@@ -868,7 +866,7 @@ int ex(nodeType *p, int nops, ...) {
                             } else if (p->opr.op[0]->type == typeArr) {
                                 PRINTF("\n\t// array assignment %s\n", p->opr.op[0]->array.baseName); 
                                 ex(p->opr.op[1], 1, lbl_kept);
-                                printf("\n");
+                                PRINTF("\n");
                                 pushPtr(p->opr.op[0], lbl_kept);
                                 PRINTF("\n\tpop\tac\n");
                                 PRINTF("\tpop\tac[0]\n");
@@ -884,10 +882,10 @@ int ex(nodeType *p, int nops, ...) {
                                 
                                 // declare
                                 ex(p->opr.op[0], 1, lbl_kept);
-                                printf("\n");
+                                PRINTF("\n");
                                 // calculate expression
                                 ex(p->opr.op[1], 1, lbl_kept);
-                                printf("\n");
+                                PRINTF("\n");
 
                                 if (!isScan) assignArray(p->opr.op[0]->opr.op[0], lbl_kept);
                                 break;
@@ -896,7 +894,7 @@ int ex(nodeType *p, int nops, ...) {
 
                                 // calculate expression
                                 ex(p->opr.op[1], 1, lbl_kept);
-                                printf("\n");
+                                PRINTF("\n");
                                 // calculate dereference expression
                                 ex(p->opr.op[0]->opr.op[0], 1, lbl_kept);
 
@@ -907,7 +905,7 @@ int ex(nodeType *p, int nops, ...) {
 
                                 // calculate expression
                                 ex(p->opr.op[1], 1, lbl_kept);
-                                printf("\n");
+                                PRINTF("\n");
                                 // assign
                                 assignToStruct(p->opr.op[0], lbl_kept);
 
