@@ -92,8 +92,8 @@
      NEG = 281,
      AND = 282,
      OR = 283,
-     SLL = 284,
-     SRL = 285,
+     SLA = 284,
+     SRA = 285,
      BITAND = 286,
      BITXOR = 287,
      BITOR = 288,
@@ -135,8 +135,8 @@
 #define NEG 281
 #define AND 282
 #define OR 283
-#define SLL 284
-#define SRL 285
+#define SLA 284
+#define SRA 285
 #define BITAND 286
 #define BITXOR 287
 #define BITOR 288
@@ -561,7 +561,7 @@ static const char *const yytname[] =
   "$end", "error", "$undefined", "INT", "REG", "LABEL", "PUSH", "POP",
   "LT", "GT", "GE", "LE", "NE", "EQ", "STRING", "CALL", "RET", "END", "J0",
   "J1", "JMP", "ADD", "SUB", "MUL", "DIV", "MOD", "NEG", "AND", "OR",
-  "SLL", "SRL", "BITAND", "BITXOR", "BITOR", "GETI", "GETS", "GETC",
+  "SLA", "SRA", "BITAND", "BITXOR", "BITOR", "GETI", "GETS", "GETC",
   "PUTI", "PUTS", "PUTC", "PUTI_", "PUTS_", "PUTC_", "':'", "'['", "']'",
   "','", "$accept", "program", "line", "instruction", 0
 };
@@ -1629,12 +1629,12 @@ yyreduce:
 
   case 31:
 #line 109 "nas.y"
-    { in[pc++] = SLL; ;}
+    { in[pc++] = SLA; ;}
     break;
 
   case 32:
 #line 110 "nas.y"
-    { in[pc++] = SRL; ;}
+    { in[pc++] = SRA; ;}
     break;
 
   case 33:
@@ -2043,8 +2043,8 @@ int main(int argc, char *argv[]) {
       case MUL: EVAL(*)
       case DIV: EVAL(/)
       case MOD: EVAL(%)
-      case SLL: EVAL(<<)
-      case SRL: EVAL(>>)
+      case SLA: EVAL(<<)
+      case SRA: EVAL(>>)
       case BITAND: EVAL(&)
       case BITXOR: EVAL(^)
       case BITOR: EVAL(|)

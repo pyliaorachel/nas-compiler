@@ -55,7 +55,7 @@
 }
 
 %token <i>INT <i>REG <i>LABEL PUSH POP LT GT GE LE NE EQ <s>STRING
-%token CALL RET END J0 J1 JMP ADD SUB MUL DIV MOD NEG AND OR SLL SRL BITAND BITXOR BITOR
+%token CALL RET END J0 J1 JMP ADD SUB MUL DIV MOD NEG AND OR SLA SRA BITAND BITXOR BITOR
 %token GETI GETS GETC PUTI PUTS PUTC PUTI_ PUTS_ PUTC_
 %nonassoc ':'
 
@@ -106,8 +106,8 @@ instruction:
 	| MUL		{ in[pc++] = MUL; }
 	| DIV		{ in[pc++] = DIV; }
 	| MOD		{ in[pc++] = MOD; }
-	| SLL		{ in[pc++] = SLL; }
-	| SRL		{ in[pc++] = SRL; }
+	| SLA		{ in[pc++] = SLA; }
+	| SRA		{ in[pc++] = SRA; }
 	| BITAND	{ in[pc++] = BITAND; }
 	| BITXOR	{ in[pc++] = BITXOR; }
 	| BITOR		{ in[pc++] = BITOR; }
@@ -227,8 +227,8 @@ int main(int argc, char *argv[]) {
       case MUL: EVAL(*)
       case DIV: EVAL(/)
       case MOD: EVAL(%)
-      case SLL: EVAL(<<)
-      case SRL: EVAL(>>)
+      case SLA: EVAL(<<)
+      case SRA: EVAL(>>)
       case BITAND: EVAL(&)
       case BITXOR: EVAL(^)
       case BITOR: EVAL(|)

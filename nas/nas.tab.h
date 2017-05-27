@@ -65,8 +65,8 @@
      NEG = 281,
      AND = 282,
      OR = 283,
-     SLL = 284,
-     SRL = 285,
+     SLA = 284,
+     SRA = 285,
      BITAND = 286,
      BITXOR = 287,
      BITOR = 288,
@@ -108,8 +108,8 @@
 #define NEG 281
 #define AND 282
 #define OR 283
-#define SLL 284
-#define SRL 285
+#define SLA 284
+#define SRA 285
 #define BITAND 286
 #define BITXOR 287
 #define BITOR 288

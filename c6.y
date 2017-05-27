@@ -54,7 +54,7 @@ nodeListType* structList;
 
 %left AND OR
 
-%left GE LE EQ NE '>' '<' SLL SRL
+%left GE LE EQ NE '>' '<' SLA SRA
 %left '+' '-'
 %left '*' '/' '%' '^' '|' '&'
 %nonassoc UMINUS REF DEREF DOT
@@ -211,8 +211,8 @@ expr:
         | expr '/' expr         { $$ = opr('/', 2, $1, $3); }
         | expr '<' expr         { $$ = opr('<', 2, $1, $3); }
         | expr '>' expr         { $$ = opr('>', 2, $1, $3); }
-        | expr SLL expr         { $$ = opr(SLL, 2, $1, $3); }
-        | expr SRL expr         { $$ = opr(SRL, 2, $1, $3); }
+        | expr SLA expr         { $$ = opr(SLA, 2, $1, $3); }
+        | expr SRA expr         { $$ = opr(SRA, 2, $1, $3); }
         | expr '&' expr         { $$ = opr('&', 2, $1, $3); }
         | expr '^' expr         { $$ = opr('^', 2, $1, $3); }
         | expr '|' expr         { $$ = opr('|', 2, $1, $3); }

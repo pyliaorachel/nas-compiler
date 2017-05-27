@@ -67,8 +67,8 @@
      ELSE = 283,
      OR = 284,
      AND = 285,
-     SRL = 286,
-     SLL = 287,
+     SRA = 286,
+     SLA = 287,
      NE = 288,
      EQ = 289,
      LE = 290,
@@ -108,8 +108,8 @@
 #define ELSE 283
 #define OR 284
 #define AND 285
-#define SRL 286
-#define SLL 287
+#define SRA 286
+#define SLA 287
 #define NE 288
 #define EQ 289
 #define LE 290

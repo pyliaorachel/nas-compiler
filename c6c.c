@@ -992,8 +992,8 @@ int ex(nodeType *p, int nops, ...) {
                         case '%':   PRINTF("\tmod\n"); break;
                         case '<':   PRINTF("\tcompLT\n"); break;
                         case '>':   PRINTF("\tcompGT\n"); break;
-                        case SLL:   PRINTF("\tsll\n"); break;
-                        case SRL:   PRINTF("\tsrl\n"); break;
+                        case SLA:   PRINTF("\tsla\n"); break;
+                        case SRA:   PRINTF("\tsra\n"); break;
                         case '&':   PRINTF("\tbitand\n"); break;
                         case '^':   PRINTF("\tbitxor\n"); break;
                         case '|':   PRINTF("\tbitor\n"); break;

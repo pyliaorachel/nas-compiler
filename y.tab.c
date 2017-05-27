@@ -94,8 +94,8 @@
      ELSE = 283,
      OR = 284,
      AND = 285,
-     SRL = 286,
-     SLL = 287,
+     SRA = 286,
+     SLA = 287,
      NE = 288,
      EQ = 289,
      LE = 290,
@@ -135,8 +135,8 @@
 #define ELSE 283
 #define OR 284
 #define AND 285
-#define SRL 286
-#define SLL 287
+#define SRA 286
+#define SLA 287
 #define NE 288
 #define EQ 289
 #define LE 290
@@ -578,7 +578,7 @@ static const char *const yytname[] =
   "DECL_VARIABLE", "FOR", "WHILE", "IF", "BREAK", "CONTINUE", "RETURN",
   "DECL_ARRAY", "DEF_STRUCT_TYPE", "DECL_STRUCT", "GETI", "GETS", "GETC",
   "PUTI", "PUTS", "PUTC", "PUTI_", "PUTS_", "PUTC_", "CALL", "IFX", "ELSE",
-  "OR", "AND", "'>'", "'<'", "SRL", "SLL", "NE", "EQ", "LE", "GE", "'+'",
+  "OR", "AND", "'>'", "'<'", "SRA", "SLA", "NE", "EQ", "LE", "GE", "'+'",
   "'-'", "'*'", "'/'", "'%'", "'^'", "'|'", "'&'", "DOT", "DEREF", "REF",
   "UMINUS", "'('", "')'", "'{'", "'}'", "';'", "'='", "','", "']'", "'['",
   "'.'", "$accept", "program", "main", "func_decl", "struct_def", "stmt",
@@ -2107,12 +2107,12 @@ yyreduce:
 
   case 75:
 #line 214 "c6.y"
-    { (yyval.nPtr) = opr(SLL, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
+    { (yyval.nPtr) = opr(SLA, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 76:
 #line 215 "c6.y"
-    { (yyval.nPtr) = opr(SRL, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
+    { (yyval.nPtr) = opr(SRA, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 77:
