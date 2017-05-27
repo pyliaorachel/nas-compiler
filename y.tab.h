@@ -51,27 +51,28 @@
      CONTINUE = 267,
      RETURN = 268,
      DECL_ARRAY = 269,
-     GETI = 270,
-     GETS = 271,
-     GETC = 272,
-     PUTI = 273,
-     PUTS = 274,
-     PUTC = 275,
-     PUTI_ = 276,
-     PUTS_ = 277,
-     PUTC_ = 278,
-     CALL = 279,
-     IFX = 280,
-     ELSE = 281,
-     OR = 282,
-     AND = 283,
-     NE = 284,
-     EQ = 285,
-     LE = 286,
-     GE = 287,
-     DEREF = 288,
-     REF = 289,
-     UMINUS = 290
+     DECL_STRUCT = 270,
+     GETI = 271,
+     GETS = 272,
+     GETC = 273,
+     PUTI = 274,
+     PUTS = 275,
+     PUTC = 276,
+     PUTI_ = 277,
+     PUTS_ = 278,
+     PUTC_ = 279,
+     CALL = 280,
+     IFX = 281,
+     ELSE = 282,
+     OR = 283,
+     AND = 284,
+     NE = 285,
+     EQ = 286,
+     LE = 287,
+     GE = 288,
+     DEREF = 289,
+     REF = 290,
+     UMINUS = 291
    };
 #endif
 /* Tokens.  */
@@ -87,34 +88,35 @@
 #define CONTINUE 267
 #define RETURN 268
 #define DECL_ARRAY 269
-#define GETI 270
-#define GETS 271
-#define GETC 272
-#define PUTI 273
-#define PUTS 274
-#define PUTC 275
-#define PUTI_ 276
-#define PUTS_ 277
-#define PUTC_ 278
-#define CALL 279
-#define IFX 280
-#define ELSE 281
-#define OR 282
-#define AND 283
-#define NE 284
-#define EQ 285
-#define LE 286
-#define GE 287
-#define DEREF 288
-#define REF 289
-#define UMINUS 290
+#define DECL_STRUCT 270
+#define GETI 271
+#define GETS 272
+#define GETC 273
+#define PUTI 274
+#define PUTS 275
+#define PUTC 276
+#define PUTI_ 277
+#define PUTS_ 278
+#define PUTC_ 279
+#define CALL 280
+#define IFX 281
+#define ELSE 282
+#define OR 283
+#define AND 284
+#define NE 285
+#define EQ 286
+#define LE 287
+#define GE 288
+#define DEREF 289
+#define REF 290
+#define UMINUS 291
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 37 "c6.y"
+#line 40 "c6.y"
 {
     int conValue;               /* const value for int and char */
     char conStrValue[500];      /* const value for string */
@@ -122,7 +124,7 @@ typedef union YYSTYPE
     nodeType *nPtr;             /* node pointer */
 }
 /* Line 1529 of yacc.c.  */
-#line 126 "y.tab.h"
+#line 128 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

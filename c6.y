@@ -13,6 +13,7 @@ nodeType *array(nodeType* idNode, nodeType *offset);
 nodeType *extendArray(nodeType *p, nodeType *offset);
 nodeType *con(long value, conTypeEnum type);
 nodeType *func(char* funcName, nodeType *paramList, nodeType *stmt);
+nodeType *sct(char* structName, nodeType *memberList);
 nodeType *strConcat(nodeType* s1, nodeType* s2);
 void appendToList(nodeListType* nodeList, nodeType* node);
 void freeNode(nodeType *p);
@@ -29,9 +30,11 @@ void wrapUp(void);
 void yyerror(char *s);
 symTab* globalSymTab;
 symTab* funcSymTab;
+symTab* structSymTab;
 localSymTab* localSymTabs;
 nodeListType* funcList;
 nodeListType* stmtList;
+nodeListType* structList;
 %}
 
 %union {
@@ -44,7 +47,7 @@ nodeListType* stmtList;
 %token <conValue> INTEGER CHAR
 %token <conStrValue> STRING
 %token <sKey> VARIABLE DECL_VARIABLE
-%token FOR WHILE IF BREAK CONTINUE RETURN DECL_ARRAY
+%token FOR WHILE IF BREAK CONTINUE RETURN DECL_ARRAY DECL_STRUCT
 %token GETI GETS GETC PUTI PUTS PUTC PUTI_ PUTS_ PUTC_ CALL
 %nonassoc IFX
 %nonassoc ELSE
@@ -56,7 +59,7 @@ nodeListType* stmtList;
 %left '*' '/' '%'
 %nonassoc UMINUS REF DEREF
 
-%type <nPtr> func_decl stmt expr stmt_list assignment assignment_list array_decl_list lvalue variable array array_list param_arg_list
+%type <nPtr> func_decl struct_decl stmt expr stmt_list assignment assignment_list array_decl_list lvalue variable array array_list value_list
 
 %%
 
@@ -72,11 +75,16 @@ program:
 main:
           main stmt         { appendToList(stmtList, $2); }
         | main func_decl    { appendToList(funcList, $2); }
+        | main struct_decl  { appendToList(structList, $2); }
         | /* NULL */
         ;
 
 func_decl:
-          DECL_VARIABLE '(' param_arg_list ')' '{' stmt_list '}'    { $$ = func($1, $3, $6); }
+          DECL_VARIABLE '(' value_list ')' '{' stmt_list '}'    { $$ = func($1, $3, $6); }
+        ;
+
+struct_decl:
+          DECL_STRUCT VARIABLE '{' value_list '}'               { $$ = sct($2, $4); }
         ;
 
 stmt:
@@ -100,7 +108,7 @@ stmt:
         | CONTINUE ';'                                          { $$ = opr(CONTINUE, 2, NULL, NULL); }
         | RETURN expr ';'                                       { $$ = opr(RETURN, 1, $2); }
         | '{' stmt_list '}'                                     { $$ = $2; }
-        | DECL_VARIABLE '(' param_arg_list ')' ';'              { $$ = opr(CALL, 2, id($1), $3); }
+        | DECL_VARIABLE '(' value_list ')' ';'                  { $$ = opr(CALL, 2, id($1), $3); }
         | array_decl_list ';'                                   { $$ = $1; }
         ;
 
@@ -125,9 +133,9 @@ array_decl_list:
         | array_decl_list ',' array '=' expr        { $$ = opr(',', 2, $1, opr('=', 2, opr(DECL_ARRAY, 1, $3), $5)); }
         ;
 
-param_arg_list:   
+value_list:   
           expr                      { $$ = $1; }
-        | param_arg_list ',' expr   { $$ = opr(',', 2, $1, $3); }
+        | value_list ',' expr       { $$ = opr(',', 2, $1, $3); }
         | /* NULL */                { $$ = NULL; }
         ;
 
@@ -181,7 +189,7 @@ expr:
         | expr AND expr         { $$ = opr(AND, 2, $1, $3); }
         | expr OR expr          { $$ = opr(OR, 2, $1, $3); }
         | '(' expr ')'          { $$ = $2; }
-        | VARIABLE '(' param_arg_list ')' { $$ = opr(CALL, 2, id($1), $3); }
+        | VARIABLE '(' value_list ')' { $$ = opr(CALL, 2, id($1), $3); }
         ;
 
 %%
@@ -279,6 +287,24 @@ nodeType *func(char* funcName, nodeType *paramList, nodeType *stmt) {
     p->func.stmt = stmt;
     p->func.numOfLocalVars = 0;
     p->func.numOfParams = 0;
+
+    return p;
+}
+
+nodeType *sct(char* structName, nodeType *memberList) {
+    nodeType *p;
+    size_t nodeSize;
+
+    /* allocate node */
+    nodeSize = SIZEOF_NODETYPE + sizeof(structNodeType);
+    if ((p = malloc(nodeSize)) == NULL)
+        yyerror("out of memory");
+
+    /* copy information */
+    p->type = typeStruct;
+    strcpy(p->sct.structName, structName);
+    p->sct.memberList = memberList;
+    p->sct.numOfMembers = 0;
 
     return p;
 }

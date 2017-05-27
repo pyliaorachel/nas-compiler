@@ -1,5 +1,7 @@
-array a[10] = 5;
+struct s1 {
+	id, num, hello
+};
 
-*(a + 3) = 100;
-puti(*(a + 4));
-puti(a[3]);
+struct s2 {
+	id, num, hello, nihao, lalala
+};

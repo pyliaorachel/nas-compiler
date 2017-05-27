@@ -1,7 +1,7 @@
 #include "strmap.h"
 
-typedef enum { typeCon, typeId, typeArr, typeOpr, typeFunc } nodeEnum;
-typedef enum { listTypeFunc, listTypeStmt } nodeListEnum;
+typedef enum { typeCon, typeId, typeArr, typeOpr, typeFunc, typeStruct } nodeEnum;
+typedef enum { listTypeFunc, listTypeStmt, listTypeStruct } nodeListEnum;
 typedef enum { conTypeInt, conTypeChar, conTypeStr, conTypeNull } conTypeEnum;
 
 /* constants */
@@ -41,6 +41,13 @@ typedef struct {
     char funcName[14];
 } funcNodeType;
 
+/* struct */
+typedef struct {
+    struct nodeTypeTag *memberList;
+    int numOfMembers;
+    char structName[14];
+} structNodeType;
+
 /* operators */
 typedef struct {
     int oper;                   /* operator */
@@ -72,6 +79,7 @@ typedef struct nodeTypeTag {
         idNodeType id;          /* identifiers */
         arrayNodeType array;
         funcNodeType func;
+        structNodeType sct;
         oprNodeType opr;        /* operators */
     };
 } nodeType;
@@ -95,16 +103,20 @@ typedef struct localSymTab {
 #define GLOBAL_SIZE 100
 #define LOCAL_SIZE 100
 #define FUNC_SIZE 100
+#define STRUCT_SIZE 100
 
 #define LABEL_NAME_L 6
 #define REG_NAME_L 100
 #define DIM_STR_L 100
+#define LOG_NUM_OF_MEMBERS 3 // max 999 members in struct
 
 extern symTab* globalSymTab;
 extern symTab* funcSymTab;
+extern symTab* structSymTab;
 extern localSymTab* localSymTabs;
 extern nodeListType* funcList;
 extern nodeListType* stmtList;
+extern nodeListType* structList;
 
 
 

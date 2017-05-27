@@ -28,6 +28,8 @@ void makeRoomGlobalVariables();
 void makeRoomLocalVariables(funcNodeType* func);
 int pushArgs(nodeType* argList, int lbl_kept);
 void declareArray(char* regName, arrayNodeType* array, int lbl_kept);
+int pushStructMembers(nodeType* memberList, char* structName);
+void declareStruct(structNodeType* sct);
 void assignArray(nodeType* p, int lbl_kept);
 int isArrayPtr(nodeType* p);
 void pushBasePtr(nodeType* p);
@@ -73,6 +75,9 @@ void programStarts() {
     funcSymTab->symTab = sm_new(FUNC_SIZE);
     funcSymTab->arrayDimTab = sm_new(FUNC_SIZE);
     funcSymTab->size = 0;
+    structSymTab = (symTab*) malloc(sizeof(symTab));
+    structSymTab->symTab = sm_new(STRUCT_SIZE);
+    structSymTab->size = 0;
     localSymTabs = (localSymTab*) malloc(sizeof(localSymTab));
     localSymTabs->prev = NULL;
     localSymTabs->symTab = NULL;
@@ -81,6 +86,7 @@ void programStarts() {
     // init function & statement lists
     funcList = malloc(sizeof(nodeListType)); funcList->type = listTypeFunc; funcList->nops = 0; funcList->head = funcList->tail = NULL;
     stmtList = malloc(sizeof(nodeListType)); stmtList->type = listTypeStmt; stmtList->nops = 0; stmtList->head = stmtList->tail = NULL;
+    structList = malloc(sizeof(nodeListType)); structList->type = listTypeStruct; structList->nops = 0; structList->head = structList->tail = NULL;
 
     // init pointer values
     SB = FP = IN = SP = 0;
@@ -101,9 +107,11 @@ void preScan(nodeListType *list) {
 }
 
 void preProcess() {
+    preScan(structList);
     preScan(stmtList);
     preScan(funcList);
     makeRoomGlobalVariables();
+    freeNodeList(structList);
 }
 
 void programEnds() {
@@ -111,8 +119,10 @@ void programEnds() {
     sm_delete(globalSymTab->arrayDimTab);
     sm_delete(funcSymTab->symTab);
     sm_delete(funcSymTab->arrayDimTab);
+    sm_delete(structSymTab->symTab);
     free(globalSymTab);
     free(funcSymTab);
+    free(structSymTab);
     free(localSymTabs);
     freeNodeList(funcList);
     freeNodeList(stmtList);
@@ -235,6 +245,41 @@ void declareArray(char* regName, arrayNodeType* array, int lbl_kept) {
     sm_put(arrayDimTab, array->baseName, dimStr);
 
     array->size = offset;
+}
+
+// return number of members; use recursion for in-order declaration
+int pushStructMembers(nodeType* memberList, char* structName) {
+    if (memberList == NULL) return 0;
+
+    if (memberList->type != typeOpr || memberList->opr.oper != ',') {
+        // store to symbol table
+        char keyName[strlen(structName) + strlen(memberList->id.varName) + 2];
+        sprintf(keyName, "%s.%s", structName, memberList->id.varName);
+        sm_put(structSymTab->symTab, keyName, "0");
+        return 1;
+    }
+
+    int numOfMembers = pushStructMembers(memberList->opr.op[0], structName);
+
+    // store to symbol table
+    char keyName[strlen(structName) + strlen(memberList->opr.op[1]->id.varName) + 2];
+    char value[LOG_NUM_OF_MEMBERS];
+    sprintf(keyName, "%s.%s", structName, memberList->opr.op[1]->id.varName);
+    sprintf(value, "%d", numOfMembers); 
+    sm_put(structSymTab->symTab, keyName, value);  
+
+    return 1 + numOfMembers;
+}
+
+void declareStruct(structNodeType* sct) {
+    // insert struct member info into symbol table
+    nodeType* memberList = sct->memberList;
+    int numOfMembers = pushStructMembers(sct->memberList, sct->structName);
+
+    // store meta data
+    sct->numOfMembers = numOfMembers;
+    structSymTab->size += numOfMembers;
+    assert(sm_get_count(structSymTab->symTab) == structSymTab->size);
 }
 
 void assignArray(nodeType* p, int lbl_kept) {
@@ -577,6 +622,9 @@ int ex(nodeType *p, int nops, ...) {
             tearDownCallFrame(&p->func);
             PRINTF("\tret\n"); // in case 'return' is not specified; 'ret' may be duplicated, but doesn't matter
             break;
+        case typeStruct:
+            if (isScan) declareStruct(&p->sct);
+            break;
         case typeOpr:
             switch(p->opr.oper) {
                 case FOR:
@@ -850,7 +898,6 @@ void exFuncList() {
         p = p->next; 
     }
 }
-
 
 
 
