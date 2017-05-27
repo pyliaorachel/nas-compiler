@@ -68,6 +68,8 @@ L017:
 	push	sb[301]
 	add
 	add
+	push	2
+	mul
 	add
 	push	0
 	add
@@ -98,12 +100,84 @@ L017:
 	push	sb[301]
 	add
 	add
+	push	2
+	mul
 	add
 	push	1
 	add
 
 	pop	ac
 	pop	ac[0]
+
+	// Output
+
+	// push normal string
+
+	// push constant
+	push	"id: "
+	puts_
+
+	// Output
+
+	// access struct member .id
+	push	sb
+	push	0
+	push	0
+
+	// push variable i
+	push	sb[300]
+	add
+	push	10
+	mul
+
+	// push variable j
+	push	sb[301]
+	add
+	add
+	push	2
+	mul
+	add
+	push	0
+	add
+
+	pop	ac
+	push	ac[0]
+	puti
+
+	// Output
+
+	// push normal string
+
+	// push constant
+	push	"num: "
+	puts_
+
+	// Output
+
+	// access struct member .num
+	push	sb
+	push	0
+	push	0
+
+	// push variable i
+	push	sb[300]
+	add
+	push	10
+	mul
+
+	// push variable j
+	push	sb[301]
+	add
+	add
+	push	2
+	mul
+	add
+	push	1
+	add
+
+	pop	ac
+	push	ac[0]
+	puti
 L015:
 
 	// variable assignment j
@@ -171,6 +245,14 @@ L023:
 
 	// Output
 
+	// push normal string
+
+	// push constant
+	push	"id: "
+	puts_
+
+	// Output
+
 	// access struct member .id
 	push	sb
 	push	0
@@ -186,6 +268,8 @@ L023:
 	push	sb[301]
 	add
 	add
+	push	2
+	mul
 	add
 	push	0
 	add
@@ -193,6 +277,14 @@ L023:
 	pop	ac
 	push	ac[0]
 	puti
+
+	// Output
+
+	// push normal string
+
+	// push constant
+	push	"num: "
+	puts_
 
 	// Output
 
@@ -211,6 +303,8 @@ L023:
 	push	sb[301]
 	add
 	add
+	push	2
+	mul
 	add
 	push	1
 	add

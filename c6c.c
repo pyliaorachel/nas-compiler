@@ -32,6 +32,7 @@ void declareStruct(char* regName, nodeType* p, int lbl_kept);
 int pushStructMembers(nodeType* memberList, char* structName);
 void defineStructType(structNodeType* sct);
 void assignArray(nodeType* p, int lbl_kept);
+void assignToStruct(nodeType* p, int lbl_kept);
 int isArrayPtr(nodeType* p);
 int isStructType(nodeType* p);
 void pushBasePtr(nodeType* p);
@@ -40,6 +41,7 @@ void pushPtrValue(nodeType* p, int lbl_kept);
 void pushStructOffset(nodeType* p, char* memberName);
 void putCharArray(nodeType* p, int hasNewLine, int lbl_kept);
 void getCharArray(nodeType* p, int lbl_kept);
+void popToPointer(nodeType* p, int lbl_kept);
 void assignCharArray(nodeType* p, char* str, int lbl_kept);
 int getGlobalRegName(char* regName, char* name, int size);
 int getLocalRegName(char* regName, char* name, int size);
@@ -231,7 +233,7 @@ void declareArray(char* regName, arrayNodeType* array, int unitSize, int lbl_kep
     assert(array->dim >= 1);
     arrayOffsetNodeType *n = array->offsetListHead;
     int offset = n->offset->con.value;
-    sprintf(dimStr, "%d,%d", array->dim, offset); // prepend count -> count,dim1,dim2,...
+    sprintf(dimStr, "%d|%d|%d", array->dim, unitSize, offset); // prepend count -> count|unitSize|dim1,dim2,...|unitsize
     n = n->next;
 
     while (n) {
@@ -337,6 +339,16 @@ void assignArray(nodeType* p, int lbl_kept) {
     }
 }
 
+void assignToStruct(nodeType* p, int lbl_kept) {
+    // push struct variable pointer
+    pushPtr(p->opr.op[0], lbl_kept);
+    pushStructOffset(p->opr.op[0], p->opr.op[1]->id.varName);
+
+    PRINTF("\tadd\n"); 
+    PRINTF("\n\tpop\tac\n"); 
+    PRINTF("\tpop\tac[0]\n");
+}
+
 int isArrayPtr(nodeType* p) {
     StrMap* arrayDimTab = getArrayDimSymTab();
     char dimStr[DIM_STR_L];
@@ -348,7 +360,8 @@ int isArrayPtr(nodeType* p) {
         if (sm_exists(arrayDimTab, p->array.baseName)) {
             // check dimension count
             sm_get(arrayDimTab, p->array.baseName, dimStr, DIM_STR_L);
-            arrayDim = atoi(strtok(dimStr, ","));
+            arrayDim = atoi(strtok(dimStr, "|")); // dummy, unitsize
+            arrayDim = atoi(strtok(NULL, "|"));
 
             return p->array.dim < arrayDim;
         } else if (sm_exists(currentFrameSymTab->symTab, p->array.baseName)) {
@@ -401,7 +414,7 @@ void pushBasePtr(nodeType* p) {
 void pushPtr(nodeType* p, int lbl_kept) {
     StrMap* arrayDimTab = getArrayDimSymTab();
     char dimStr[DIM_STR_L];
-    int dim; char* tempDim;
+    int dim, unitSize; char* tempDim;
     char regName[REG_NAME_L];
 
     if (p->type == typeArr) {
@@ -428,7 +441,8 @@ void pushPtr(nodeType* p, int lbl_kept) {
             n = n->next;
             if (sm_exists(arrayDimTab, p->array.baseName)) {
                 sm_get(arrayDimTab, p->array.baseName, dimStr, DIM_STR_L);
-                dim = atoi(strtok(dimStr, ",")); // dummy, dim count
+                unitSize = atoi(strtok(dimStr, "|")); // unitsize
+                dim = atoi(strtok(NULL, "|")); // dummy, dim count
                 dim = atoi(strtok(NULL, ",")); // dummy, first dimension
 
                 while (n) {
@@ -448,8 +462,12 @@ void pushPtr(nodeType* p, int lbl_kept) {
                     PRINTF("\tmul\n"); 
                     tempDim = strtok(NULL, ",");
                 }
+
+                PRINTF("\tadd\n");
+
+                PRINTF("\tpush\t%d\n", unitSize); 
+                PRINTF("\tmul\n"); 
             }
-            PRINTF("\tadd\n");
         }
     } else if (p->type == typeId) {
         pushBasePtr(p);
@@ -555,6 +573,30 @@ void getCharArray(nodeType* p, int lbl_kept) {
     // mark the last char as \0
     PRINTF("\tpush\t0\n");
     PRINTF("\tpop\tac[0]\n");  
+}
+
+void popToPointer(nodeType* p, int lbl_kept) {
+    char regName[REG_NAME_L];
+
+    if (p->type == typeId) {
+        PRINTF("\n\t// get to variable %s\n", p->id.varName); 
+        getRegName(regName, p->id.varName, 1);
+        PRINTF("\tpop\t%s\n", regName);
+    } else if (p->type == typeArr) {
+        PRINTF("\n\t// get to array %s\n", p->array.baseName); 
+        pushPtr(p, lbl_kept);
+        PRINTF("\n\tpop\tac\n");
+        PRINTF("\tpop\tac[0]\n");
+    } else if (p->type == typeOpr) {
+        switch (p->opr.oper) {
+            case DOT:
+                PRINTF("\n\t// get to struct\n"); 
+                assignToStruct(p, lbl_kept);
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 void assignCharArray(nodeType* p, char* str, int lbl_kept) {
@@ -756,45 +798,18 @@ int ex(nodeType *p, int nops, ...) {
                 case GETI:
                     PRINTF("\n\t// Input\n"); 
                     PRINTF("\tgeti\n"); 
-                    if (p->opr.op[0]->type == typeId) {
-                        PRINTF("\n\t// get to variable %s\n", p->opr.op[0]->id.varName); 
-                        getRegName(regName, p->opr.op[0]->id.varName, 1);
-                        PRINTF("\tpop\t%s\n", regName);
-                    } else if (p->opr.op[0]->type == typeArr) {
-                        PRINTF("\n\t// get to array %s\n", p->opr.op[0]->array.baseName); 
-                        pushPtr(p->opr.op[0], lbl_kept);
-                        PRINTF("\n\tpop\tac\n");
-                        PRINTF("\tpop\tac[0]\n");
-                    }
+                    popToPointer(p->opr.op[0], lbl_kept);
                     break;
                 case GETC: 
                     PRINTF("\n\t// Input\n"); 
                     PRINTF("\tgetc\n"); 
-                    if (p->opr.op[0]->type == typeId) {
-                        PRINTF("\n\t// get to variable %s\n", p->opr.op[0]->id.varName); 
-                        getRegName(regName, p->opr.op[0]->id.varName, 1);
-                        PRINTF("\tpop\t%s\n", regName);
-                    } else if (p->opr.op[0]->type == typeArr) {
-                        PRINTF("\n\t// get to array %s\n", p->opr.op[0]->array.baseName); 
-                        pushPtr(p->opr.op[0], lbl_kept);
-                        PRINTF("\n\tpop\tac\n");
-                        PRINTF("\tpop\tac[0]\n");
-                    }
+                    popToPointer(p->opr.op[0], lbl_kept);
                     break;
                 case GETS: 
                     PRINTF("\n\t// Input\n"); 
                     if (!isArrayPtr(p->opr.op[0])) {
                         PRINTF("\tgets\n"); 
-                        if (p->opr.op[0]->type == typeId) {
-                            PRINTF("\n\t// get to variable %s\n", p->opr.op[0]->id.varName); 
-                            getRegName(regName, p->opr.op[0]->id.varName, 1);
-                            PRINTF("\tpop\t%s\n", regName);
-                        } else if (p->opr.op[0]->type == typeArr) {
-                            PRINTF("\n\t// get to array %s\n", p->opr.op[0]->array.baseName); 
-                            pushPtr(p->opr.op[0], lbl_kept);
-                            PRINTF("\n\tpop\tac\n");
-                            PRINTF("\tpop\tac[0]\n");
-                        }
+                        popToPointer(p->opr.op[0], lbl_kept);
                     } else {
                         PRINTF("\n\t// get to char array\n");
                         getCharArray(p->opr.op[0], lbl_kept);
@@ -892,14 +907,9 @@ int ex(nodeType *p, int nops, ...) {
 
                                 // calculate expression
                                 ex(p->opr.op[1], 1, lbl_kept);
-                                // push struct variable pointer
                                 printf("\n");
-                                pushPtr(p->opr.op[0]->opr.op[0], lbl_kept);
-                                pushStructOffset(p->opr.op[0]->opr.op[0], p->opr.op[0]->opr.op[1]->id.varName);
-
-                                PRINTF("\tadd\n"); 
-                                PRINTF("\n\tpop\tac\n"); 
-                                PRINTF("\tpop\tac[0]\n");
+                                // assign
+                                assignToStruct(p->opr.op[0], lbl_kept);
 
                                 break;
                             default:
