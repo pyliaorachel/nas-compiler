@@ -900,6 +900,7 @@ int ex(nodeType *p, int nops, ...) {
 
                                 PRINTF("\n\tpop\tac\n"); 
                                 PRINTF("\tpop\tac[0]\n");  
+                                break;
                             case DOT:
                                 PRINTF("\n\t// struct member assignment\n");
 
