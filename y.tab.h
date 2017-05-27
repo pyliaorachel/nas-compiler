@@ -51,28 +51,30 @@
      CONTINUE = 267,
      RETURN = 268,
      DECL_ARRAY = 269,
-     DECL_STRUCT = 270,
-     GETI = 271,
-     GETS = 272,
-     GETC = 273,
-     PUTI = 274,
-     PUTS = 275,
-     PUTC = 276,
-     PUTI_ = 277,
-     PUTS_ = 278,
-     PUTC_ = 279,
-     CALL = 280,
-     IFX = 281,
-     ELSE = 282,
-     OR = 283,
-     AND = 284,
-     NE = 285,
-     EQ = 286,
-     LE = 287,
-     GE = 288,
-     DEREF = 289,
-     REF = 290,
-     UMINUS = 291
+     DEF_STRUCT_TYPE = 270,
+     DECL_STRUCT = 271,
+     GETI = 272,
+     GETS = 273,
+     GETC = 274,
+     PUTI = 275,
+     PUTS = 276,
+     PUTC = 277,
+     PUTI_ = 278,
+     PUTS_ = 279,
+     PUTC_ = 280,
+     CALL = 281,
+     IFX = 282,
+     ELSE = 283,
+     OR = 284,
+     AND = 285,
+     NE = 286,
+     EQ = 287,
+     LE = 288,
+     GE = 289,
+     DOT = 290,
+     DEREF = 291,
+     REF = 292,
+     UMINUS = 293
    };
 #endif
 /* Tokens.  */
@@ -88,28 +90,30 @@
 #define CONTINUE 267
 #define RETURN 268
 #define DECL_ARRAY 269
-#define DECL_STRUCT 270
-#define GETI 271
-#define GETS 272
-#define GETC 273
-#define PUTI 274
-#define PUTS 275
-#define PUTC 276
-#define PUTI_ 277
-#define PUTS_ 278
-#define PUTC_ 279
-#define CALL 280
-#define IFX 281
-#define ELSE 282
-#define OR 283
-#define AND 284
-#define NE 285
-#define EQ 286
-#define LE 287
-#define GE 288
-#define DEREF 289
-#define REF 290
-#define UMINUS 291
+#define DEF_STRUCT_TYPE 270
+#define DECL_STRUCT 271
+#define GETI 272
+#define GETS 273
+#define GETC 274
+#define PUTI 275
+#define PUTS 276
+#define PUTC 277
+#define PUTI_ 278
+#define PUTS_ 279
+#define PUTC_ 280
+#define CALL 281
+#define IFX 282
+#define ELSE 283
+#define OR 284
+#define AND 285
+#define NE 286
+#define EQ 287
+#define LE 288
+#define GE 289
+#define DOT 290
+#define DEREF 291
+#define REF 292
+#define UMINUS 293
 
 
 
@@ -124,7 +128,7 @@ typedef union YYSTYPE
     nodeType *nPtr;             /* node pointer */
 }
 /* Line 1529 of yacc.c.  */
-#line 128 "y.tab.h"
+#line 132 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

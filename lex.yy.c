@@ -1163,7 +1163,7 @@ return DECL_ARRAY;
 case 39:
 YY_RULE_SETUP
 #line 65 "c6.l"
-return DECL_STRUCT;
+return DEF_STRUCT_TYPE;
 	YY_BREAK
 case 40:
 YY_RULE_SETUP

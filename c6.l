@@ -62,7 +62,7 @@ char text[500];
 "continue"  return CONTINUE;
 "return"    return RETURN;
 "array"    	return DECL_ARRAY;
-"struct"    return DECL_STRUCT;
+"struct"    return DEF_STRUCT_TYPE;
 
 [-()<>=+*/;{}.%\[\],&]   {
                             return *yytext;

@@ -28,8 +28,9 @@ void makeRoomGlobalVariables();
 void makeRoomLocalVariables(funcNodeType* func);
 int pushArgs(nodeType* argList, int lbl_kept);
 void declareArray(char* regName, arrayNodeType* array, int lbl_kept);
+void declareStruct(char* regName, nodeType* p, int lbl_kept);
 int pushStructMembers(nodeType* memberList, char* structName);
-void declareStruct(structNodeType* sct);
+void defineStructType(structNodeType* sct);
 void assignArray(nodeType* p, int lbl_kept);
 int isArrayPtr(nodeType* p);
 void pushBasePtr(nodeType* p);
@@ -81,6 +82,7 @@ void programStarts() {
     localSymTabs = (localSymTab*) malloc(sizeof(localSymTab));
     localSymTabs->prev = NULL;
     localSymTabs->symTab = NULL;
+    localSymTabs->arrayDimTab = NULL;
     currentFrameSymTab = localSymTabs;
 
     // init function & statement lists
@@ -163,6 +165,7 @@ void createCallFrame(funcNodeType* func) {
     else func->numOfParams = numOfParams;
     currentFrameSymTab->numOfParams = numOfParams;
     currentFrameSymTab->numOfLocalVars = 0;
+    currentFrameSymTab->arrayDimTab = sm_new(LOCAL_SIZE);
 
     // push space onto stack for local variables
     if (!isScan) makeRoomLocalVariables(func);
@@ -179,6 +182,7 @@ void tearDownCallFrame(funcNodeType* func) {
 
     localSymTab* prevFrameSymTab = currentFrameSymTab->prev;
     sm_delete(currentFrameSymTab->symTab);
+    sm_delete(currentFrameSymTab->arrayDimTab);
     free(currentFrameSymTab);
     currentFrameSymTab = prevFrameSymTab;
 }
@@ -247,6 +251,20 @@ void declareArray(char* regName, arrayNodeType* array, int lbl_kept) {
     array->size = offset;
 }
 
+void declareStruct(char* regName, nodeType* p, int lbl_kept) {
+    // get struct size
+    char sizeBuffer[LOG_NUM_OF_MEMBERS];
+    sm_get(structSymTab->symTab, p->opr.op[0]->id.varName, sizeBuffer, LOG_NUM_OF_MEMBERS);
+    int size = atoi(sizeBuffer);
+
+    // declare
+    getRegName(regName, p->opr.op[1]->id.varName, size);
+
+    // key: var name, value: struct type name
+    sm_put(structSymTab->symTab, p->opr.op[1]->id.varName, p->opr.op[0]->id.varName);
+    structSymTab->size++;
+}
+
 // return number of members; use recursion for in-order declaration
 int pushStructMembers(nodeType* memberList, char* structName) {
     if (memberList == NULL) return 0;
@@ -271,14 +289,19 @@ int pushStructMembers(nodeType* memberList, char* structName) {
     return 1 + numOfMembers;
 }
 
-void declareStruct(structNodeType* sct) {
+void defineStructType(structNodeType* sct) {
     // insert struct member info into symbol table
     nodeType* memberList = sct->memberList;
     int numOfMembers = pushStructMembers(sct->memberList, sct->structName);
 
+    // store number of members info into symbol table
+    char value[LOG_NUM_OF_MEMBERS];
+    sprintf(value, "%d", numOfMembers); 
+    sm_put(structSymTab->symTab, sct->structName, value);
+
     // store meta data
     sct->numOfMembers = numOfMembers;
-    structSymTab->size += numOfMembers;
+    structSymTab->size += numOfMembers + 1; // +1 for num of member info
     assert(sm_get_count(structSymTab->symTab) == structSymTab->size);
 }
 
@@ -623,7 +646,7 @@ int ex(nodeType *p, int nops, ...) {
             PRINTF("\tret\n"); // in case 'return' is not specified; 'ret' may be duplicated, but doesn't matter
             break;
         case typeStruct:
-            if (isScan) declareStruct(&p->sct);
+            if (isScan) defineStructType(&p->sct);
             break;
         case typeOpr:
             switch(p->opr.oper) {
@@ -831,6 +854,9 @@ int ex(nodeType *p, int nops, ...) {
                     PRINTF("\n\tpop\tac\n"); 
                     PRINTF("\tpush\tac[0]\n");  
                     break;
+                case DOT:
+                    printf("dot operator\n");
+                    break;
                 case CALL:
                     PRINTF("\n\t// function call %s\n", p->opr.op[0]->id.varName); 
                     numOfArgs = pushArgs(p->opr.op[1], lbl_kept);
@@ -842,7 +868,12 @@ int ex(nodeType *p, int nops, ...) {
                     PRINTF("\tret\n");
                     break;
                 case DECL_ARRAY:
-                    if (isScan) declareArray(regName, &p->opr.op[0]->array, lbl_kept);
+                    //if (isScan) 
+                    declareArray(regName, &p->opr.op[0]->array, lbl_kept);
+                    break;
+                case DECL_STRUCT:
+                    //if (isScan) 
+                    declareStruct(regName, p, lbl_kept);
                     break;
                 case ',':
                     ex(p->opr.op[0], 1, lbl_kept);

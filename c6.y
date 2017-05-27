@@ -47,7 +47,7 @@ nodeListType* structList;
 %token <conValue> INTEGER CHAR
 %token <conStrValue> STRING
 %token <sKey> VARIABLE DECL_VARIABLE
-%token FOR WHILE IF BREAK CONTINUE RETURN DECL_ARRAY DECL_STRUCT
+%token FOR WHILE IF BREAK CONTINUE RETURN DECL_ARRAY DEF_STRUCT_TYPE DECL_STRUCT
 %token GETI GETS GETC PUTI PUTS PUTC PUTI_ PUTS_ PUTC_ CALL
 %nonassoc IFX
 %nonassoc ELSE
@@ -57,9 +57,9 @@ nodeListType* structList;
 %left GE LE EQ NE '>' '<'
 %left '+' '-'
 %left '*' '/' '%'
-%nonassoc UMINUS REF DEREF
+%nonassoc UMINUS REF DEREF DOT
 
-%type <nPtr> func_decl struct_decl stmt expr stmt_list assignment assignment_list array_decl_list lvalue variable array array_list value_list
+%type <nPtr> func_decl struct_def stmt expr stmt_list assignment assignment_list array_decl_list struct_decl_list lvalue variable array array_list struct value_list
 
 %%
 
@@ -75,7 +75,7 @@ program:
 main:
           main stmt         { appendToList(stmtList, $2); }
         | main func_decl    { appendToList(funcList, $2); }
-        | main struct_decl  { appendToList(structList, $2); }
+        | main struct_def  { appendToList(structList, $2); }
         | /* NULL */
         ;
 
@@ -83,8 +83,8 @@ func_decl:
           DECL_VARIABLE '(' value_list ')' '{' stmt_list '}'    { $$ = func($1, $3, $6); }
         ;
 
-struct_decl:
-          DECL_STRUCT VARIABLE '{' value_list '}'               { $$ = sct($2, $4); }
+struct_def:
+          DEF_STRUCT_TYPE VARIABLE '{' value_list '}'               { $$ = sct($2, $4); }
         ;
 
 stmt:
@@ -110,6 +110,7 @@ stmt:
         | '{' stmt_list '}'                                     { $$ = $2; }
         | DECL_VARIABLE '(' value_list ')' ';'                  { $$ = opr(CALL, 2, id($1), $3); }
         | array_decl_list ';'                                   { $$ = $1; }
+        | struct_decl_list ';'                                  { $$ = $1; }
         ;
 
 stmt_list:
@@ -134,29 +135,45 @@ array_decl_list:
         ;
 
 value_list:   
-          expr                      { $$ = $1; }
-        | value_list ',' expr       { $$ = opr(',', 2, $1, $3); }
-        | /* NULL */                { $$ = NULL; }
+          expr                              { $$ = $1; }
+        | value_list ',' expr               { $$ = opr(',', 2, $1, $3); }
+        | /* NULL */                        { $$ = NULL; }
         ;
 
 lvalue:
-          variable              { $$ = $1; }
-        | array                 { $$ = $1; }
-        | '*' expr %prec DEREF  { $$ = opr(DEREF, 1, $2); }
+          variable                          { $$ = $1; }
+        | array                             { $$ = $1; }
+        | '*' expr %prec DEREF              { $$ = opr(DEREF, 1, $2); }
         ;
 
 variable:
-          VARIABLE              { $$ = id($1); }
-        | DECL_VARIABLE         { $$ = id($1); }
+          VARIABLE                          { $$ = id($1); }
+        | DECL_VARIABLE                     { $$ = id($1); }
         ;
 
 array:
-          array_list ']'        { $$ = $1; }
+          array_list ']'                    { $$ = $1; }
         ;
 
 array_list:
-          variable '[' expr         { $$ = array($1, $3); }
-        | array_list ']' '[' expr   { $$ = extendArray($1, $4); }
+          variable '[' expr                 { $$ = array($1, $3); }
+        | array_list ']' '[' expr           { $$ = extendArray($1, $4); }
+        ;
+
+struct_decl_list:
+          '<' variable '>' variable         { $$ = opr(DECL_STRUCT, 2, $2, $4); }
+        | struct_decl_list ',' variable     { 
+                                                if ($1->opr.op[0]->type == typeId) {
+                                                    // the second element
+                                                    $$ = opr(',', 2, $1, opr(DECL_STRUCT, 2, id($1->opr.op[0]->id.varName), $3)); 
+                                                } else {
+                                                    $$ = opr(',', 2, $1, opr(DECL_STRUCT, 2, id($1->opr.op[1]->opr.op[0]->id.varName), $3)); 
+                                                }
+                                            }
+        ;
+
+struct:
+          variable '.' variable             { $$ = opr(DOT, 2, $1, $3); }
         ;
 
 expr:
