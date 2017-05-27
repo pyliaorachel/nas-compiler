@@ -23,14 +23,14 @@ getNextRandom(min, max, seed) { // https://stackoverflow.com/questions/3062746/s
 	*seed = (*seed ^ (*seed << 21));
 	*seed = (*seed ^ (*seed >> 35));
 	*seed = (*seed ^ (*seed << 4));
-	return (*seed & (max - min)) + min;
+	return (*seed & (max - min)) + min; // take last few bits
 }
 
 genRandomBoard(size, seed) {
+	// generate random bombs
 	max = size * size - 1;
 	for (i = 0; i < size; i = i + 1;) {
 		num = getNextRandom(0, max, &seed);
-		puti(num);
 		
 		x = num % size;
 		y = num / size;
@@ -43,11 +43,20 @@ genRandomBoard(size, seed) {
 		}
 	}
 
+	// get neighbor bomb info
 	for (i = 0; i < size; i = i + 1;) {
 		for (j = 0; j < size; j = j + 1;) {
-			puti_(@board[i][j].isBomb);
+			if (@board[i][j].isBomb == 1) {
+				for (k = -1; k <= 1; k = k + 1;) {
+					for (l = -1; l <= 1; l = l + 1;) {
+						if (i+k >= 0 && i+k < size && j+l >= 0 && j+l < size) {
+							@board[i+k][j+l].neighborBombs = @board[i+k][j+l].neighborBombs + 1;
+						}
+					}
+				}
+				@board[i][j].neighborBombs = @board[i][j].neighborBombs - 1;
+			}
 		}
-		putc('');
 	}
 }
 
