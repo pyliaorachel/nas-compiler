@@ -43,6 +43,8 @@ char text[CONST_STRING_L];
 "<="        return LE;
 "=="        return EQ;
 "!="        return NE;
+"<<"        return SLL;
+">>"        return SRL;
 "for"       return FOR;
 "while"     return WHILE;
 "if"        return IF;
@@ -64,7 +66,7 @@ char text[CONST_STRING_L];
 "array"    	return DECL_ARRAY;
 "struct"    return DEF_STRUCT_TYPE;
 
-[-()<>=+*/;{}.%\[\],&]   {
+[-()<>=+*/;{}.%\[\],&^|]   {
                             return *yytext;
                         }
 

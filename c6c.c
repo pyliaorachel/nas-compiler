@@ -465,7 +465,7 @@ void pushPtr(nodeType* p, int lbl_kept) {
                     PRINTF("\tmul\n"); 
                     tempDim = strtok(NULL, ",");
                 }
-                
+
                 PRINTF("\tpush\t%d\n", unitSize); 
                 PRINTF("\tmul\n"); 
 
@@ -992,6 +992,11 @@ int ex(nodeType *p, int nops, ...) {
                         case '%':   PRINTF("\tmod\n"); break;
                         case '<':   PRINTF("\tcompLT\n"); break;
                         case '>':   PRINTF("\tcompGT\n"); break;
+                        case SLL:   PRINTF("\tsll\n"); break;
+                        case SRL:   PRINTF("\tsrl\n"); break;
+                        case '&':   PRINTF("\tbitand\n"); break;
+                        case '^':   PRINTF("\tbitxor\n"); break;
+                        case '|':   PRINTF("\tbitor\n"); break;
                         case GE:    PRINTF("\tcompGE\n"); break;
                         case LE:    PRINTF("\tcompLE\n"); break;
                         case NE:    PRINTF("\tcompNE\n"); break;

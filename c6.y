@@ -54,9 +54,9 @@ nodeListType* structList;
 
 %left AND OR
 
-%left GE LE EQ NE '>' '<'
+%left GE LE EQ NE '>' '<' SLL SRL
 %left '+' '-'
-%left '*' '/' '%'
+%left '*' '/' '%' '^' '|' '&'
 %nonassoc UMINUS REF DEREF DOT
 
 %type <nPtr> func_decl struct_def stmt expr stmt_list assignment assignment_list array_decl_list struct_decl_list lvalue variable array array_list struct value_list
@@ -211,6 +211,11 @@ expr:
         | expr '/' expr         { $$ = opr('/', 2, $1, $3); }
         | expr '<' expr         { $$ = opr('<', 2, $1, $3); }
         | expr '>' expr         { $$ = opr('>', 2, $1, $3); }
+        | expr SLL expr         { $$ = opr(SLL, 2, $1, $3); }
+        | expr SRL expr         { $$ = opr(SRL, 2, $1, $3); }
+        | expr '&' expr         { $$ = opr('&', 2, $1, $3); }
+        | expr '^' expr         { $$ = opr('^', 2, $1, $3); }
+        | expr '|' expr         { $$ = opr('|', 2, $1, $3); }
         | expr GE expr          { $$ = opr(GE, 2, $1, $3); }
         | expr LE expr          { $$ = opr(LE, 2, $1, $3); }
         | expr NE expr          { $$ = opr(NE, 2, $1, $3); }

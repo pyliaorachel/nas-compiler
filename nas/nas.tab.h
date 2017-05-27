@@ -65,15 +65,20 @@
      NEG = 281,
      AND = 282,
      OR = 283,
-     GETI = 284,
-     GETS = 285,
-     GETC = 286,
-     PUTI = 287,
-     PUTS = 288,
-     PUTC = 289,
-     PUTI_ = 290,
-     PUTS_ = 291,
-     PUTC_ = 292
+     SLL = 284,
+     SRL = 285,
+     BITAND = 286,
+     BITXOR = 287,
+     BITOR = 288,
+     GETI = 289,
+     GETS = 290,
+     GETC = 291,
+     PUTI = 292,
+     PUTS = 293,
+     PUTC = 294,
+     PUTI_ = 295,
+     PUTS_ = 296,
+     PUTC_ = 297
    };
 #endif
 /* Tokens.  */
@@ -103,15 +108,20 @@
 #define NEG 281
 #define AND 282
 #define OR 283
-#define GETI 284
-#define GETS 285
-#define GETC 286
-#define PUTI 287
-#define PUTS 288
-#define PUTC 289
-#define PUTI_ 290
-#define PUTS_ 291
-#define PUTC_ 292
+#define SLL 284
+#define SRL 285
+#define BITAND 286
+#define BITXOR 287
+#define BITOR 288
+#define GETI 289
+#define GETS 290
+#define GETC 291
+#define PUTI 292
+#define PUTS 293
+#define PUTC 294
+#define PUTI_ 295
+#define PUTS_ 296
+#define PUTC_ 297
 
 
 
@@ -124,7 +134,7 @@ typedef union YYSTYPE
   char s[500];
 }
 /* Line 1529 of yacc.c.  */
-#line 128 "nas.tab.h"
+#line 138 "nas.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

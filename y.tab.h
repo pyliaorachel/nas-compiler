@@ -67,14 +67,16 @@
      ELSE = 283,
      OR = 284,
      AND = 285,
-     NE = 286,
-     EQ = 287,
-     LE = 288,
-     GE = 289,
-     DOT = 290,
-     DEREF = 291,
-     REF = 292,
-     UMINUS = 293
+     SRL = 286,
+     SLL = 287,
+     NE = 288,
+     EQ = 289,
+     LE = 290,
+     GE = 291,
+     DOT = 292,
+     DEREF = 293,
+     REF = 294,
+     UMINUS = 295
    };
 #endif
 /* Tokens.  */
@@ -106,14 +108,16 @@
 #define ELSE 283
 #define OR 284
 #define AND 285
-#define NE 286
-#define EQ 287
-#define LE 288
-#define GE 289
-#define DOT 290
-#define DEREF 291
-#define REF 292
-#define UMINUS 293
+#define SRL 286
+#define SLL 287
+#define NE 288
+#define EQ 289
+#define LE 290
+#define GE 291
+#define DOT 292
+#define DEREF 293
+#define REF 294
+#define UMINUS 295
 
 
 
@@ -128,7 +132,7 @@ typedef union YYSTYPE
     nodeType *nPtr;                         /* node pointer */
 }
 /* Line 1529 of yacc.c.  */
-#line 132 "y.tab.h"
+#line 136 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
