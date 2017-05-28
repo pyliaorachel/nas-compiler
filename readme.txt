@@ -17,15 +17,17 @@ Quick Start
 Usage
 —————
 
+** DON'T include the file extension for P **
+
 - Make the compiler & assembler-simulator
 	- `make c6c`
 	- `make nas`
 
 - Compile source code `*.sc`, generates `*.as` program file
-	- `make compile P=<source file basename>` (** DON'T include the file extension **)
+	- `make compile P=<source file basename>`
 
 - Run the program `*.as`
-	- `make run P=<program basename>` (** DON'T include the file extension **)
+	- `make run P=<program basename>`
 
 - Cleanup
 	- `make clean`
@@ -36,15 +38,18 @@ Testing
 
 Test files are placed under the `test-<F>/` directory.
 
-- Individual test file (** DON'T include the file extension & path **)
-	- `make compile-test P=<source file basename>`
-	- `make run-test P=<source file basename>`
+** DON'T include the leading ‘test-’ for F **
+** DON'T include the file extension & path for P **
+
+- Individual test file
+	- `make compile-test F=<test folder subname> P=<source file basename>`
+	- `make run-test F=<test folder subname> P=<source file basename>`
 	
-- All test files (** DON'T include the leading ‘test-’ **)
+- All test files
 	- `make compile-all-tests F=<test folder subname>`
 	- `make run-all-tests F=<test folder subname> O=<1 if output to *.out>` 
 
-- Cleanup (** DON'T include the leading ‘test-’ **)
+- Cleanup
 	- `make cleantest F=<test folder subname>`
 
 
