@@ -15,7 +15,7 @@ Quick Start
 `make run-all-tests F=a4 O=1`
 
 Usage
-—————
+-----
 
 ** DON'T include the file extension for P **
 
@@ -66,7 +66,7 @@ All the files are under `/Minesweeper`.
 A demo video is available in the folder.  
 
 Usage
-—————
+-----
 
 `cd Minesweeper`  
 
