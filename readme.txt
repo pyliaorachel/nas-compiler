@@ -92,6 +92,7 @@ Global statements & function declarations are stored in nodes and chained in lin
 		- <varName>: <structType>
 	- name cannot be reused anywhere
 8. shift left/right, ^, &, |
+9. flushing issue
 
 // error checking
 // test

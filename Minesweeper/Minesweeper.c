@@ -56,6 +56,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	printf("Have a nice day!\n");
 	return 0;
 }
 
@@ -99,50 +100,50 @@ void start_game() {
 	if ((ch = nextcommand()) != 'b') return;
 	set_board(board);
 
-	// /* Initialize global settings */
-	// initscr(); start_color(); cbreak();
-	// keypad(stdscr, TRUE); noecho();
+	/* Initialize global settings */
+	initscr(); start_color(); cbreak();
+	keypad(stdscr, TRUE); noecho();
 	
-	// init_pair(INSTR_COLOR, COLOR_MAGENTA, COLOR_BLACK);
-	// init_pair(BOARD_BASE_COLOR, COLOR_CYAN, COLOR_BLACK);
-	// init_pair(BOARD_HIGHLIGHT_COLOR, COLOR_GREEN, COLOR_BLACK);
+	init_pair(INSTR_COLOR, COLOR_MAGENTA, COLOR_BLACK);
+	init_pair(BOARD_BASE_COLOR, COLOR_CYAN, COLOR_BLACK);
+	init_pair(BOARD_HIGHLIGHT_COLOR, COLOR_GREEN, COLOR_BLACK);
 
-	// /* Initialize the window parameters */
-	// init_params(&win, &c);
+	/* Initialize the window parameters */
+	init_params(&win, &c);
 
-	// /* Display instructions */
-	// print_instructions("Press F1 to exit");
+	/* Display instructions */
+	print_instructions("Press q to exit");
 	
-	// /* Display board */
-	// create_box(&win, TRUE);
-	// move(c.y, c.x);	
-	// while((ch = getch()) != KEY_F(1)) {	
-	// 	switch(ch) {	
-	// 		case 'j':
-	// 			c.x = (c.x - CELL_WIDTH) < win.startx ? win.startx + BOARD_WIDTH - CELL_CENTER_OFFSET_X : c.x - CELL_WIDTH;
-	// 			move(c.y, c.x);
-	// 			break;
-	// 		case 'l':
-	// 			c.x = (c.x + CELL_WIDTH) >= win.startx + BOARD_WIDTH ? win.startx + CELL_CENTER_OFFSET_X : c.x + CELL_WIDTH;
-	// 			move(c.y, c.x);
-	// 			break;
-	// 		case 'i':
-	// 			c.y = (c.y - CELL_HEIGHT) < win.starty ? win.starty + BOARD_HEIGHT - CELL_CENTER_OFFSET_Y : c.y - CELL_HEIGHT;
-	// 			move(c.y, c.x);
-	// 			break;
-	// 		case 'k':
-	// 			c.y = (c.y + CELL_HEIGHT) >= win.starty + BOARD_HEIGHT ? win.starty + CELL_CENTER_OFFSET_Y : c.y + CELL_HEIGHT;
-	// 			move(c.y, c.x);
-	// 			break;	
-	// 		case 'b':
-	// 			break;
-	// 		case 'u':
-	// 			break;
-	// 		case 'r':
-	// 			break;
-	// 	}
-	// }
-	// endwin();
+	/* Display board */
+	create_box(&win, TRUE);
+	move(c.y, c.x);	
+	while((ch = getch()) != 'q') {	
+		switch(ch) {	
+			case 'j':
+				c.x = (c.x - CELL_WIDTH) < win.startx ? win.startx + BOARD_WIDTH - CELL_CENTER_OFFSET_X : c.x - CELL_WIDTH;
+				move(c.y, c.x);
+				break;
+			case 'l':
+				c.x = (c.x + CELL_WIDTH) >= win.startx + BOARD_WIDTH ? win.startx + CELL_CENTER_OFFSET_X : c.x + CELL_WIDTH;
+				move(c.y, c.x);
+				break;
+			case 'i':
+				c.y = (c.y - CELL_HEIGHT) < win.starty ? win.starty + BOARD_HEIGHT - CELL_CENTER_OFFSET_Y : c.y - CELL_HEIGHT;
+				move(c.y, c.x);
+				break;
+			case 'k':
+				c.y = (c.y + CELL_HEIGHT) >= win.starty + BOARD_HEIGHT ? win.starty + CELL_CENTER_OFFSET_Y : c.y + CELL_HEIGHT;
+				move(c.y, c.x);
+				break;	
+			case 'b':
+				break;
+			case 'u':
+				break;
+			case 'r':
+				break;
+		}
+	}
+	endwin();
 }
 
 /* Drawing */
