@@ -33,7 +33,7 @@ getSeed() {
 			puts("Number invalid!");
 			puts_("Enter an ODD number between "); puti_(@numMin); puts_(" to "); puti_(@numMax); puts(" to generate the board: ");
 		} else {
-			putc_('x');
+			putc_('*'); putc_('x');
 		}
 
 		geti(num);
@@ -47,7 +47,7 @@ getSeed() {
 
 putBoard() {
 	if (@isStdGUI == 0) {
-		putc_('b');
+		putc_('*'); putc_('b');
 	}
 	for (i = 0; i < @boardSize; i = i + 1;) {
 		for (j = 0; j < @boardSize; j = j + 1;) {
@@ -64,9 +64,6 @@ putBoard() {
 			} else {
 				puti_(@board[i][j].isBomb); puti_(@board[i][j].neighborBombs); puti_(@board[i][j].status);
 			}
-		}
-		if (@isStdGUI == 1) {
-			putc('');
 		}
 	}
 }
@@ -113,10 +110,10 @@ revealNeighbors(i, j) {
 }
 
 reveal() {
+	@board[@c.y][@c.x].status = 1;
 	if (@board[@c.y][@c.x].isBomb == 1) {
 		@isEnd = 1;
 	} else {
-		@board[@c.y][@c.x].status = 1;
 		if (@board[@c.y][@c.x].neighborBombs == 0) {
 			revealNeighbors(@c.y, @c.x);
 		}
@@ -206,8 +203,7 @@ playerLose() {
 	if (@isStdGUI == 1) {
 		puts("Bomb! You lose.\n");
 	} else {
-		putc('');
-		putc_('L');
+		putc_('*'); putc('L');
 	}
 }
 
@@ -215,8 +211,7 @@ playerWin() {
 	if (@isStdGUI == 1) {
 		puts("Congratulations! You have sweeped all the mines. You are a hero!\n");
 	} else {
-		putc('');
-		putc_('W');
+		putc_('*'); putc_('W');
 	}
 }
 
@@ -236,7 +231,7 @@ start() {
 		if (command == 'i' || command == 'j' || command == 'k' || command == 'l') {
 			moveCursor(command);
 			if (@isStdGUI == 0) {
-				putc_(command);
+				putc_('*'); putc_(command);
 			}
 		} else if (command == 'r') {
 			reveal();
@@ -246,7 +241,7 @@ start() {
 			unmarkBomb();
 		} else if (command == 'q') {
 			if (@isStdGUI == 0) {
-				putc_('q');
+				putc_('*'); putc_('q');
 			}
 			return -1;
 		} else {
@@ -265,13 +260,13 @@ start() {
 					}
 				}
 			} else {
-				putBoard();
 				playerWin();
+				putBoard();
 				break;
 			}
 		} else {
-			putBoard();
 			playerLose();
+			putBoard();
 			break;
 		}
 	}
@@ -305,7 +300,11 @@ main() {
 	status = start();
 
 	if (status == -1) {
-		putc_('q');
+		if (@isStdGUI == 1) {
+			puts("Have a nice day!");
+		} else {
+			putc_('q');
+		};
 		return 0;
 	}
 
@@ -320,7 +319,7 @@ main() {
 	getc(nl);
 
 	if (@isStdGUI == 0) {
-		putc_(newGame);
+		putc_('*'); putc_(newGame);
 	}
 
 	while (newGame == 'y') {
@@ -329,7 +328,6 @@ main() {
 		status = start();
 
 		if (status == -1) {
-			putc_('q');
 			break;
 		}
 
@@ -344,14 +342,14 @@ main() {
 		getc(nl);
 
 		if (@isStdGUI == 0) {
-			putc_(newGame);
+			putc_('*'); putc_(newGame);
 		}
 	}
 
 	if (@isStdGUI == 1) {
 		puts("Have a nice day!");
 	} else {
-		puts_("q");
+		putc_('q');
 	};
 }
 

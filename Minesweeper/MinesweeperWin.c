@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define DEBUG 0
+
 #define BOARD_SIZE_GRIDS 8
 #define BOARD_WIDTH (BOARD_SIZE_GRIDS * 8)
 #define BOARD_HEIGHT (BOARD_SIZE_GRIDS * 4)
@@ -96,6 +98,12 @@ void set_board(CELL board[][BOARD_SIZE_GRIDS]) {
 			board[i][j].isBomb = (bool) (isBomb - '0');
 			board[i][j].neighborBombs = (neighborBombs - '0');
 			board[i][j].status = (status - '0');
+#if DEBUG
+			mvaddch(i + 1, j * 8 + 1, isBomb);
+			mvaddch(i + 1, j * 8 + 3, neighborBombs);
+			mvaddch(i + 1, j * 8 + 5, status);
+			mvaddch(i + 1, j * 8 + 7, '|');
+#endif
 		}
 }
 
@@ -119,7 +127,7 @@ void start_game() {
 	init_pair(INSTR_COLOR, COLOR_GREEN, COLOR_BLACK);
 	init_pair(BOARD_BASE_COLOR, COLOR_CYAN, COLOR_BLACK);
 	init_pair(BOMB_COLOR, COLOR_MAGENTA, COLOR_BLACK);
-	init_pair(EXPLODE_COLOR, COLOR_RED, COLOR_BLACK);
+	init_pair(EXPLODE_COLOR, COLOR_WHITE, COLOR_RED);
 	init_pair(HIGHLIGHT_COLOR, COLOR_WHITE, COLOR_BLACK);
 	init_pair(MSG_COLOR, COLOR_BLUE, COLOR_BLACK);
 
@@ -135,9 +143,13 @@ void start_game() {
 	draw_board(&win, board, TRUE, TRUE);
 	move(c.y, c.x);	
 	while((ch = getch())) {	
-		mvaddch(0,0,ch);
+
+#if DEBUG
+		mvaddch(0,2,ch);
 		move(c.y, c.x);
-		if (ch == '\n') {
+#endif
+
+		if (ch == '*') { // commands start with '*' to differentiate between input from stdin & window
 			isCommandEntered = 1;
 			print_input("_     ");
 			move(c.y, c.x);
@@ -146,6 +158,11 @@ void start_game() {
 
 		if (isCommandEntered) {
 			if (ch == 'q') break;
+
+#if DEBUG
+			mvaddch(0,0,ch);
+			move(c.y, c.x);
+#endif
 
 			switch(ch) {
 				case 'j':
@@ -180,11 +197,23 @@ void start_game() {
 						getSeed = 1;
 					}
 					set_board(board);
+
 					draw_board(&win, board, FALSE, FALSE);
 					draw_board(&win, board, TRUE, FALSE);
 					move(c.y, c.x);
 					break;
 				case 'W':
+					while ((ch = getch()) != '*')
+						;
+					ch = getch();
+					#if DEBUG
+						mvaddch(0,2,ch);
+					#endif
+
+					draw_board(&win, board, FALSE, FALSE);
+					draw_board(&win, board, TRUE, FALSE);
+					move(c.y, c.x);
+
 					move(GAME_MSG_Y, GAME_MSG_X - 3);
 					print_game_msg("YOU WIN!");
 					move(GAME_MSG_Y + 1, GAME_MSG_X - 6);
@@ -193,6 +222,18 @@ void start_game() {
 					isGameEnd = 1;
 					break;
 				case 'L':
+					while ((ch = getch()) != '*')
+						;
+					ch = getch();
+					#if DEBUG
+						mvaddch(0,2,ch);
+					#endif
+					set_board(board);
+
+					draw_board(&win, board, FALSE, FALSE);
+					draw_board(&win, board, TRUE, FALSE);
+					move(c.y, c.x);
+
 					move(GAME_MSG_Y, GAME_MSG_X - 4);
 					print_game_msg("YOU LOSE!");
 					move(GAME_MSG_Y + 1, GAME_MSG_X - 6);
@@ -258,7 +299,7 @@ void init_cursor(WIN *p_win, CURSOR *c) {
 }
 
 void draw_board(WIN *p_win, CELL board[][BOARD_SIZE_GRIDS], bool flag, bool borderOnly) {	
-	int i, j;
+	int i, j, k, l;
 	int x, y, w, h, cx, cy;
 
 	x = p_win->startx;
@@ -297,7 +338,12 @@ void draw_board(WIN *p_win, CELL board[][BOARD_SIZE_GRIDS], bool flag, bool bord
 					cy = y + CELL_CENTER_OFFSET_Y + i * CELL_HEIGHT;
 					if (board[i][j].status == 1 && board[i][j].isBomb) {
 						attron(COLOR_PAIR(EXPLODE_COLOR));
-						mvaddch(cy, cx, 'X');
+
+						for (k = -CELL_CENTER_OFFSET_Y + 1; k < CELL_CENTER_OFFSET_Y; k++) 
+							for (l = -CELL_CENTER_OFFSET_X + 1; l < CELL_CENTER_OFFSET_X; l++)
+								mvaddch(cy + k, cx + l, ' ');
+						mvaddch(cy, cx, 'X');	
+
 						attron(COLOR_PAIR(HIGHLIGHT_COLOR));
 					} else if (board[i][j].status == 1) {
 						if (board[i][j].neighborBombs == 0) mvaddch(cy, cx, '.');
