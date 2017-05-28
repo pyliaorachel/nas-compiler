@@ -15,9 +15,9 @@
 	// push constant
 	push	0
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -35,9 +35,9 @@
 	// push constant
 	push	1
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -55,9 +55,9 @@
 	// push constant
 	push	0
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -76,9 +76,9 @@
 	// push constant
 	push	1
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -95,9 +95,9 @@
 	add
 	push	6
 	mul
-	add
 	push	1
 	mul
+	add
 	add
 	pop	ac
 	push	'H'
@@ -158,9 +158,9 @@ L007:
 	add
 	push	6
 	mul
-	add
 	push	1
 	mul
+	add
 	add
 	pop	ac
 	push	'K'

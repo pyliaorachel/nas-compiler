@@ -108,9 +108,9 @@ L017:
 	// push variable j
 	push	sb[9]
 	add
-	add
 	push	2
 	mul
+	add
 	add
 	push	0
 	add
@@ -143,9 +143,9 @@ L017:
 	// push variable j
 	push	sb[9]
 	add
-	add
 	push	2
 	mul
+	add
 	add
 	push	1
 	add
@@ -279,9 +279,9 @@ L023:
 	// push variable j
 	push	sb[9]
 	add
-	add
 	push	2
 	mul
+	add
 	add
 	push	0
 	add
@@ -316,9 +316,9 @@ L023:
 	// push variable j
 	push	sb[9]
 	add
-	add
 	push	2
 	mul
+	add
 	add
 	push	1
 	add

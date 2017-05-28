@@ -43,9 +43,9 @@ L017:
 	push	'a'
 	sub
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -81,9 +81,9 @@ L017:
 	push	'a'
 	sub
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -129,9 +129,9 @@ L016:
 	push	1
 	add
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -163,9 +163,9 @@ L016:
 	push	1
 	add
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -191,9 +191,9 @@ L016:
 	add
 	push	100
 	mul
-	add
 	push	1
 	mul
+	add
 	add
 	pop	ac
 L018:
@@ -232,9 +232,9 @@ L019:
 	add
 	push	100
 	mul
-	add
 	push	1
 	mul
+	add
 	add
 	pop	ac
 L020:
@@ -273,9 +273,9 @@ L021:
 	add
 	push	100
 	mul
-	add
 	push	1
 	mul
+	add
 	add
 	pop	ac
 L022:
@@ -314,9 +314,9 @@ L023:
 	add
 	push	100
 	mul
-	add
 	push	1
 	mul
+	add
 	add
 	pop	ac
 L024:
@@ -355,9 +355,9 @@ L025:
 	add
 	push	100
 	mul
-	add
 	push	1
 	mul
+	add
 	add
 	pop	ac
 L026:
@@ -396,9 +396,9 @@ L027:
 	add
 	push	100
 	mul
-	add
 	push	1
 	mul
+	add
 	add
 	pop	ac
 L028:

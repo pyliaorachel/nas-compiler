@@ -23,10 +23,11 @@ run-all-tests:
 					$(RUN) $$file.as < $$file.in > $$file.out; \
 				else \
 					$(RUN) $$file.as > $$file.out; \
-				fi \
+				fi; \
+				cat $$file.out; \
 			else \
 				$(RUN) $$file.as; \
-			fi \
+			fi; \
 	done
 
 compile:

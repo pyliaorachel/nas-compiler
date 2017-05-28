@@ -225,9 +225,9 @@
 	// push constant
 	push	0
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	sb[100]
@@ -290,9 +290,9 @@
 	// push constant
 	push	0
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -340,9 +340,9 @@
 	// push constant
 	push	0
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -398,9 +398,9 @@
 	// push constant
 	push	87
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac

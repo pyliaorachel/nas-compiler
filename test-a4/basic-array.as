@@ -71,9 +71,9 @@ L008:
 	// push variable i
 	push	sb[8]
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -104,9 +104,9 @@ L008:
 	// push variable i
 	push	sb[8]
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -120,9 +120,9 @@ L008:
 	// push variable i
 	push	sb[8]
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -158,9 +158,9 @@ L008:
 	// push variable i
 	push	sb[8]
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -177,9 +177,9 @@ L008:
 	// push variable i
 	push	sb[8]
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -231,9 +231,9 @@ L011:
 	push	1
 	sub
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac

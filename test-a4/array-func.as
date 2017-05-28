@@ -573,9 +573,9 @@ L006:
 	// push constant
 	push	1
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -614,9 +614,9 @@ L006:
 	add
 	push	4
 	mul
-	add
 	push	1
 	mul
+	add
 	add
 	call	L003, 1
 
@@ -648,9 +648,9 @@ L006:
 	// push constant
 	push	1
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac

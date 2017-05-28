@@ -28,9 +28,9 @@
 	// push constant
 	push	3
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -60,9 +60,9 @@
 	// push constant
 	push	3
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -94,9 +94,9 @@
 	// push constant
 	push	3
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -126,9 +126,9 @@
 	// push constant
 	push	3
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -166,9 +166,9 @@
 	// push constant
 	push	3
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -200,9 +200,9 @@
 	// push constant
 	push	3
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac

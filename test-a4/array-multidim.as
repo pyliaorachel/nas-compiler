@@ -477,9 +477,9 @@ L027:
 	// push variable l
 	push	sb[165]
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -580,9 +580,9 @@ L027:
 	// push variable l
 	push	sb[165]
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -614,9 +614,9 @@ L027:
 	// push variable l
 	push	sb[165]
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -670,9 +670,9 @@ L027:
 	// push variable l
 	push	sb[165]
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -707,9 +707,9 @@ L027:
 	// push variable l
 	push	sb[165]
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
@@ -833,9 +833,9 @@ L030:
 	push	1
 	sub
 	add
-	add
 	push	1
 	mul
+	add
 	add
 
 	pop	ac
