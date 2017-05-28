@@ -1851,8 +1851,16 @@ L175:
 
 	// struct member assignment
 
+	// push variable @boardsize
+	push	sb[2]
+
 	// push constant
-	push	3
+	push	1
+	sub
+
+	// push constant
+	push	2
+	div
 
 	push	sb
 	push	199
@@ -1865,8 +1873,15 @@ L175:
 
 	// struct member assignment
 
-	// push constant
-	push	3
+	// access struct member .x
+	push	sb
+	push	199
+	add
+	push	0
+	add
+
+	pop	ac
+	push	ac[0]
 
 	push	sb
 	push	199
@@ -2020,17 +2035,6 @@ L182:
 	sub
 
 	pop	fp[1]
-
-	// variable assignment num
-
-	// push variable num
-	push	fp[2]
-
-	// push constant
-	push	71
-	mul
-
-	pop	fp[2]
 	jmp	L184
 L183:
 

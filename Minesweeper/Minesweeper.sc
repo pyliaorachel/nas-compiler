@@ -153,7 +153,7 @@ init() {
 	}
 
 	// init cursor to middle of board
-	@c.x = 3; @c.y = 3;
+	@c.x = (@boardSize - 1) / 2; @c.y = @c.x;
 
 	// init other info
 	@isEnd = 0;
@@ -171,8 +171,7 @@ genRandomBoard(seed) {
 		y = num / @boardSize;
 		
 		if (@board[y][x].isBomb == 1) {
-			i = i - 1; // repeated bomb, modify num & generate again
-			num = num * 71;
+			i = i - 1; // repeated bomb, generate again
 		} else {
 			@board[y][x].isBomb = 1;
 		}
