@@ -7,7 +7,7 @@ minesweeper:
 run: 
 	$(RUN) Minesweeper.as
 
-MinesweeperWin: Minesweeper.c
+MinesweeperWin: MinesweeperWin.c
 	gcc $< -lncurses -o $@
 
 test: test.c

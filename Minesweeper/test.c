@@ -37,6 +37,7 @@ int main() {
 			case 'k':
 			case 'l':
 			case 'e':
+			case 'x':
 				printf("%c", ch);
 				break;
 			case 'W':
