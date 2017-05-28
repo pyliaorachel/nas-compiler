@@ -46,6 +46,7 @@ void init_params(WIN *p_win, CURSOR *c);
 void draw_board(WIN *win, bool flag, CELL board[][BOARD_SIZE_GRIDS]);
 void print_instructions(char* instr);
 void print_game_msg(char* msg);
+void print_input(char* input);
 
 int main(int argc, char *argv[]) {	
 	int ch, dummy;
@@ -99,7 +100,8 @@ void start_game() {
 	WIN win;
 	CURSOR c;
 	CELL board[BOARD_SIZE_GRIDS][BOARD_SIZE_GRIDS];
-	int ch, dummy;
+	int ch, dummy, isCommandEntered = 0, l;
+	char keep[10];
 
 	/* Initialize board */
 	if ((ch = nextcommand()) != 'b') return;
@@ -118,50 +120,73 @@ void start_game() {
 	/* Initialize the window parameters */
 	init_params(&win, &c);
 
-	/* Display instructions */
+	/* Display game info */
 	print_instructions("\n\n\n\n\t<i,j,k,l> to move up, left, down, right\n\t<r> to reveal\n\t<b> to mark bomb\n\t<u> to unmark bomb\n\t<q> to quit");
-	
+	print_input("_     ");
+	move(c.y, c.x);
+
 	/* Display board */
 	draw_board(&win, TRUE, board);
 	move(c.y, c.x);	
-	while((ch = getch()) != 'q') {	
-		switch(ch) {	
-			case 'j':
-				c.x = (c.x - CELL_WIDTH) < win.startx ? win.startx + BOARD_WIDTH - CELL_CENTER_OFFSET_X : c.x - CELL_WIDTH;
-				move(c.y, c.x);
-				break;
-			case 'l':
-				c.x = (c.x + CELL_WIDTH) >= win.startx + BOARD_WIDTH ? win.startx + CELL_CENTER_OFFSET_X : c.x + CELL_WIDTH;
-				move(c.y, c.x);
-				break;
-			case 'i':
-				c.y = (c.y - CELL_HEIGHT) < win.starty ? win.starty + BOARD_HEIGHT - CELL_CENTER_OFFSET_Y : c.y - CELL_HEIGHT;
-				move(c.y, c.x);
-				break;
-			case 'k':
-				c.y = (c.y + CELL_HEIGHT) >= win.starty + BOARD_HEIGHT ? win.starty + CELL_CENTER_OFFSET_Y : c.y + CELL_HEIGHT;
-				move(c.y, c.x);
-				break;	
-			case 'r':
-				set_board(board);
-				draw_board(&win, FALSE, board);
-				draw_board(&win, TRUE, board);
-				move(c.y, c.x);
-				break;
-			case 'y':
-				move(GAME_MSG_Y, GAME_MSG_X - 3);
-				print_game_msg("YOU WIN!");
-				move(GAME_MSG_Y + 1, GAME_MSG_X - 6);
-				print_game_msg("New game? <y/n>");
-				move(c.y, c.x);
-				break;
-			case 'n':
-				move(GAME_MSG_Y, GAME_MSG_X - 4);
-				print_game_msg("YOU LOSE!");
-				move(GAME_MSG_Y + 1, GAME_MSG_X - 6);
-				print_game_msg("New game? <y/n>");
-				move(c.y, c.x);
-				break;
+	while((ch = getch())) {	
+		if (ch == '\n') {
+			isCommandEntered = 1;
+			print_input("_     ");
+			move(c.y, c.x);
+			continue;
+		}
+
+		if (isCommandEntered) {
+			if (ch == 'q') break;
+
+			switch(ch) {
+				case 'j':
+					c.x = (c.x - CELL_WIDTH) < win.startx ? win.startx + BOARD_WIDTH - CELL_CENTER_OFFSET_X : c.x - CELL_WIDTH;
+					move(c.y, c.x);
+					break;
+				case 'l':
+					c.x = (c.x + CELL_WIDTH) >= win.startx + BOARD_WIDTH ? win.startx + CELL_CENTER_OFFSET_X : c.x + CELL_WIDTH;
+					move(c.y, c.x);
+					break;
+				case 'i':
+					c.y = (c.y - CELL_HEIGHT) < win.starty ? win.starty + BOARD_HEIGHT - CELL_CENTER_OFFSET_Y : c.y - CELL_HEIGHT;
+					move(c.y, c.x);
+					break;
+				case 'k':
+					c.y = (c.y + CELL_HEIGHT) >= win.starty + BOARD_HEIGHT ? win.starty + CELL_CENTER_OFFSET_Y : c.y + CELL_HEIGHT;
+					move(c.y, c.x);
+					break;	
+				case 'r':
+					set_board(board);
+					draw_board(&win, FALSE, board);
+					draw_board(&win, TRUE, board);
+					move(c.y, c.x);
+					break;
+				case 'y':
+					move(GAME_MSG_Y, GAME_MSG_X - 3);
+					print_game_msg("YOU WIN!");
+					move(GAME_MSG_Y + 1, GAME_MSG_X - 6);
+					print_game_msg("New game? <y/n>");
+					move(c.y, c.x);
+					break;
+				case 'n':
+					move(GAME_MSG_Y, GAME_MSG_X - 4);
+					print_game_msg("YOU LOSE!");
+					move(GAME_MSG_Y + 1, GAME_MSG_X - 6);
+					print_game_msg("New game? <y/n>");
+					move(c.y, c.x);
+					break;
+				default:
+					sprintf(keep, "%c", ch);
+					print_game_msg(keep);
+					move(c.y, c.x);
+					break;
+			}
+			isCommandEntered = 0;
+		} else {
+			sprintf(keep, "%c_     ", ch);
+			print_input(keep);
+			move(c.y, c.x);
 		}
 	}
 	endwin();
@@ -251,6 +276,14 @@ void print_instructions(char* instr) {
 
 void print_game_msg(char* msg) {
 	attron(COLOR_PAIR(MSG_COLOR));
+	move(0,0);
 	printw(msg);
+	refresh();
+}
+
+void print_input(char* input) {
+	attron(COLOR_PAIR(MSG_COLOR));
+	move(LINES/ 2, COLS * 3 / 4);
+	printw(input);
 	refresh();
 }

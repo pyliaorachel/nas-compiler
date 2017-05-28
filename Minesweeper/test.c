@@ -3,16 +3,20 @@
 #include <stdlib.h>
 
 int nextcommand() {
-	int ch;
+	int ch, next;
 
 	ch = getchar();
-	while(ch == '\n' || ch == ' ' || ch == '\t') ch = getchar();
+	next = getchar();
+	while(next != '\n') {
+		if (next != ' ' && next != '\t') ch = next;
+		next = getchar();
+	}
 
 	return ch;
 }
 
 int main() {
-	int ch;
+	int ch, quit = 0;
 	srand(time(NULL));
 
 	/* init */
@@ -47,8 +51,8 @@ int main() {
 		}
 	}
 
-	/* terminate */
-	printf("q");
+	/* terminate game + program */
+	printf("qq");
 
 	return 0;
 }
