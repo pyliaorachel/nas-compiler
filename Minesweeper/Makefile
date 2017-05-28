@@ -7,4 +7,13 @@ minesweeper:
 run: 
 	$(RUN) Minesweeper.as
 
-.PHONY: run
+MinesweeperWin: Minesweeper.c
+	gcc $< -lncurses -o $@
+
+test: test.c
+	gcc $< -o $@
+
+test-win:
+	script -q /dev/null ./test | ./MinesweeperWin
+
+.PHONY: run test-win
