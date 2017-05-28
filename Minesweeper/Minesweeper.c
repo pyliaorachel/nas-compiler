@@ -8,11 +8,14 @@
 #define CELL_HEIGHT (BOARD_HEIGHT / BOARD_SIZE_GRIDS)
 #define CELL_CENTER_OFFSET_X (CELL_WIDTH / 2)
 #define CELL_CENTER_OFFSET_Y (CELL_HEIGHT / 2)
+#define GAME_MSG_X (COLS / 2)
+#define GAME_MSG_Y 5
 
 #define INSTR_COLOR 1
 #define BOARD_BASE_COLOR 2
 #define BOMB_COLOR 3
 #define HIGHLIGHT_COLOR 4
+#define MSG_COLOR 5
 
 typedef struct _win_border_struct {
 	chtype	ls, rs, ts, bs, 
@@ -42,6 +45,7 @@ void start_game();
 void init_params(WIN *p_win, CURSOR *c);
 void draw_board(WIN *win, bool flag, CELL board[][BOARD_SIZE_GRIDS]);
 void print_instructions(char* instr);
+void print_game_msg(char* msg);
 
 int main(int argc, char *argv[]) {	
 	int ch, dummy;
@@ -105,16 +109,17 @@ void start_game() {
 	initscr(); start_color(); cbreak();
 	keypad(stdscr, TRUE); noecho();
 	
-	init_pair(INSTR_COLOR, COLOR_MAGENTA, COLOR_BLACK);
+	init_pair(INSTR_COLOR, COLOR_GREEN, COLOR_BLACK);
 	init_pair(BOARD_BASE_COLOR, COLOR_CYAN, COLOR_BLACK);
-	init_pair(BOMB_COLOR, COLOR_GREEN, COLOR_BLACK);
+	init_pair(BOMB_COLOR, COLOR_MAGENTA, COLOR_BLACK);
 	init_pair(HIGHLIGHT_COLOR, COLOR_WHITE, COLOR_BLACK);
+	init_pair(MSG_COLOR, COLOR_BLUE, COLOR_BLACK);
 
 	/* Initialize the window parameters */
 	init_params(&win, &c);
 
 	/* Display instructions */
-	print_instructions("Press q to exit");
+	print_instructions("\n\n\n\n\t<i,j,k,l> to move up, left, down, right\n\t<r> to reveal\n\t<b> to mark bomb\n\t<u> to unmark bomb\n\t<q> to quit");
 	
 	/* Display board */
 	draw_board(&win, TRUE, board);
@@ -141,6 +146,20 @@ void start_game() {
 				set_board(board);
 				draw_board(&win, FALSE, board);
 				draw_board(&win, TRUE, board);
+				move(c.y, c.x);
+				break;
+			case 'y':
+				move(GAME_MSG_Y, GAME_MSG_X - 3);
+				print_game_msg("YOU WIN!");
+				move(GAME_MSG_Y + 1, GAME_MSG_X - 6);
+				print_game_msg("New game? <y/n>");
+				move(c.y, c.x);
+				break;
+			case 'n':
+				move(GAME_MSG_Y, GAME_MSG_X - 4);
+				print_game_msg("YOU LOSE!");
+				move(GAME_MSG_Y + 1, GAME_MSG_X - 6);
+				print_game_msg("New game? <y/n>");
 				move(c.y, c.x);
 				break;
 		}
@@ -227,5 +246,11 @@ void draw_board(WIN *p_win, bool flag, CELL board[][BOARD_SIZE_GRIDS]) {
 void print_instructions(char* instr) {
 	attron(COLOR_PAIR(INSTR_COLOR));
 	printw(instr);
+	refresh();
+}
+
+void print_game_msg(char* msg) {
+	attron(COLOR_PAIR(MSG_COLOR));
+	printw(msg);
 	refresh();
 }
