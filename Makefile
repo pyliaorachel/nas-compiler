@@ -54,7 +54,7 @@ nas:
 	$(MAKE) -C nas nas
 
 clean:
-	rm lex.yy.c y.tab.* c6c
+	rm lex.yy.c *.tab.* c6c
 	
 cleannas:
 	$(MAKE) -C nas clean
