@@ -52,9 +52,7 @@ int main(int argc, char *argv[]) {
 	int ch, dummy;
 
 	/* Receive commands */
-	while((ch = nextcommand())) {	
-		if (ch == 'q') break;
-
+	while((ch = nextcommand()) != 'q') {	
 		switch(ch) {
 			case 's':
 				start_game();
@@ -100,7 +98,7 @@ void start_game() {
 	WIN win;
 	CURSOR c;
 	CELL board[BOARD_SIZE_GRIDS][BOARD_SIZE_GRIDS];
-	int ch, dummy, isCommandEntered = 0, l;
+	int ch, dummy, isCommandEntered = 0, l, isGameEnd = 0;
 	char keep[10];
 
 	/* Initialize board */
@@ -156,30 +154,57 @@ void start_game() {
 					c.y = (c.y + CELL_HEIGHT) >= win.starty + BOARD_HEIGHT ? win.starty + CELL_CENTER_OFFSET_Y : c.y + CELL_HEIGHT;
 					move(c.y, c.x);
 					break;	
-				case 'r':
+				case 'b':
 					set_board(board);
 					draw_board(&win, FALSE, board);
 					draw_board(&win, TRUE, board);
 					move(c.y, c.x);
 					break;
-				case 'y':
+				case 'W':
 					move(GAME_MSG_Y, GAME_MSG_X - 3);
 					print_game_msg("YOU WIN!");
 					move(GAME_MSG_Y + 1, GAME_MSG_X - 6);
 					print_game_msg("New game? <y/n>");
 					move(c.y, c.x);
+					isGameEnd = 1;
 					break;
-				case 'n':
+				case 'L':
 					move(GAME_MSG_Y, GAME_MSG_X - 4);
 					print_game_msg("YOU LOSE!");
 					move(GAME_MSG_Y + 1, GAME_MSG_X - 6);
 					print_game_msg("New game? <y/n>");
 					move(c.y, c.x);
+					isGameEnd = 1;
+					break;
+				case 'y':
+					// restart game
+					if (isGameEnd) {
+						if ((ch = nextcommand()) != 'b') {
+							endwin();
+							return;
+						}
+						set_board(board);
+
+						move(GAME_MSG_Y, GAME_MSG_X - 4);
+						print_game_msg("               ");
+						move(GAME_MSG_Y + 1, GAME_MSG_X - 6);
+						print_game_msg("               ");
+
+						print_input("_     ");
+						draw_board(&win, TRUE, board);
+
+						move(c.y, c.x);
+						isGameEnd = 0;
+					}
+					break;
+				case 'n':
+					// quit program
+					if (isGameEnd) {
+						endwin();
+						return;
+					}
 					break;
 				default:
-					sprintf(keep, "%c", ch);
-					print_game_msg(keep);
-					move(c.y, c.x);
 					break;
 			}
 			isCommandEntered = 0;
@@ -276,7 +301,6 @@ void print_instructions(char* instr) {
 
 void print_game_msg(char* msg) {
 	attron(COLOR_PAIR(MSG_COLOR));
-	move(0,0);
 	printw(msg);
 	refresh();
 }

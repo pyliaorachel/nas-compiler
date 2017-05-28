@@ -16,7 +16,7 @@ int nextcommand() {
 }
 
 int main() {
-	int ch, quit = 0;
+	int ch, endGame = 0, quit = 0;
 	srand(time(NULL));
 
 	/* init */
@@ -30,17 +30,31 @@ int main() {
 	}
 
 	/* receive commands */
-	while ((ch = nextcommand()) != 'q') {
+	while (!quit && (ch = nextcommand()) != 'q') {
 		switch(ch) {
 			case 'i':
 			case 'j':
 			case 'k':
 			case 'l':
+			case 'e':
 				printf("%c", ch);
 				break;
-			case 'r':
+			case 'W':
+			case 'L':
+				endGame = 1;
+				printf("%c", ch);
+				break;
+			case 'n':
+				if (endGame) quit = 1;
+				printf("%c", ch);
+				break;
+			case 'y':
+				printf("%c", ch);
+				if (!endGame) break;
+				endGame = 0;
+			case 'b':
 				/* reset board */
-				printf("r");
+				printf("b");
 
 				for (int i = 0; i < 8; i++) {
 					for (int j = 0; j < 8; j++) {
