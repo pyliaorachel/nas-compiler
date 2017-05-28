@@ -352,7 +352,7 @@ void assignToStruct(nodeType* p, int lbl_kept) {
 }
 
 int isArrayPtr(nodeType* p) {
-    if (p->type != typeId || p->type != typeArr) return 0;
+    if (p->type != typeId && p->type != typeArr) return 0;
 
     StrMap* arrayDimTab = getArrayDimSymTab(getFullVarName(p));
     char dimStr[DIM_STR_L];
