@@ -15,8 +15,9 @@
 #define INSTR_COLOR 1
 #define BOARD_BASE_COLOR 2
 #define BOMB_COLOR 3
-#define HIGHLIGHT_COLOR 4
-#define MSG_COLOR 5
+#define EXPLODE_COLOR 4
+#define HIGHLIGHT_COLOR 5
+#define MSG_COLOR 6
 
 typedef struct _win_border_struct {
 	chtype	ls, rs, ts, bs, 
@@ -43,8 +44,9 @@ int nextcommand();
 void set_board(CELL board[][BOARD_SIZE_GRIDS]);
 void start_game();
 
-void init_params(WIN *p_win, CURSOR *c);
-void draw_board(WIN *win, bool flag, CELL board[][BOARD_SIZE_GRIDS]);
+void init_params(WIN *p_win);
+void init_cursor(WIN *p_win, CURSOR *c);
+void draw_board(WIN *win, CELL board[][BOARD_SIZE_GRIDS], bool flag, bool borderOnly);
 void print_instructions(char* instr);
 void print_game_msg(char* msg);
 void print_input(char* input);
@@ -80,7 +82,8 @@ int nextcommand() {
 /* Game */
 
 void set_board(CELL board[][BOARD_SIZE_GRIDS]) {
-	int i, j, flag = 0, isBomb, neighborBombs, status;
+	int i, j, flag = 0;
+	char isBomb, neighborBombs, status;
 
 	for (i = 0; i < BOARD_SIZE_GRIDS && !flag; i++)
 		for (j = 0; j < BOARD_SIZE_GRIDS && !flag; j++) {
@@ -102,10 +105,12 @@ void start_game() {
 	CELL board[BOARD_SIZE_GRIDS][BOARD_SIZE_GRIDS];
 	int ch, dummy, isCommandEntered = 0, l, isGameEnd = 0, getSeed = 0;
 	char keep[20];
+	// char b;
 
-	/* Initialize board */
-	if ((ch = nextcommand()) != 'b') return;
-	set_board(board);
+	// while ((b = nextcommand()) != 'b') {
+	// 	b = nextcommand();
+	// }
+	// set_board(board);
 
 	/* Initialize global settings */
 	initscr(); start_color(); cbreak();
@@ -114,20 +119,24 @@ void start_game() {
 	init_pair(INSTR_COLOR, COLOR_GREEN, COLOR_BLACK);
 	init_pair(BOARD_BASE_COLOR, COLOR_CYAN, COLOR_BLACK);
 	init_pair(BOMB_COLOR, COLOR_MAGENTA, COLOR_BLACK);
+	init_pair(EXPLODE_COLOR, COLOR_RED, COLOR_BLACK);
 	init_pair(HIGHLIGHT_COLOR, COLOR_WHITE, COLOR_BLACK);
 	init_pair(MSG_COLOR, COLOR_BLUE, COLOR_BLACK);
 
 	/* Initialize the window parameters */
-	init_params(&win, &c);
+	init_params(&win);
+	init_cursor(&win, &c);
 
 	/* Display game info */
 	reset_game_screen();
 	move(c.y, c.x);
 
 	/* Display board */
-	draw_board(&win, TRUE, board);
+	draw_board(&win, board, TRUE, TRUE);
 	move(c.y, c.x);	
 	while((ch = getch())) {	
+		mvaddch(0,0,ch);
+		move(c.y, c.x);
 		if (ch == '\n') {
 			isCommandEntered = 1;
 			print_input("_     ");
@@ -171,8 +180,8 @@ void start_game() {
 						getSeed = 1;
 					}
 					set_board(board);
-					draw_board(&win, FALSE, board);
-					draw_board(&win, TRUE, board);
+					draw_board(&win, board, FALSE, FALSE);
+					draw_board(&win, board, TRUE, FALSE);
 					move(c.y, c.x);
 					break;
 				case 'W':
@@ -194,15 +203,10 @@ void start_game() {
 				case 'y':
 					// restart game
 					if (isGameEnd) {
-						if ((ch = nextcommand()) != 'b') {
-							endwin();
-							return;
-						}
-						set_board(board);
-
 						reset_game_screen();
-						draw_board(&win, TRUE, board);
+						draw_board(&win, board, TRUE, TRUE);
 
+						init_cursor(&win, &c);
 						move(c.y, c.x);
 						isGameEnd = 0;
 						getSeed = 0;
@@ -232,7 +236,7 @@ void start_game() {
 
 /* Drawing */
 
-void init_params(WIN *p_win, CURSOR *c) {
+void init_params(WIN *p_win) {
 	p_win->height = BOARD_HEIGHT;
 	p_win->width = BOARD_WIDTH;
 	p_win->starty = (LINES - p_win->height)/2;	
@@ -246,12 +250,14 @@ void init_params(WIN *p_win, CURSOR *c) {
 	p_win->border.tr = ACS_BLOCK;
 	p_win->border.bl = ACS_BLOCK;
 	p_win->border.br = ACS_BLOCK;
-
-	c->x = p_win->startx + CELL_WIDTH * (BOARD_SIZE_GRIDS / 2) + CELL_CENTER_OFFSET_X;
-	c->y = p_win->starty + CELL_HEIGHT * (BOARD_SIZE_GRIDS / 2) + CELL_CENTER_OFFSET_Y;
 }
 
-void draw_board(WIN *p_win, bool flag, CELL board[][BOARD_SIZE_GRIDS]) {	
+void init_cursor(WIN *p_win, CURSOR *c) {
+	c->x = p_win->startx + CELL_WIDTH * (BOARD_SIZE_GRIDS / 2) - CELL_CENTER_OFFSET_X;
+	c->y = p_win->starty + CELL_HEIGHT * (BOARD_SIZE_GRIDS / 2) - CELL_CENTER_OFFSET_Y;
+}
+
+void draw_board(WIN *p_win, CELL board[][BOARD_SIZE_GRIDS], bool flag, bool borderOnly) {	
 	int i, j;
 	int x, y, w, h, cx, cy;
 
@@ -282,21 +288,27 @@ void draw_board(WIN *p_win, bool flag, CELL board[][BOARD_SIZE_GRIDS]) {
 				mvaddch(i, j, ACS_BLOCK);
 
 		/* draw cell info */
-		attron(COLOR_PAIR(HIGHLIGHT_COLOR));
+		if (!borderOnly) {
+			attron(COLOR_PAIR(HIGHLIGHT_COLOR));
 
-		for (i = 0; i < BOARD_SIZE_GRIDS; i++)
-			for (j = 0; j < BOARD_SIZE_GRIDS; j++) {
-				cx = x + CELL_CENTER_OFFSET_X + j * CELL_WIDTH;
-				cy = y + CELL_CENTER_OFFSET_Y + i * CELL_HEIGHT;
-				if (board[i][j].status == 1) {
-					if (board[i][j].neighborBombs == 0) mvaddch(cy, cx, '.');
-					else mvaddch(cy, cx, board[i][j].neighborBombs + '0');
-				} else if (board[i][j].status == 2) {
-					attron(COLOR_PAIR(BOMB_COLOR));
-					mvaddch(cy, cx, 'B');
-					attron(COLOR_PAIR(HIGHLIGHT_COLOR));
+			for (i = 0; i < BOARD_SIZE_GRIDS; i++)
+				for (j = 0; j < BOARD_SIZE_GRIDS; j++) {
+					cx = x + CELL_CENTER_OFFSET_X + j * CELL_WIDTH;
+					cy = y + CELL_CENTER_OFFSET_Y + i * CELL_HEIGHT;
+					if (board[i][j].status == 1 && board[i][j].isBomb) {
+						attron(COLOR_PAIR(EXPLODE_COLOR));
+						mvaddch(cy, cx, 'X');
+						attron(COLOR_PAIR(HIGHLIGHT_COLOR));
+					} else if (board[i][j].status == 1) {
+						if (board[i][j].neighborBombs == 0) mvaddch(cy, cx, '.');
+						else mvaddch(cy, cx, board[i][j].neighborBombs + '0');
+					} else if (board[i][j].status == 2) {
+						attron(COLOR_PAIR(BOMB_COLOR));
+						mvaddch(cy, cx, 'B');
+						attron(COLOR_PAIR(HIGHLIGHT_COLOR));
+					}
 				}
-			}
+		}
 	} else {
 		for(i = y; i <= y + h; i++)
 			for(j = x; j <= x + w; j++)

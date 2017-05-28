@@ -23,12 +23,19 @@ getNextRandom(min, max, seed) { // https://stackoverflow.com/questions/3062746/s
 }
 
 getSeed() {
-	puts_("Enter an ODD number between "); puti_(@numMin); puts_(" to "); puti_(@numMax); puts(" to generate the board: ");
+	if (@isStdGUI == 1) {
+		puts_("Enter an ODD number between "); puti_(@numMin); puts_(" to "); puti_(@numMax); puts(" to generate the board: ");
+	}
 	geti(num);
 
 	while (seedIsValid(num) == 0) {
-		puts("Number invalid!");
-		puts_("Enter an ODD number between "); puti_(@numMin); puts_(" to "); puti_(@numMax); puts(" to generate the board: ");
+		if (@isStdGUI == 1) {
+			puts("Number invalid!");
+			puts_("Enter an ODD number between "); puti_(@numMin); puts_(" to "); puti_(@numMax); puts(" to generate the board: ");
+		} else {
+			putc_('x');
+		}
+
 		geti(num);
 	}
 
@@ -39,28 +46,41 @@ getSeed() {
 // I/O helper func
 
 putBoard() {
+	if (@isStdGUI == 0) {
+		putc_('b');
+	}
 	for (i = 0; i < @boardSize; i = i + 1;) {
 		for (j = 0; j < @boardSize; j = j + 1;) {
-			if (@c.x == j && @c.y == i) {
-				putc_('*');
-			} else if (@board[i][j].status == 2) {
-				putc_('B');
-			} else if (@board[i][j].status == 1) {
-				puti_(@board[i][j].neighborBombs);
+			if (@isStdGUI == 1) {
+				if (@c.x == j && @c.y == i) {
+					putc_('*');
+				} else if (@board[i][j].status == 2) {
+					putc_('B');
+				} else if (@board[i][j].status == 1) {
+					puti_(@board[i][j].neighborBombs);
+				} else {
+					putc_('.');
+				}
 			} else {
-				putc_('.');
+				puti_(@board[i][j].isBomb); puti_(@board[i][j].neighborBombs); puti_(@board[i][j].status);
 			}
 		}
-		putc('');
+		if (@isStdGUI == 1) {
+			putc('');
+		}
 	}
 }
 
 putCmdInst() {
-	puts("\t<i,j,k,l> to move up, left, down, right\n\t<r> to reveal\n\t<b> to mark bomb\n\t<u> to unmark bomb\n\t<q> to quit");
+	if (@isStdGUI == 1) {
+		puts("\t<i,j,k,l> to move up, left, down, right\n\t<r> to reveal\n\t<b> to mark bomb\n\t<u> to unmark bomb\n\t<q> to quit");
+	}
 }
 
 putCursor() {
-	putc_('('); puti_(@c.x); putc_(','); puti_(@c.y); putc(')');
+	if (@isStdGUI == 1) {
+		putc_('('); puti_(@c.x); putc_(','); puti_(@c.y); putc(')');
+	}
 }
 
 
@@ -183,15 +203,24 @@ checkEndGame() {
 }
 
 playerLose() {
-	puts("Bomb! You lose.\n");
+	if (@isStdGUI == 1) {
+		puts("Bomb! You lose.\n");
+	} else {
+		putc('');
+		putc_('L');
+	}
 }
 
 playerWin() {
-	puts("Congratulations! You have sweeped all the mines. You are a hero!\n");
+	if (@isStdGUI == 1) {
+		puts("Congratulations! You have sweeped all the mines. You are a hero!\n");
+	} else {
+		putc('');
+		putc_('W');
+	}
 }
 
 start() {
-	puts("Start game!");
 	putBoard();
 	putCmdInst();
 	putCursor();
@@ -206,6 +235,9 @@ start() {
 
 		if (command == 'i' || command == 'j' || command == 'k' || command == 'l') {
 			moveCursor(command);
+			if (@isStdGUI == 0) {
+				putc_(command);
+			}
 		} else if (command == 'r') {
 			reveal();
 		} else if (command == 'b') {
@@ -213,25 +245,37 @@ start() {
 		} else if (command == 'u') {
 			unmarkBomb();
 		} else if (command == 'q') {
-			break;
+			if (@isStdGUI == 0) {
+				putc_('q');
+			}
+			return -1;
+		} else {
+			continue;
 		}
 
 		if (@isEnd == 0) {
 			@isEnd = checkEndGame();
 			if (@isEnd == 0) {
-				putBoard();
-				putCursor();
-				// puts_("Revealed: "); puti(@numOfRevealed);
-				// puts_("Matched: "); puti(@numOfMatched);
+				if (@isStdGUI == 1) {
+					putBoard();
+					putCursor();
+				} else {
+					if (command != 'i' && command != 'j' && command != 'k' && command != 'l') {
+						putBoard();
+					}
+				}
 			} else {
+				putBoard();
 				playerWin();
 				break;
 			}
 		} else {
+			putBoard();
 			playerLose();
 			break;
 		}
 	}
+	return 0;
 }
 
 
@@ -243,35 +287,72 @@ boardSize = 8;
 isEnd = 0;
 numOfRevealed = 0;
 numOfMatched = 0;
+isStdGUI = 0; // 1: stdin as game panel; 0: pipe to ncurses game window
 
 <cell> board[8][8];
 <cursor> c;
 
 main() {
 	init();
-	genRandomBoard(getSeed());	
-	start();
 
-	puts("New game? <y/n>");
+	if (@isStdGUI == 1) {
+		puts("Start game!");
+	} else {
+		putc_('s');
+	}
+
+	genRandomBoard(getSeed());	
+	status = start();
+
+	if (status == -1) {
+		putc_('q');
+		return 0;
+	}
+
+	if (@isStdGUI == 1) {
+		puts("New game? <y/n>");
+	}
+
 	getc(newGame);
-	while (newGame == '\n') {
+	while (newGame == '\n' || (newGame != 'y' && newGame != 'n')) {
 		getc(newGame);
+	}
+	getc(nl);
+
+	if (@isStdGUI == 0) {
+		putc_(newGame);
 	}
 
 	while (newGame == 'y') {
 		init();
 		genRandomBoard(getSeed());	
-		start();
+		status = start();
 
-		puts("New game? <y/n>");
+		if (status == -1) {
+			putc_('q');
+			break;
+		}
+
+		if (@isStdGUI == 1) {
+			puts("New game? <y/n>");
+		}
+
 		getc(newGame);
-		while (newGame != 'y' && newGame != 'n') {
+		while (newGame == '\n' || (newGame != 'y' && newGame != 'n')) {
 			getc(newGame); 
 		}
 		getc(nl);
+
+		if (@isStdGUI == 0) {
+			putc_(newGame);
+		}
 	}
 
-	puts("Have a nice day!");
+	if (@isStdGUI == 1) {
+		puts("Have a nice day!");
+	} else {
+		puts_("q");
+	};
 }
 
 main();
